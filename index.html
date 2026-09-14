@@ -18,14 +18,21 @@
             <p class="text-slate-400">Supere seus limites e domine o placar com seus amigos! 🔥</p>
         </header>
 
-        <!-- Seleção / Criação de Perfil -->
-        <section id="auth-section" class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700">
-            <h2 class="text-xl font-bold mb-4 text-emerald-400">👤 Escolha ou Crie seu Perfil</h2>
-            <div class="flex flex-col sm:flex-row gap-3">
-                <input type="text" id="new-username" placeholder="Digite seu nome (ex: Josemar)" class="flex-1 bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-amber-400">
-                <button onclick="criarPerfil()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-6 py-3 rounded-xl transition cursor-pointer">Entrar / Criar</button>
+        <!-- Seleção / Criação de Perfil com Senha -->
+        <section id="auth-section" class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-4">
+            <h2 class="text-xl font-bold text-emerald-400">👤 Acesso ao Perfil</h2>
+            <div class="space-y-3">
+                <input type="text" id="auth-username" placeholder="Seu nome (ex: Josemar)" class="w-full bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-amber-400">
+                <input type="password" id="auth-password" placeholder="Sua senha de acesso" class="w-full bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-amber-400">
+                <div class="flex gap-3 pt-2">
+                    <button onclick="fazerLogin()" class="flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl transition cursor-pointer">Entrar 🚀</button>
+                    <button onclick="criarPerfilComSenha()" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-3 rounded-xl transition cursor-pointer">Criar Conta ➕</button>
+                </div>
             </div>
-            <div id="users-list" class="mt-4 flex flex-wrap gap-2"></div>
+            <div class="pt-4 border-t border-slate-700/60">
+                <span class="text-xs text-slate-400 block mb-2">Perfis já criados neste navegador:</span>
+                <div id="users-list" class="flex flex-wrap gap-2"></div>
+            </div>
         </section>
 
         <!-- Painel Principal (Aparece após logar) -->
@@ -36,7 +43,7 @@
                     <span class="text-slate-400">Logado como:</span>
                     <strong id="current-user-display" class="text-amber-400 text-lg"></strong>
                 </div>
-                <button onclick="sair()" class="text-sm bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white px-3 py-1.5 rounded-lg transition cursor-pointer">Trocar Perfil</button>
+                <button onclick="sair()" class="text-sm bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white px-3 py-1.5 rounded-lg transition cursor-pointer">Sair / Trocar Perfil</button>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -81,10 +88,10 @@
     </div>
 
     <script>
-        // Sistema de Estado Local (Simulando o Banco)
+        // Sistema de Estado Local com Contas e Senhas
         let currentUser = localStorage.getItem('fitbattle_user') || null;
-        let users = JSON.parse(localStorage.getItem('fitbattle_users')) || [];
-        // Agora os treinos guardam o dia e acumulam por exercício fixo
+        // users agora guarda objetos: { name: '...', pass: '...' }
+        let users = JSON.parse(localStorage.getItem('fitbattle_users_db')) || [];
         let workouts = JSON.parse(localStorage.getItem('fitbattle_workouts')) || [];
         let messages = JSON.parse(localStorage.getItem('fitbattle_messages')) || [];
 
@@ -103,36 +110,60 @@
             }
         }
 
-        function criarPerfil() {
-            const nome = document.getElementById('new-username').value.trim();
-            if (!nome) return alert('Por favor, digite um nome!');
-            
-            if (!users.includes(nome)) {
-                users.push(nome);
-                localStorage.setItem('fitbattle_users', JSON.stringify(users));
+        function criarPerfilComSenha() {
+            const nome = document.getElementById('auth-username').value.trim();
+            const senha = document.getElementById('auth-password').value.trim();
+
+            if (!nome || !senha) return alert('Por favor, preencha o nome e a senha!');
+
+            const usuarioExiste = users.find(u => u.name.toLowerCase() === nome.toLowerCase());
+            if (usuarioExiste) {
+                return alert('Esse nome de usuário já existe! Escolha outro ou clique em Entrar.');
             }
-            
+
+            users.push({ name: nome, pass: senha });
+            localStorage.setItem('fitbattle_users_db', JSON.stringify(users));
+
             currentUser = nome;
             localStorage.setItem('fitbattle_user', currentUser);
-            document.getElementById('new-username').value = '';
+            document.getElementById('auth-username').value = '';
+            document.getElementById('auth-password').value = '';
+            init();
+        }
+
+        function fazerLogin() {
+            const nome = document.getElementById('auth-username').value.trim();
+            const senha = document.getElementById('auth-password').value.trim();
+
+            if (!nome || !senha) return alert('Por favor, digite o nome e a senha!');
+
+            const conta = users.find(u => u.name.toLowerCase() === nome.toLowerCase() && u.pass === senha);
+
+            if (!conta) {
+                return alert('Nome de usuário ou senha incorretos!');
+            }
+
+            currentUser = conta.name;
+            localStorage.setItem('fitbattle_user', currentUser);
+            document.getElementById('auth-username').value = '';
+            document.getElementById('auth-password').value = '';
             init();
         }
 
         function renderizarListaUsuarios() {
             const lista = document.getElementById('users-list');
-            lista.innerHTML = '<span class="text-xs text-slate-400 w-full block mb-1">Perfis existentes (clique para entrar):</span>';
+            lista.innerHTML = '';
             if (users.length === 0) {
-                lista.innerHTML += '<p class="text-xs text-slate-500 italic">Nenhum perfil criado ainda. Seja o primeiro!</p>';
+                lista.innerHTML = '<p class="text-xs text-slate-500 italic">Nenhuma conta criada ainda. Crie a sua acima!</p>';
                 return;
             }
-            users.forEach(user => {
+            users.forEach(u => {
                 const btn = document.createElement('button');
-                btn.innerText = user;
-                btn.className = 'bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm px-3 py-1.5 rounded-lg transition cursor-pointer';
+                btn.innerText = u.name;
+                btn.className = 'bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs px-3 py-1.5 rounded-lg transition cursor-pointer';
                 btn.onclick = () => {
-                    currentUser = user;
-                    localStorage.setItem('fitbattle_user', currentUser);
-                    init();
+                    document.getElementById('auth-username').value = u.name;
+                    document.getElementById('auth-password').focus();
                 };
                 lista.appendChild(btn);
             });
@@ -149,8 +180,6 @@
             if (!nomeEx) return alert('Digite o nome do exercício!');
 
             const hoje = new Date().toLocaleDateString();
-
-            // Verifica se já existe esse exercício para o usuário hoje
             let exercicioExistente = workouts.find(w => w.user === currentUser && w.date === hoje && w.exercise.toLowerCase() === nomeEx.toLowerCase());
 
             if (exercicioExistente) {
@@ -186,7 +215,6 @@
             const listaDiv = document.getElementById('my-exercises-list');
             listaDiv.innerHTML = '';
 
-            // Pega os índices reais do array global para sabermos qual atualizar
             const meusExerciciosHoje = workouts
                 .map((w, index) => ({ ...w, originalIndex: index }))
                 .filter(w => w.user === currentUser && w.date === hoje);
@@ -224,7 +252,6 @@
             const hoje = new Date().toLocaleDateString();
             const placarMap = {};
 
-            // Soma todas as repetições dos exercícios do dia por usuário
             workouts.filter(w => w.date === hoje).forEach(w => {
                 placarMap[w.user] = (placarMap[w.user] || 0) + w.reps;
             });
@@ -296,7 +323,6 @@
             chatDiv.scrollTop = chatDiv.scrollHeight;
         }
 
-        // Inicializa o app ao carregar a página
         init();
     </script>
 </body>
