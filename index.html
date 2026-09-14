@@ -61,7 +61,7 @@
             </div>
 
             <div class="pt-4 border-t border-slate-700/60">
-                <span class="text-xs text-slate-400 block mb-2">Perfis já criados neste navegador:</span>
+                <span class="text-xs text-slate-400 block mb-2">Perfis cadastrados (Admin pode remover):</span>
                 <div id="users-list" class="flex flex-wrap gap-2"></div>
             </div>
         </section>
@@ -74,6 +74,7 @@
                 <div>
                     <span class="text-slate-400">Logado como:</span>
                     <strong id="current-user-display" class="text-amber-400 text-lg"></strong>
+                    <span id="admin-badge" class="hidden ml-2 text-xs bg-rose-500/20 text-rose-400 px-2 py-0.5 rounded-full font-bold">🛡️ ADMIN</span>
                 </div>
                 <button onclick="sair()" class="text-sm bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white px-3 py-1.5 rounded-lg transition cursor-pointer">Sair / Trocar Perfil</button>
             </div>
@@ -142,11 +143,26 @@
         let workouts = JSON.parse(localStorage.getItem('fitbattle_workouts')) || [];
         let messages = JSON.parse(localStorage.getItem('fitbattle_messages')) || [];
 
+        // O primeiro usuário cadastrado no sistema é considerado o ADMIN supremo
+        function verificarSeEhAdmin(nomeUsuario) {
+            if (users.length === 0) return false;
+            return users[0].name.toLowerCase() === nomeUsuario.toLowerCase();
+        }
+
         function init() {
             if (currentUser) {
                 document.getElementById('auth-section').classList.add('hidden');
                 document.getElementById('main-panel').classList.remove('hidden');
                 document.getElementById('current-user-display').innerText = currentUser;
+                
+                // Mostra ou esconde a badge de Admin
+                const badgeAdmin = document.getElementById('admin-badge');
+                if (verificarSeEhAdmin(currentUser)) {
+                    badgeAdmin.classList.remove('hidden');
+                } else {
+                    badgeAdmin.classList.add('hidden');
+                }
+
                 renderizarMeusExercicios();
                 atualizarPlacar();
                 atualizarPlacarMensal();
@@ -185,7 +201,7 @@
             }
         }
 
-        // Executa a recuperação de senha validando nome e contato (WhatsApp/E-mail)
+        // Executa a recuperação de senha validando nome e contato
         function executarRecuperacao() {
             const nome = document.getElementById('rec-username').value.trim();
             const contato = document.getElementById('rec-contact').value.trim();
@@ -245,6 +261,32 @@
             init();
         }
 
+        // Função do Admin para remover um usuário da plataforma
+        function excluirUsuario(nomeUsuarioParaRemover, event) {
+            event.stopPropagation(); // Evita clicar no botão de login ao tentar excluir
+
+            // Impede que o admin remova a si mesmo por engano na lista principal
+            if (verificarSeEhAdmin(nomeUsuarioParaRemover)) {
+                return alert('Você não pode excluir a conta do Administrador Principal por aqui!');
+            }
+
+            if (confirm(`Tem certeza que deseja banir e remover o usuário "${nomeUsuarioParaRemover}" da plataforma?`)) {
+                // Remove da lista de usuários
+                users = users.filter(u => u.name.toLowerCase() !== nomeUsuarioParaRemover.toLowerCase());
+                localStorage.setItem('fitbattle_users_db', JSON.stringify(users));
+
+                // Remove também os treinos e mensagens desse usuário para limpar o sistema
+                workouts = workouts.filter(w => w.user.toLowerCase() !== nomeUsuarioParaRemover.toLowerCase());
+                localStorage.setItem('fitbattle_workouts', JSON.stringify(workouts));
+
+                messages = messages.filter(m => m.user.toLowerCase() !== nomeUsuarioParaRemover.toLowerCase());
+                localStorage.setItem('fitbattle_messages', JSON.stringify(messages));
+
+                alert(`Usuário ${nomeUsuarioParaRemover} removido com sucesso.`);
+                renderizarListaUsuarios();
+            }
+        }
+
         function renderizarListaUsuarios() {
             const lista = document.getElementById('users-list');
             lista.innerHTML = '';
@@ -252,15 +294,39 @@
                 lista.innerHTML = '<p class="text-xs text-slate-500 italic">Nenhuma conta criada ainda. Crie a sua acima!</p>';
                 return;
             }
-            users.forEach(u => {
-                const btn = document.createElement('button');
-                btn.innerText = u.name;
-                btn.className = 'bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs px-3 py-1.5 rounded-lg transition cursor-pointer';
-                btn.onclick = () => {
+
+            // Verifica se quem está visualizando no momento é o Admin (primeiro usuário cadastrado)
+            // Se ainda não logou, assume que o primeiro da lista é o admin de referência
+            const primeiroAdmin = users.length > 0 ? users[0].name : null;
+
+            users.forEach((u, index) => {
+                const containerBtn = document.createElement('div');
+                containerBtn.className = 'inline-flex items-center bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs rounded-lg overflow-hidden border border-slate-600 transition';
+                
+                const btnUser = document.createElement('button');
+                btnUser.innerText = u.name + (index === 0 ? ' 👑' : '');
+                btnUser.className = 'px-3 py-1.5 cursor-pointer';
+                btnUser.onclick = () => {
                     document.getElementById('auth-username').value = u.name;
                     document.getElementById('auth-password').focus();
                 };
-                lista.appendChild(btn);
+                containerBtn.appendChild(btnUser);
+
+                // Se houver mais de um usuário ou se permitirmos gerenciar, adiciona o botão de exclusão para o Admin principal
+                // (Aqui permitimos que qualquer um veja o botão de lixeira nos outros perfis se for o admin)
+                if (index !== 0) { // O criador (índice 0) não pode ser excluído por essa listagem direta
+                    const btnDel = document.createElement('button0'); // Usaremos button padrão
+                }
+
+                // Botão de deletar visível para cada perfil secundário
+                const btnExcluir = document.createElement('button');
+                btnExcluir.innerText = '❌';
+                btnExcluir.className = 'px-2 py-1.5 bg-rose-600/50 hover:bg-rose-600 text-white cursor-pointer transition';
+                btnExcluir.title = `Remover ${u.name}`;
+                btnExcluir.onclick = (e) => excluirUsuario(u.name, e);
+                containerBtn.appendChild(btnExcluir);
+
+                lista.appendChild(containerBtn);
             });
         }
 
