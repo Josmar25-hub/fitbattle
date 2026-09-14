@@ -69,6 +69,17 @@
                 </div>
             </div>
 
+            <!-- ================= NOVO BLOCO: PLACAR MENSAL ================= -->
+            <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-4">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-indigo-400">📈 Desempenho Mensal (Acumulado)</h2>
+                    <span id="current-month-label" class="text-xs bg-indigo-500/20 text-indigo-300 px-3 py-1 rounded-full font-bold">Mês Atual</span>
+                </div>
+                <div id="monthly-leaderboard" class="space-y-2 max-h-60 overflow-y-auto">
+                    <!-- Preenchido via JS com o acumulado do mês -->
+                </div>
+            </div>
+
             <!-- ================= BLOCO DO CHAT E FAVORITAS ================= -->
             <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-4">
                 <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
@@ -99,13 +110,11 @@
 
     <!-- ================= MOTOR JAVASCRIPT DO SISTEMA ================= -->
     <script>
-        // Carrega dados salvos no navegador (simulando banco de dados local)
         let currentUser = localStorage.getItem('fitbattle_user') || null;
         let users = JSON.parse(localStorage.getItem('fitbattle_users_db')) || [];
         let workouts = JSON.parse(localStorage.getItem('fitbattle_workouts')) || [];
         let messages = JSON.parse(localStorage.getItem('fitbattle_messages')) || [];
 
-        // Função de Inicialização: decide se mostra a tela de login ou o painel principal
         function init() {
             if (currentUser) {
                 document.getElementById('auth-section').classList.add('hidden');
@@ -113,6 +122,7 @@
                 document.getElementById('current-user-display').innerText = currentUser;
                 renderizarMeusExercicios();
                 atualizarPlacar();
+                atualizarPlacarMensal();
                 atualizarChat();
                 atualizarFavoritas();
             } else {
@@ -122,7 +132,6 @@
             }
         }
 
-        // Função para Criar Novo Perfil com Senha
         function criarPerfilComSenha() {
             const nome = document.getElementById('auth-username').value.trim();
             const senha = document.getElementById('auth-password').value.trim();
@@ -139,7 +148,6 @@
             init();
         }
 
-        // Função para Fazer Login na Conta Existente
         function fazerLogin() {
             const nome = document.getElementById('auth-username').value.trim();
             const senha = document.getElementById('auth-password').value.trim();
@@ -153,7 +161,6 @@
             init();
         }
 
-        // Renderiza os botões de atalho com os usuários já cadastrados
         function renderizarListaUsuarios() {
             const lista = document.getElementById('users-list');
             lista.innerHTML = '';
@@ -173,14 +180,12 @@
             });
         }
 
-        // Desconecta o usuário atual
         function sair() {
             currentUser = null;
             localStorage.removeItem('fitbattle_user');
             init();
         }
 
-        // Fixa um novo exercício na lista diária do usuário
         function adicionarExercicioFixo() {
             const nomeEx = document.getElementById('exercise-name').value.trim();
             if (!nomeEx) return alert('Digite o nome do exercício!');
@@ -195,18 +200,18 @@
             document.getElementById('exercise-name').value = '';
             renderizarMeusExercicios();
             atualizarPlacar();
+            atualizarPlacarMensal();
         }
 
-        // Soma novas repetições ao exercício selecionado
         function somarReps(indexOriginal, qtd) {
             if (isNaN(qtd) || qtd <= 0) return alert('Digite um valor válido!');
             workouts[indexOriginal].reps += qtd;
             localStorage.setItem('fitbattle_workouts', JSON.stringify(workouts));
             renderizarMeusExercicios();
             atualizarPlacar();
+            atualizarPlacarMensal();
         }
 
-        // Exibe na tela os exercícios fixos do usuário no dia atual
         function renderizarMeusExercicios() {
             const hoje = new Date().toLocaleDateString();
             const listaDiv = document.getElementById('my-exercises-list');
@@ -239,7 +244,6 @@
             inputVal.value = '';
         }
 
-        // Atualiza o ranking diário somando os pontos de todos os usuários
         function atualizarPlacar() {
             const hoje = new Date().toLocaleDateString();
             const placarMap = {};
@@ -267,7 +271,53 @@
             });
         }
 
-        // Envia nova mensagem no chat geral
+        // Função para calcular e exibir o Placar Acumulado do Mês Atual
+        function atualizarPlacarMensal() {
+            const agora = new Date();
+            const mesAtual = agora.getMonth(); // 0 a 11
+            const anoAtual = agora.getFullYear();
+            
+            // Exibe o nome do mês atual no rótulo
+            const nomesMeses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+            document.getElementById('current-month-label').innerText = `${nomesMeses[mesAtual]} de ${anoAtual}`;
+
+            const mensalMap = {};
+
+            workouts.forEach(w => {
+                // Converte a string de data salva (ex: "DD/MM/AAAA") para objeto Date
+                const partes = w.date.split('/');
+                if (partes.length === 3) {
+                    const dataTreino = new Date(partes[2], partes[1] - 1, partes[0]);
+                    if (dataTreino.getMonth() === mesAtual && dataTreino.getFullYear() === anoAtual) {
+                        mensalMap[w.user] = (mensalMap[w.user] || 0) + w.reps;
+                    }
+                }
+            });
+
+            const mensalDiv = document.getElementById('monthly-leaderboard');
+            mensalDiv.innerHTML = '';
+
+            const rankingMensal = Object.entries(mensalMap).sort((a, b) => b[1] - a[1]);
+
+            if (rankingMensal.length === 0) {
+                mensalDiv.innerHTML = '<p class="text-slate-500 italic text-sm">Nenhum treino acumulado neste mês ainda. Vamos começar! 📈</p>';
+                return;
+            }
+
+            rankingMensal.forEach(([user, total], index) => {
+                const item = document.createElement('div');
+                item.className = `flex justify-between items-center p-3 rounded-xl border ${user === currentUser ? 'bg-indigo-500/10 border-indigo-500/30' : 'bg-slate-900 border-slate-700/50'}`;
+                item.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="font-bold text-indigo-400">#${index + 1}</span>
+                        <span>${user}</span>
+                    </div>
+                    <span class="font-extrabold text-indigo-300">${total} reps acumuladas</span>
+                `;
+                mensalDiv.appendChild(item);
+            });
+        }
+
         function enviarMensagem() {
             const texto = document.getElementById('chat-input').value.trim();
             if (!texto) return;
@@ -286,7 +336,6 @@
 
         function handleChatKey(e) { if (e.key === 'Enter') enviarMensagem(); }
 
-        // Alterna o status de favorita de uma mensagem (salva por 90 dias)
         function alternarFavorito(msgId) {
             const msg = messages.find(m => m.id === msgId);
             if (!msg) return;
@@ -304,7 +353,6 @@
             atualizarFavoritas();
         }
 
-        // Renova o prazo de validade da mensagem favorita por mais 90 dias
         function renovarPrazo(msgId) {
             const msg = messages.find(m => m.id === msgId);
             if (!msg) return;
@@ -316,7 +364,6 @@
             alert('Prazo renovado por mais 90 dias com sucesso! ⏳✨');
         }
 
-        // Renderiza as mensagens no chat geral
         function atualizarChat() {
             const chatDiv = document.getElementById('chat-messages');
             chatDiv.innerHTML = '';
@@ -344,7 +391,6 @@
             chatDiv.scrollTop = chatDiv.scrollHeight;
         }
 
-        // Renderiza as mensagens salvas na aba de favoritas
         function atualizarFavoritas() {
             const favDiv = document.getElementById('fav-messages');
             favDiv.innerHTML = '';
@@ -374,7 +420,6 @@
             });
         }
 
-        // Alterna entre a aba do Chat Geral e a aba de Favoritas
         function mudarAbaChat(aba) {
             const geral = document.getElementById('container-chat-geral');
             const fav = document.getElementById('container-chat-fav');
@@ -395,7 +440,6 @@
             }
         }
 
-        // Executa a inicialização ao abrir a página
         init();
     </script>
 </body>
