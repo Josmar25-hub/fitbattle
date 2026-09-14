@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FitBattle - Treino em Grupo 🔥</title>
+    <!-- Importação do Tailwind CSS para estilização moderna e rápida -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         @import "https://cdn.jsdelivr.net/npm/tailwindcss@4.0.0/dist/tailwind.min.css";
@@ -12,13 +13,14 @@
 <body class="bg-slate-900 text-slate-100 font-sans min-h-screen p-4 md:p-8">
 
     <div class="max-w-4xl mx-auto space-y-6">
-        <!-- Cabeçalho -->
+        
+        <!-- ================= CABEÇALHO ================= -->
         <header class="text-center space-y-2">
             <h1 class="text-4xl font-extrabold text-amber-400">🏋️‍♂️ FitBattle Interativo</h1>
             <p class="text-slate-400">Supere seus limites e domine o placar com seus amigos! 🔥</p>
         </header>
 
-        <!-- Seleção / Criação de Perfil com Senha -->
+        <!-- ================= SEÇÃO DE AUTENTICAÇÃO (LOGIN / CADASTRO) ================= -->
         <section id="auth-section" class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-4">
             <h2 class="text-xl font-bold text-emerald-400">👤 Acesso ao Perfil</h2>
             <div class="space-y-3">
@@ -35,9 +37,10 @@
             </div>
         </section>
 
-        <!-- Painel Principal (Aparece após logar) -->
+        <!-- ================= PAINEL PRINCIPAL (APÓS LOGIN) ================= -->
         <div id="main-panel" class="hidden space-y-6">
-            <!-- Boas-vindas -->
+            
+            <!-- Barra de Boas-vindas e Logout -->
             <div class="bg-slate-800 p-4 rounded-xl flex justify-between items-center border border-slate-700">
                 <div>
                     <span class="text-slate-400">Logado como:</span>
@@ -47,54 +50,62 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Meus Exercícios Fixos do Dia -->
+                
+                <!-- Bloco: Meus Exercícios Fixos do Dia -->
                 <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-4">
                     <h2 class="text-xl font-bold text-emerald-400">💪 Meus Exercícios de Hoje</h2>
                     <div class="space-y-3">
                         <input type="text" id="exercise-name" placeholder="Nome do Exercício (ex: Flexão, Supino)" class="w-full bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-amber-400">
                         <button onclick="adicionarExercicioFixo()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-3 rounded-xl transition cursor-pointer">Fixar Novo Exercício 🚀</button>
                     </div>
-
-                    <!-- Lista de Exercícios Ativos do Usuário no Dia -->
-                    <div id="my-exercises-list" class="space-y-3 mt-4 max-h-72 overflow-y-auto">
-                        <!-- Preenchido via JS -->
-                    </div>
+                    <!-- Lista onde aparecem os exercícios do usuário no dia -->
+                    <div id="my-exercises-list" class="space-y-3 mt-4 max-h-72 overflow-y-auto"></div>
                 </div>
 
-                <!-- Placar Diário -->
+                <!-- Bloco: Placar Diário Competitivo -->
                 <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-4">
                     <h2 class="text-xl font-bold text-amber-400">🏆 Placar Diário</h2>
-                    <div id="leaderboard" class="space-y-2 max-h-80 overflow-y-auto">
-                        <!-- Preenchido via JS -->
-                    </div>
+                    <div id="leaderboard" class="space-y-2 max-h-80 overflow-y-auto"></div>
                 </div>
             </div>
 
-            <!-- Mini Aba de Conversas -->
+            <!-- ================= BLOCO DO CHAT E FAVORITAS ================= -->
             <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-4">
-                <div class="flex justify-between items-center">
-                    <h2 class="text-xl font-bold text-sky-400">💬 Chat Rápido (Some em 24h)</h2>
-                    <span class="text-xs bg-slate-700 text-slate-300 px-2.5 py-1 rounded-full">⚡ Mensagens Temporárias</span>
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
+                    <h2 class="text-xl font-bold text-sky-400">💬 Chat Interativo</h2>
+                    <div class="flex gap-2">
+                        <button onclick="mudarAbaChat('geral')" id="btn-chat-geral" class="text-xs px-3 py-1.5 rounded-lg bg-sky-500 text-slate-950 font-bold transition cursor-pointer">Chat Geral (24h)</button>
+                        <button onclick="mudarAbaChat('favoritas')" id="btn-chat-fav" class="text-xs px-3 py-1.5 rounded-lg bg-slate-700 text-slate-300 font-bold transition cursor-pointer">⭐ Salvas (90 dias)</button>
+                    </div>
                 </div>
-                <div id="chat-messages" class="bg-slate-900 h-48 rounded-xl p-4 overflow-y-auto space-y-3 border border-slate-700/50">
-                    <!-- Mensagens do chat -->
+
+                <!-- Aba 1: Chat Geral -->
+                <div id="container-chat-geral" class="space-y-3">
+                    <div id="chat-messages" class="bg-slate-900 h-48 rounded-xl p-4 overflow-y-auto space-y-3 border border-slate-700/50"></div>
+                    <div class="flex gap-2">
+                        <input type="text" id="chat-input" placeholder="Mande uma provocação ou dica..." class="flex-1 bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-sky-400" onkeypress="handleChatKey(event)">
+                        <button onclick="enviarMensagem()" class="bg-sky-500 hover:bg-sky-600 text-slate-950 font-bold px-6 py-3 rounded-xl transition cursor-pointer">Enviar</button>
+                    </div>
                 </div>
-                <div class="flex gap-2">
-                    <input type="text" id="chat-input" placeholder="Mande uma provocação ou dica..." class="flex-1 bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-sky-400" onkeypress="handleChatKey(event)">
-                    <button onclick="enviarMensagem()" class="bg-sky-500 hover:bg-sky-600 text-slate-950 font-bold px-6 py-3 rounded-xl transition cursor-pointer">Enviar</button>
+
+                <!-- Aba 2: Mensagens Salvas/Favoritas (90 dias) -->
+                <div id="container-chat-fav" class="space-y-3 hidden">
+                    <div id="fav-messages" class="bg-slate-900 h-48 rounded-xl p-4 overflow-y-auto space-y-3 border border-slate-700/50"></div>
+                    <p class="text-xs text-slate-400 text-center">💡 Mensagens salvas ficam guardadas por até 90 dias. Você pode renovar o prazo a qualquer momento!</p>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- ================= MOTOR JAVASCRIPT DO SISTEMA ================= -->
     <script>
-        // Sistema de Estado Local com Contas e Senhas
+        // Carrega dados salvos no navegador (simulando banco de dados local)
         let currentUser = localStorage.getItem('fitbattle_user') || null;
-        // users agora guarda objetos: { name: '...', pass: '...' }
         let users = JSON.parse(localStorage.getItem('fitbattle_users_db')) || [];
         let workouts = JSON.parse(localStorage.getItem('fitbattle_workouts')) || [];
         let messages = JSON.parse(localStorage.getItem('fitbattle_messages')) || [];
 
+        // Função de Inicialização: decide se mostra a tela de login ou o painel principal
         function init() {
             if (currentUser) {
                 document.getElementById('auth-section').classList.add('hidden');
@@ -103,6 +114,7 @@
                 renderizarMeusExercicios();
                 atualizarPlacar();
                 atualizarChat();
+                atualizarFavoritas();
             } else {
                 document.getElementById('auth-section').classList.remove('hidden');
                 document.getElementById('main-panel').classList.add('hidden');
@@ -110,20 +122,16 @@
             }
         }
 
+        // Função para Criar Novo Perfil com Senha
         function criarPerfilComSenha() {
             const nome = document.getElementById('auth-username').value.trim();
             const senha = document.getElementById('auth-password').value.trim();
-
             if (!nome || !senha) return alert('Por favor, preencha o nome e a senha!');
-
-            const usuarioExiste = users.find(u => u.name.toLowerCase() === nome.toLowerCase());
-            if (usuarioExiste) {
-                return alert('Esse nome de usuário já existe! Escolha outro ou clique em Entrar.');
+            if (users.find(u => u.name.toLowerCase() === nome.toLowerCase())) {
+                return alert('Esse nome já existe! Escolha outro ou clique em Entrar.');
             }
-
             users.push({ name: nome, pass: senha });
             localStorage.setItem('fitbattle_users_db', JSON.stringify(users));
-
             currentUser = nome;
             localStorage.setItem('fitbattle_user', currentUser);
             document.getElementById('auth-username').value = '';
@@ -131,18 +139,13 @@
             init();
         }
 
+        // Função para Fazer Login na Conta Existente
         function fazerLogin() {
             const nome = document.getElementById('auth-username').value.trim();
             const senha = document.getElementById('auth-password').value.trim();
-
             if (!nome || !senha) return alert('Por favor, digite o nome e a senha!');
-
             const conta = users.find(u => u.name.toLowerCase() === nome.toLowerCase() && u.pass === senha);
-
-            if (!conta) {
-                return alert('Nome de usuário ou senha incorretos!');
-            }
-
+            if (!conta) return alert('Nome de usuário ou senha incorretos!');
             currentUser = conta.name;
             localStorage.setItem('fitbattle_user', currentUser);
             document.getElementById('auth-username').value = '';
@@ -150,6 +153,7 @@
             init();
         }
 
+        // Renderiza os botões de atalho com os usuários já cadastrados
         function renderizarListaUsuarios() {
             const lista = document.getElementById('users-list');
             lista.innerHTML = '';
@@ -169,62 +173,50 @@
             });
         }
 
+        // Desconecta o usuário atual
         function sair() {
             currentUser = null;
             localStorage.removeItem('fitbattle_user');
             init();
         }
 
+        // Fixa um novo exercício na lista diária do usuário
         function adicionarExercicioFixo() {
             const nomeEx = document.getElementById('exercise-name').value.trim();
             if (!nomeEx) return alert('Digite o nome do exercício!');
-
             const hoje = new Date().toLocaleDateString();
             let exercicioExistente = workouts.find(w => w.user === currentUser && w.date === hoje && w.exercise.toLowerCase() === nomeEx.toLowerCase());
-
             if (exercicioExistente) {
                 alert('Esse exercício já está fixado na sua lista de hoje!');
             } else {
-                workouts.push({
-                    user: currentUser,
-                    exercise: nomeEx,
-                    reps: 0,
-                    date: hoje
-                });
+                workouts.push({ user: currentUser, exercise: nomeEx, reps: 0, date: hoje });
                 localStorage.setItem('fitbattle_workouts', JSON.stringify(workouts));
             }
-
             document.getElementById('exercise-name').value = '';
             renderizarMeusExercicios();
             atualizarPlacar();
         }
 
-        function somarReps(indexNoArrayOriginal, quantidadeParaSomar) {
-            if (isNaN(quantidadeParaSomar) || quantidadeParaSomar <= 0) {
-                return alert('Digite um valor válido de repetições!');
-            }
-
-            workouts[indexNoArrayOriginal].reps += quantidadeParaSomar;
+        // Soma novas repetições ao exercício selecionado
+        function somarReps(indexOriginal, qtd) {
+            if (isNaN(qtd) || qtd <= 0) return alert('Digite um valor válido!');
+            workouts[indexOriginal].reps += qtd;
             localStorage.setItem('fitbattle_workouts', JSON.stringify(workouts));
             renderizarMeusExercicios();
             atualizarPlacar();
         }
 
+        // Exibe na tela os exercícios fixos do usuário no dia atual
         function renderizarMeusExercicios() {
             const hoje = new Date().toLocaleDateString();
             const listaDiv = document.getElementById('my-exercises-list');
             listaDiv.innerHTML = '';
-
-            const meusExerciciosHoje = workouts
-                .map((w, index) => ({ ...w, originalIndex: index }))
-                .filter(w => w.user === currentUser && w.date === hoje);
-
-            if (meusExerciciosHoje.length === 0) {
+            const meusExercicios = workouts.map((w, i) => ({ ...w, originalIndex: i })).filter(w => w.user === currentUser && w.date === hoje);
+            if (meusExercicios.length === 0) {
                 listaDiv.innerHTML = '<p class="text-slate-500 italic text-sm">Nenhum exercício fixado para hoje ainda. Adicione acima! 🎯</p>';
                 return;
             }
-
-            meusExerciciosHoje.forEach(item => {
+            meusExercicios.forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'bg-slate-900 p-3.5 rounded-xl border border-slate-700/60 flex flex-col gap-2';
                 card.innerHTML = `
@@ -233,7 +225,7 @@
                         <span class="text-xs bg-emerald-500/20 text-emerald-400 px-2.5 py-1 rounded-full font-bold">Total: ${item.reps} reps</span>
                     </div>
                     <div class="flex gap-2">
-                        <input type="number" id="add-val-${item.originalIndex}" placeholder="+ Reps (ex: 15)" class="flex-1 bg-slate-800 border border-slate-700 px-3 py-2 text-sm rounded-lg focus:outline-none focus:border-emerald-400">
+                        <input type="number" id="add-val-${item.originalIndex}" placeholder="+ Reps" class="flex-1 bg-slate-800 border border-slate-700 px-3 py-2 text-sm rounded-lg focus:outline-none focus:border-emerald-400">
                         <button onclick="executarSoma(${item.originalIndex})" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-sm px-4 py-2 rounded-lg transition cursor-pointer">Adicionar</button>
                     </div>
                 `;
@@ -241,31 +233,26 @@
             });
         }
 
-        function executarSoma(originalIndex) {
-            const inputVal = document.getElementById(`add-val-${originalIndex}`);
-            const qtd = parseInt(inputVal.value);
-            somarReps(originalIndex, qtd);
+        function executarSoma(idx) {
+            const inputVal = document.getElementById(`add-val-${idx}`);
+            somarReps(idx, parseInt(inputVal.value));
             inputVal.value = '';
         }
 
+        // Atualiza o ranking diário somando os pontos de todos os usuários
         function atualizarPlacar() {
             const hoje = new Date().toLocaleDateString();
             const placarMap = {};
-
             workouts.filter(w => w.date === hoje).forEach(w => {
                 placarMap[w.user] = (placarMap[w.user] || 0) + w.reps;
             });
-
             const leaderboardDiv = document.getElementById('leaderboard');
             leaderboardDiv.innerHTML = '';
-
             const ranking = Object.entries(placarMap).sort((a, b) => b[1] - a[1]);
-
             if (ranking.length === 0) {
                 leaderboardDiv.innerHTML = '<p class="text-slate-500 italic text-sm">Nenhuma pontuação registrada hoje ainda. 🥇</p>';
                 return;
             }
-
             ranking.forEach(([user, total], index) => {
                 const item = document.createElement('div');
                 item.className = `flex justify-between items-center p-3 rounded-xl border ${user === currentUser ? 'bg-amber-500/10 border-amber-500/30' : 'bg-slate-900 border-slate-700/50'}`;
@@ -280,41 +267,75 @@
             });
         }
 
+        // Envia nova mensagem no chat geral
         function enviarMensagem() {
             const texto = document.getElementById('chat-input').value.trim();
             if (!texto) return;
-
             messages.push({
+                id: Date.now(),
                 user: currentUser,
                 text: texto,
-                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                isFavorite: false,
+                expireAt: null
             });
-
             localStorage.setItem('fitbattle_messages', JSON.stringify(messages));
             document.getElementById('chat-input').value = '';
             atualizarChat();
         }
 
-        function handleChatKey(e) {
-            if (e.key === 'Enter') enviarMensagem();
+        function handleChatKey(e) { if (e.key === 'Enter') enviarMensagem(); }
+
+        // Alterna o status de favorita de uma mensagem (salva por 90 dias)
+        function alternarFavorito(msgId) {
+            const msg = messages.find(m => m.id === msgId);
+            if (!msg) return;
+            if (!msg.isFavorite) {
+                msg.isFavorite = true;
+                const dataExpiracao = new Date();
+                dataExpiracao.setDate(dataExpiracao.getDate() + 90);
+                msg.expireAt = dataExpiracao.getTime();
+            } else {
+                msg.isFavorite = false;
+                msg.expireAt = null;
+            }
+            localStorage.setItem('fitbattle_messages', JSON.stringify(messages));
+            atualizarChat();
+            atualizarFavoritas();
         }
 
+        // Renova o prazo de validade da mensagem favorita por mais 90 dias
+        function renovarPrazo(msgId) {
+            const msg = messages.find(m => m.id === msgId);
+            if (!msg) return;
+            const novaExpiracao = new Date();
+            novaExpiracao.setDate(novaExpiracao.getDate() + 90);
+            msg.expireAt = novaExpiracao.getTime();
+            localStorage.setItem('fitbattle_messages', JSON.stringify(messages));
+            atualizarFavoritas();
+            alert('Prazo renovado por mais 90 dias com sucesso! ⏳✨');
+        }
+
+        // Renderiza as mensagens no chat geral
         function atualizarChat() {
             const chatDiv = document.getElementById('chat-messages');
             chatDiv.innerHTML = '';
-
             if (messages.length === 0) {
                 chatDiv.innerHTML = '<p class="text-slate-500 italic text-sm text-center py-8">O chat está silencioso... Mande a primeira mensagem! ⚡</p>';
                 return;
             }
-
             messages.forEach(msg => {
                 const bubble = document.createElement('div');
                 bubble.className = 'space-y-0.5';
                 bubble.innerHTML = `
                     <div class="flex justify-between text-xs text-slate-400">
                         <span class="font-semibold text-amber-400">${msg.user}</span>
-                        <span>${msg.time}</span>
+                        <div class="flex items-center gap-2">
+                            <span>${msg.time}</span>
+                            <button onclick="alternarFavorito(${msg.id})" class="cursor-pointer hover:scale-125 transition text-xs" title="Salvar mensagem">
+                                ${msg.isFavorite ? '⭐' : '☆'}
+                            </button>
+                        </div>
                     </div>
                     <div class="bg-slate-800 p-2.5 rounded-xl border border-slate-700/60 text-sm">${msg.text}</div>
                 `;
@@ -323,6 +344,58 @@
             chatDiv.scrollTop = chatDiv.scrollHeight;
         }
 
+        // Renderiza as mensagens salvas na aba de favoritas
+        function atualizarFavoritas() {
+            const favDiv = document.getElementById('fav-messages');
+            favDiv.innerHTML = '';
+            const favoritas = messages.filter(m => m.isFavorite);
+
+            if (favoritas.length === 0) {
+                favDiv.innerHTML = '<p class="text-slate-500 italic text-sm text-center py-8">Nenhuma mensagem salva ainda. Clique no ícone de estrela (☆) em uma mensagem para guardá-la por 90 dias! ⭐</p>';
+                return;
+            }
+
+            favoritas.forEach(msg => {
+                const diasRestantes = msg.expireAt ? Math.ceil((msg.expireAt - Date.now()) / (1000 * 60 * 60 * 24)) : 90;
+                const bubble = document.createElement('div');
+                bubble.className = 'space-y-1 bg-slate-800 p-3 rounded-xl border border-amber-500/30';
+                bubble.innerHTML = `
+                    <div class="flex justify-between text-xs text-slate-400">
+                        <span class="font-semibold text-amber-400">${msg.user} (${msg.time})</span>
+                        <span class="text-amber-300 font-bold">Expira em: ${diasRestantes > 0 ? diasRestantes + ' dias' : 'Expirando'}</span>
+                    </div>
+                    <div class="text-sm text-slate-200">${msg.text}</div>
+                    <div class="flex justify-end gap-2 pt-1">
+                        <button onclick="renovarPrazo(${msg.id})" class="bg-amber-500/20 text-amber-400 hover:bg-amber-500 hover:text-slate-950 font-bold text-xs px-3 py-1 rounded-lg transition cursor-pointer">Renovar +90 dias 🔄</button>
+                        <button onclick="alternarFavorito(${msg.id})" class="bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white font-bold text-xs px-3 py-1 rounded-lg transition cursor-pointer">Remover 🗑️</button>
+                    </div>
+                `;
+                favDiv.appendChild(bubble);
+            });
+        }
+
+        // Alterna entre a aba do Chat Geral e a aba de Favoritas
+        function mudarAbaChat(aba) {
+            const geral = document.getElementById('container-chat-geral');
+            const fav = document.getElementById('container-chat-fav');
+            const btnGeral = document.getElementById('btn-chat-geral');
+            const btnFav = document.getElementById('btn-chat-fav');
+
+            if (aba === 'geral') {
+                geral.classList.remove('hidden');
+                fav.classList.add('hidden');
+                btnGeral.className = 'text-xs px-3 py-1.5 rounded-lg bg-sky-500 text-slate-950 font-bold transition cursor-pointer';
+                btnFav.className = 'text-xs px-3 py-1.5 rounded-lg bg-slate-700 text-slate-300 font-bold transition cursor-pointer';
+            } else {
+                geral.classList.add('hidden');
+                fav.classList.remove('hidden');
+                btnFav.className = 'text-xs px-3 py-1.5 rounded-lg bg-amber-500 text-slate-950 font-bold transition cursor-pointer';
+                btnGeral.className = 'text-xs px-3 py-1.5 rounded-lg bg-slate-700 text-slate-300 font-bold transition cursor-pointer';
+                atualizarFavoritas();
+            }
+        }
+
+        // Executa a inicialização ao abrir a página
         init();
     </script>
 </body>
