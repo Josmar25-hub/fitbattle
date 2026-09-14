@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitBattle - Treino em Grupo 🔥</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        @import "https://cdn.jsdelivr.net/npm/tailwindcss@4.0.0/dist/tailwind.min.css";
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto space-y-6">
+        <!-- Cabeçalho -->
+        <header class="text-center space-y-2">
+            <h1 class="text-4xl font-extrabold text-amber-400">🏋️‍♂️ FitBattle Interativo</h1>
+            <p class="text-slate-400">Supere seus limites e domine o placar com seus amigos! 🔥</p>
+        </header>
+
+        <!-- Seleção / Criação de Perfil -->
+        <section id="auth-section" class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700">
+            <h2 class="text-xl font-bold mb-4 text-emerald-400">👤 Escolha ou Crie seu Perfil</h2>
+            <div class="flex flex-col sm:flex-row gap-3">
+                <input type="text" id="new-username" placeholder="Digite seu nome (ex: Josemar)" class="flex-1 bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-amber-400">
+                <button onclick="criarPerfil()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-6 py-3 rounded-xl transition cursor-pointer">Entrar / Criar</button>
+            </div>
+            <div id="users-list" class="mt-4 flex flex-wrap gap-2"></div>
+        </section>
+
+        <!-- Painel Principal (Aparece após logar) -->
+        <div id="main-panel" class="hidden space-y-6">
+            <!-- Boas-vindas -->
+            <div class="bg-slate-800 p-4 rounded-xl flex justify-between items-center border border-slate-700">
+                <div>
+                    <span class="text-slate-400">Logado como:</span>
+                    <strong id="current-user-display" class="text-amber-400 text-lg"></strong>
+                </div>
+                <button onclick="sair()" class="text-sm bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white px-3 py-1.5 rounded-lg transition cursor-pointer">Trocar Perfil</button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Meus Exercícios Fixos do Dia -->
+                <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-4">
+                    <h2 class="text-xl font-bold text-emerald-400">💪 Meus Exercícios de Hoje</h2>
+                    <div class="space-y-3">
+                        <input type="text" id="exercise-name" placeholder="Nome do Exercício (ex: Flexão, Supino)" class="w-full bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-amber-400">
+                        <button onclick="adicionarExercicioFixo()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-3 rounded-xl transition cursor-pointer">Fixar Novo Exercício 🚀</button>
+                    </div>
+
+                    <!-- Lista de Exercícios Ativos do Usuário no Dia -->
+                    <div id="my-exercises-list" class="space-y-3 mt-4 max-h-72 overflow-y-auto">
+                        <!-- Preenchido via JS -->
+                    </div>
+                </div>
+
+                <!-- Placar Diário -->
+                <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-4">
+                    <h2 class="text-xl font-bold text-amber-400">🏆 Placar Diário</h2>
+                    <div id="leaderboard" class="space-y-2 max-h-80 overflow-y-auto">
+                        <!-- Preenchido via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mini Aba de Conversas -->
+            <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-4">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-sky-400">💬 Chat Rápido (Some em 24h)</h2>
+                    <span class="text-xs bg-slate-700 text-slate-300 px-2.5 py-1 rounded-full">⚡ Mensagens Temporárias</span>
+                </div>
+                <div id="chat-messages" class="bg-slate-900 h-48 rounded-xl p-4 overflow-y-auto space-y-3 border border-slate-700/50">
+                    <!-- Mensagens do chat -->
+                </div>
+                <div class="flex gap-2">
+                    <input type="text" id="chat-input" placeholder="Mande uma provocação ou dica..." class="flex-1 bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-sky-400" onkeypress="handleChatKey(event)">
+                    <button onclick="enviarMensagem()" class="bg-sky-500 hover:bg-sky-600 text-slate-950 font-bold px-6 py-3 rounded-xl transition cursor-pointer">Enviar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sistema de Estado Local (Simulando o Banco)
+        let currentUser = localStorage.getItem('fitbattle_user') || null;
+        let users = JSON.parse(localStorage.getItem('fitbattle_users')) || [];
+        // Agora os treinos guardam o dia e acumulam por exercício fixo
+        let workouts = JSON.parse(localStorage.getItem('fitbattle_workouts')) || [];
+        let messages = JSON.parse(localStorage.getItem('fitbattle_messages')) || [];
+
+        function init() {
+            if (currentUser) {
+                document.getElementById('auth-section').classList.add('hidden');
+                document.getElementById('main-panel').classList.remove('hidden');
+                document.getElementById('current-user-display').innerText = currentUser;
+                renderizarMeusExercicios();
+                atualizarPlacar();
+                atualizarChat();
+            } else {
+                document.getElementById('auth-section').classList.remove('hidden');
+                document.getElementById('main-panel').classList.add('hidden');
+                renderizarListaUsuarios();
+            }
+        }
+
+        function criarPerfil() {
+            const nome = document.getElementById('new-username').value.trim();
+            if (!nome) return alert('Por favor, digite um nome!');
+            
+            if (!users.includes(nome)) {
+                users.push(nome);
+                localStorage.setItem('fitbattle_users', JSON.stringify(users));
+            }
+            
+            currentUser = nome;
+            localStorage.setItem('fitbattle_user', currentUser);
+            document.getElementById('new-username').value = '';
+            init();
+        }
+
+        function renderizarListaUsuarios() {
+            const lista = document.getElementById('users-list');
+            lista.innerHTML = '<span class="text-xs text-slate-400 w-full block mb-1">Perfis existentes (clique para entrar):</span>';
+            if (users.length === 0) {
+                lista.innerHTML += '<p class="text-xs text-slate-500 italic">Nenhum perfil criado ainda. Seja o primeiro!</p>';
+                return;
+            }
+            users.forEach(user => {
+                const btn = document.createElement('button');
+                btn.innerText = user;
+                btn.className = 'bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm px-3 py-1.5 rounded-lg transition cursor-pointer';
+                btn.onclick = () => {
+                    currentUser = user;
+                    localStorage.setItem('fitbattle_user', currentUser);
+                    init();
+                };
+                lista.appendChild(btn);
+            });
+        }
+
+        function sair() {
+            currentUser = null;
+            localStorage.removeItem('fitbattle_user');
+            init();
+        }
+
+        function adicionarExercicioFixo() {
+            const nomeEx = document.getElementById('exercise-name').value.trim();
+            if (!nomeEx) return alert('Digite o nome do exercício!');
+
+            const hoje = new Date().toLocaleDateString();
+
+            // Verifica se já existe esse exercício para o usuário hoje
+            let exercicioExistente = workouts.find(w => w.user === currentUser && w.date === hoje && w.exercise.toLowerCase() === nomeEx.toLowerCase());
+
+            if (exercicioExistente) {
+                alert('Esse exercício já está fixado na sua lista de hoje!');
+            } else {
+                workouts.push({
+                    user: currentUser,
+                    exercise: nomeEx,
+                    reps: 0,
+                    date: hoje
+                });
+                localStorage.setItem('fitbattle_workouts', JSON.stringify(workouts));
+            }
+
+            document.getElementById('exercise-name').value = '';
+            renderizarMeusExercicios();
+            atualizarPlacar();
+        }
+
+        function somarReps(indexNoArrayOriginal, quantidadeParaSomar) {
+            if (isNaN(quantidadeParaSomar) || quantidadeParaSomar <= 0) {
+                return alert('Digite um valor válido de repetições!');
+            }
+
+            workouts[indexNoArrayOriginal].reps += quantidadeParaSomar;
+            localStorage.setItem('fitbattle_workouts', JSON.stringify(workouts));
+            renderizarMeusExercicios();
+            atualizarPlacar();
+        }
+
+        function renderizarMeusExercicios() {
+            const hoje = new Date().toLocaleDateString();
+            const listaDiv = document.getElementById('my-exercises-list');
+            listaDiv.innerHTML = '';
+
+            // Pega os índices reais do array global para sabermos qual atualizar
+            const meusExerciciosHoje = workouts
+                .map((w, index) => ({ ...w, originalIndex: index }))
+                .filter(w => w.user === currentUser && w.date === hoje);
+
+            if (meusExerciciosHoje.length === 0) {
+                listaDiv.innerHTML = '<p class="text-slate-500 italic text-sm">Nenhum exercício fixado para hoje ainda. Adicione acima! 🎯</p>';
+                return;
+            }
+
+            meusExerciciosHoje.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'bg-slate-900 p-3.5 rounded-xl border border-slate-700/60 flex flex-col gap-2';
+                card.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-slate-200">${item.exercise}</span>
+                        <span class="text-xs bg-emerald-500/20 text-emerald-400 px-2.5 py-1 rounded-full font-bold">Total: ${item.reps} reps</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="number" id="add-val-${item.originalIndex}" placeholder="+ Reps (ex: 15)" class="flex-1 bg-slate-800 border border-slate-700 px-3 py-2 text-sm rounded-lg focus:outline-none focus:border-emerald-400">
+                        <button onclick="executarSoma(${item.originalIndex})" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-sm px-4 py-2 rounded-lg transition cursor-pointer">Adicionar</button>
+                    </div>
+                `;
+                listaDiv.appendChild(card);
+            });
+        }
+
+        function executarSoma(originalIndex) {
+            const inputVal = document.getElementById(`add-val-${originalIndex}`);
+            const qtd = parseInt(inputVal.value);
+            somarReps(originalIndex, qtd);
+            inputVal.value = '';
+        }
+
+        function atualizarPlacar() {
+            const hoje = new Date().toLocaleDateString();
+            const placarMap = {};
+
+            // Soma todas as repetições dos exercícios do dia por usuário
+            workouts.filter(w => w.date === hoje).forEach(w => {
+                placarMap[w.user] = (placarMap[w.user] || 0) + w.reps;
+            });
+
+            const leaderboardDiv = document.getElementById('leaderboard');
+            leaderboardDiv.innerHTML = '';
+
+            const ranking = Object.entries(placarMap).sort((a, b) => b[1] - a[1]);
+
+            if (ranking.length === 0) {
+                leaderboardDiv.innerHTML = '<p class="text-slate-500 italic text-sm">Nenhuma pontuação registrada hoje ainda. 🥇</p>';
+                return;
+            }
+
+            ranking.forEach(([user, total], index) => {
+                const item = document.createElement('div');
+                item.className = `flex justify-between items-center p-3 rounded-xl border ${user === currentUser ? 'bg-amber-500/10 border-amber-500/30' : 'bg-slate-900 border-slate-700/50'}`;
+                item.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="font-bold text-amber-400">#${index + 1}</span>
+                        <span>${user}</span>
+                    </div>
+                    <span class="font-extrabold text-emerald-400">${total} reps</span>
+                `;
+                leaderboardDiv.appendChild(item);
+            });
+        }
+
+        function enviarMensagem() {
+            const texto = document.getElementById('chat-input').value.trim();
+            if (!texto) return;
+
+            messages.push({
+                user: currentUser,
+                text: texto,
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            });
+
+            localStorage.setItem('fitbattle_messages', JSON.stringify(messages));
+            document.getElementById('chat-input').value = '';
+            atualizarChat();
+        }
+
+        function handleChatKey(e) {
+            if (e.key === 'Enter') enviarMensagem();
+        }
+
+        function atualizarChat() {
+            const chatDiv = document.getElementById('chat-messages');
+            chatDiv.innerHTML = '';
+
+            if (messages.length === 0) {
+                chatDiv.innerHTML = '<p class="text-slate-500 italic text-sm text-center py-8">O chat está silencioso... Mande a primeira mensagem! ⚡</p>';
+                return;
+            }
+
+            messages.forEach(msg => {
+                const bubble = document.createElement('div');
+                bubble.className = 'space-y-0.5';
+                bubble.innerHTML = `
+                    <div class="flex justify-between text-xs text-slate-400">
+                        <span class="font-semibold text-amber-400">${msg.user}</span>
+                        <span>${msg.time}</span>
+                    </div>
+                    <div class="bg-slate-800 p-2.5 rounded-xl border border-slate-700/60 text-sm">${msg.text}</div>
+                `;
+                chatDiv.appendChild(bubble);
+            });
+            chatDiv.scrollTop = chatDiv.scrollHeight;
+        }
+
+        // Inicializa o app ao carregar a página
+        init();
+    </script>
+</body>
+</html>
