@@ -23,14 +23,43 @@
         <!-- ================= SEÇÃO DE AUTENTICAÇÃO (LOGIN / CADASTRO) ================= -->
         <section id="auth-section" class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-4">
             <h2 class="text-xl font-bold text-emerald-400">👤 Acesso ao Perfil</h2>
-            <div class="space-y-3">
+            
+            <!-- Formulário de Login / Cadastro -->
+            <div id="form-login-box" class="space-y-3">
                 <input type="text" id="auth-username" placeholder="Seu nome (ex: Josemar)" class="w-full bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-amber-400">
-                <input type="password" id="auth-password" placeholder="Sua senha de acesso" class="w-full bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-amber-400">
+                
+                <!-- Campo de senha com o botão do "Olhinho" para mostrar/esconder -->
+                <div class="relative">
+                    <input type="password" id="auth-password" placeholder="Sua senha de acesso" class="w-full bg-slate-900 border border-slate-700 px-4 py-3 pr-12 rounded-xl focus:outline-none focus:border-amber-400">
+                    <button type="button" onclick="toggleSenha()" class="absolute right-3 top-3.5 text-slate-400 hover:text-slate-200 text-sm cursor-pointer" id="btn-eye">👁️</button>
+                </div>
+
+                <!-- Campo extra para cadastro (WhatsApp ou E-mail) -->
+                <input type="text" id="auth-contact" placeholder="Seu E-mail ou WhatsApp (para recuperação)" class="w-full bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-amber-400">
+
                 <div class="flex gap-3 pt-2">
                     <button onclick="fazerLogin()" class="flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl transition cursor-pointer">Entrar 🚀</button>
                     <button onclick="criarPerfilComSenha()" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-3 rounded-xl transition cursor-pointer">Criar Conta ➕</button>
                 </div>
+
+                <div class="text-center pt-2">
+                    <button onclick="alternarTelaRecuperacao(true)" class="text-xs text-sky-400 hover:underline cursor-pointer">Esqueceu sua senha? Clique aqui 🔑</button>
+                </div>
             </div>
+
+            <!-- Formulário de Recuperação de Senha -->
+            <div id="form-recovery-box" class="space-y-3 hidden">
+                <h3 class="text-sm font-bold text-sky-400">🔑 Recuperação de Senha</h3>
+                <p class="text-xs text-slate-400">Digite seu nome e o e-mail/WhatsApp cadastrados para redefinir sua senha.</p>
+                <input type="text" id="rec-username" placeholder="Seu nome de usuário" class="w-full bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-sky-400">
+                <input type="text" id="rec-contact" placeholder="E-mail ou WhatsApp cadastrado" class="w-full bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-sky-400">
+                <input type="password" id="rec-new-password" placeholder="Nova senha desejada" class="w-full bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-sky-400">
+                <div class="flex gap-3 pt-2">
+                    <button onclick="executarRecuperacao()" class="flex-1 bg-sky-500 hover:bg-sky-600 text-slate-950 font-bold py-3 rounded-xl transition cursor-pointer">Redefinir Senha 🔄</button>
+                    <button onclick="alternarTelaRecuperacao(false)" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-4 py-3 rounded-xl transition cursor-pointer">Voltar</button>
+                </div>
+            </div>
+
             <div class="pt-4 border-t border-slate-700/60">
                 <span class="text-xs text-slate-400 block mb-2">Perfis já criados neste navegador:</span>
                 <div id="users-list" class="flex flex-wrap gap-2"></div>
@@ -69,15 +98,13 @@
                 </div>
             </div>
 
-            <!-- ================= NOVO BLOCO: PLACAR MENSAL ================= -->
+            <!-- ================= BLOCO: PLACAR MENSAL ================= -->
             <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-4">
                 <div class="flex justify-between items-center">
                     <h2 class="text-xl font-bold text-indigo-400">📈 Desempenho Mensal (Acumulado)</h2>
                     <span id="current-month-label" class="text-xs bg-indigo-500/20 text-indigo-300 px-3 py-1 rounded-full font-bold">Mês Atual</span>
                 </div>
-                <div id="monthly-leaderboard" class="space-y-2 max-h-60 overflow-y-auto">
-                    <!-- Preenchido via JS com o acumulado do mês -->
-                </div>
+                <div id="monthly-leaderboard" class="space-y-2 max-h-60 overflow-y-auto"></div>
             </div>
 
             <!-- ================= BLOCO DO CHAT E FAVORITAS ================= -->
@@ -132,19 +159,75 @@
             }
         }
 
+        // Função para alternar visualização da senha (Olhinho)
+        function toggleSenha() {
+            const inputPass = document.getElementById('auth-password');
+            const btnEye = document.getElementById('btn-eye');
+            if (inputPass.type === 'password') {
+                inputPass.type = 'text';
+                btnEye.innerText = '🙈';
+            } else {
+                inputPass.type = 'password';
+                btnEye.innerText = '👁️';
+            }
+        }
+
+        // Alternar entre tela de Login e tela de Recuperação de Senha
+        function alternarTelaRecuperacao(mostrar) {
+            const boxLogin = document.getElementById('form-login-box');
+            const boxRec = document.getElementById('form-recovery-box');
+            if (mostrar) {
+                boxLogin.classList.add('hidden');
+                boxRec.classList.remove('hidden');
+            } else {
+                boxRec.classList.add('hidden');
+                boxLogin.classList.remove('hidden');
+            }
+        }
+
+        // Executa a recuperação de senha validando nome e contato (WhatsApp/E-mail)
+        function executarRecuperacao() {
+            const nome = document.getElementById('rec-username').value.trim();
+            const contato = document.getElementById('rec-contact').value.trim();
+            const novaSenha = document.getElementById('rec-new-password').value.trim();
+
+            if (!nome || !contato || !novaSenha) {
+                return alert('Por favor, preencha todos os campos de recuperação!');
+            }
+
+            const usuario = users.find(u => u.name.toLowerCase() === nome.toLowerCase() && u.contact && u.contact.toLowerCase() === contato.toLowerCase());
+
+            if (!usuario) {
+                return alert('Dados incorretos! Nome de usuário ou contato (WhatsApp/E-mail) não conferem.');
+            }
+
+            usuario.pass = novaSenha;
+            localStorage.setItem('fitbattle_users_db', JSON.stringify(users));
+            alert('Senha redefinida com sucesso! Faça login com sua nova senha. 🚀');
+            alternarTelaRecuperacao(false);
+            document.getElementById('rec-username').value = '';
+            document.getElementById('rec-contact').value = '';
+            document.getElementById('rec-new-password').value = '';
+        }
+
         function criarPerfilComSenha() {
             const nome = document.getElementById('auth-username').value.trim();
             const senha = document.getElementById('auth-password').value.trim();
-            if (!nome || !senha) return alert('Por favor, preencha o nome e a senha!');
+            const contato = document.getElementById('auth-contact').value.trim();
+
+            if (!nome || !senha || !contato) {
+                return alert('Por favor, preencha o nome, a senha e o seu WhatsApp ou E-mail!');
+            }
             if (users.find(u => u.name.toLowerCase() === nome.toLowerCase())) {
                 return alert('Esse nome já existe! Escolha outro ou clique em Entrar.');
             }
-            users.push({ name: nome, pass: senha });
+            users.push({ name: nome, pass: senha, contact: contato });
             localStorage.setItem('fitbattle_users_db', JSON.stringify(users));
             currentUser = nome;
             localStorage.setItem('fitbattle_user', currentUser);
             document.getElementById('auth-username').value = '';
             document.getElementById('auth-password').value = '';
+            document.getElementById('auth-contact').value = '';
             init();
         }
 
@@ -158,6 +241,7 @@
             localStorage.setItem('fitbattle_user', currentUser);
             document.getElementById('auth-username').value = '';
             document.getElementById('auth-password').value = '';
+            document.getElementById('auth-contact').value = '';
             init();
         }
 
@@ -271,20 +355,15 @@
             });
         }
 
-        // Função para calcular e exibir o Placar Acumulado do Mês Atual
         function atualizarPlacarMensal() {
             const agora = new Date();
-            const mesAtual = agora.getMonth(); // 0 a 11
+            const mesAtual = agora.getMonth();
             const anoAtual = agora.getFullYear();
-            
-            // Exibe o nome do mês atual no rótulo
             const nomesMeses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
             document.getElementById('current-month-label').innerText = `${nomesMeses[mesAtual]} de ${anoAtual}`;
 
             const mensalMap = {};
-
             workouts.forEach(w => {
-                // Converte a string de data salva (ex: "DD/MM/AAAA") para objeto Date
                 const partes = w.date.split('/');
                 if (partes.length === 3) {
                     const dataTreino = new Date(partes[2], partes[1] - 1, partes[0]);
@@ -296,7 +375,6 @@
 
             const mensalDiv = document.getElementById('monthly-leaderboard');
             mensalDiv.innerHTML = '';
-
             const rankingMensal = Object.entries(mensalMap).sort((a, b) => b[1] - a[1]);
 
             if (rankingMensal.length === 0) {
