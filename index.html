@@ -4,53 +4,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FitBattle - Treino em Grupo 🔥</title>
-    <!-- Importação do Tailwind CSS para estilização moderna e rápida -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         @import "https://cdn.jsdelivr.net/npm/tailwindcss@4.0.0/dist/tailwind.min.css";
     </style>
+    <!-- SDK DO SUPABASE (A Magia da Nuvem) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans min-h-screen p-4 md:p-8">
 
     <div class="max-w-4xl mx-auto space-y-6">
         
-        <!-- ================= CABEÇALHO ================= -->
+        <!-- Cabeçalho -->
         <header class="text-center space-y-2">
             <h1 class="text-4xl font-extrabold text-amber-400">🏋️‍♂️ FitBattle Interativo</h1>
             <p class="text-slate-400">Supere seus limites e domine o placar com seus amigos! 🔥</p>
+            <div id="status-nuvem" class="text-xs text-emerald-400 font-bold animate-pulse">⏳ Conectando aos servidores em tempo real...</div>
         </header>
 
-        <!-- ================= SEÇÃO DE AUTENTICAÇÃO (LOGIN / CADASTRO) ================= -->
-        <section id="auth-section" class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-4">
+        <!-- Seção de Autenticação -->
+        <section id="auth-section" class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-4 hidden">
             <h2 class="text-xl font-bold text-emerald-400">👤 Acesso ao Perfil</h2>
             
-            <!-- Formulário de Login / Cadastro -->
             <div id="form-login-box" class="space-y-3">
                 <input type="text" id="auth-username" placeholder="Seu nome (ex: Josemar)" class="w-full bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-amber-400">
-                
-                <!-- Campo de senha com o botão do "Olhinho" para mostrar/esconder -->
                 <div class="relative">
                     <input type="password" id="auth-password" placeholder="Sua senha de acesso" class="w-full bg-slate-900 border border-slate-700 px-4 py-3 pr-12 rounded-xl focus:outline-none focus:border-amber-400">
                     <button type="button" onclick="toggleSenha()" class="absolute right-3 top-3.5 text-slate-400 hover:text-slate-200 text-sm cursor-pointer" id="btn-eye">👁️</button>
                 </div>
-
-                <!-- Campo extra para cadastro (WhatsApp ou E-mail) -->
                 <input type="text" id="auth-contact" placeholder="Seu E-mail ou WhatsApp (para recuperação)" class="w-full bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-amber-400">
-
                 <div class="flex gap-3 pt-2">
                     <button onclick="fazerLogin()" class="flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl transition cursor-pointer">Entrar 🚀</button>
                     <button onclick="criarPerfilComSenha()" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-3 rounded-xl transition cursor-pointer">Criar Conta ➕</button>
                 </div>
-
                 <div class="text-center pt-2">
                     <button onclick="alternarTelaRecuperacao(true)" class="text-xs text-sky-400 hover:underline cursor-pointer">Esqueceu sua senha? Clique aqui 🔑</button>
                 </div>
             </div>
 
-            <!-- Formulário de Recuperação de Senha -->
             <div id="form-recovery-box" class="space-y-3 hidden">
                 <h3 class="text-sm font-bold text-sky-400">🔑 Recuperação de Senha</h3>
-                <p class="text-xs text-slate-400">Digite seu nome e o e-mail/WhatsApp cadastrados para redefinir sua senha.</p>
                 <input type="text" id="rec-username" placeholder="Seu nome de usuário" class="w-full bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-sky-400">
                 <input type="text" id="rec-contact" placeholder="E-mail ou WhatsApp cadastrado" class="w-full bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-sky-400">
                 <input type="password" id="rec-new-password" placeholder="Nova senha desejada" class="w-full bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-sky-400">
@@ -66,102 +60,135 @@
             </div>
         </section>
 
-        <!-- ================= PAINEL PRINCIPAL (APÓS LOGIN) ================= -->
+        <!-- Painel Principal -->
         <div id="main-panel" class="hidden space-y-6">
-            
-            <!-- Barra de Boas-vindas e Logout -->
             <div class="bg-slate-800 p-4 rounded-xl flex justify-between items-center border border-slate-700">
                 <div>
                     <span class="text-slate-400">Logado como:</span>
                     <strong id="current-user-display" class="text-amber-400 text-lg"></strong>
                     <span id="admin-badge" class="hidden ml-2 text-xs bg-rose-500/20 text-rose-400 px-2 py-0.5 rounded-full font-bold">🛡️ ADMIN</span>
                 </div>
-                <button onclick="sair()" class="text-sm bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white px-3 py-1.5 rounded-lg transition cursor-pointer">Sair / Trocar Perfil</button>
+                <button onclick="sair()" class="text-sm bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white px-3 py-1.5 rounded-lg transition cursor-pointer">Sair</button>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                
-                <!-- Bloco: Meus Exercícios Fixos do Dia -->
+                <!-- Meus Exercícios -->
                 <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-4">
                     <h2 class="text-xl font-bold text-emerald-400">💪 Meus Exercícios de Hoje</h2>
                     <div class="space-y-3">
-                        <input type="text" id="exercise-name" placeholder="Nome do Exercício (ex: Flexão, Supino)" class="w-full bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-amber-400">
+                        <input type="text" id="exercise-name" placeholder="Nome do Exercício (ex: Flexão)" class="w-full bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-amber-400">
                         <button onclick="adicionarExercicioFixo()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-3 rounded-xl transition cursor-pointer">Fixar Novo Exercício 🚀</button>
                     </div>
-                    <!-- Lista onde aparecem os exercícios do usuário no dia -->
                     <div id="my-exercises-list" class="space-y-3 mt-4 max-h-72 overflow-y-auto"></div>
                 </div>
 
-                <!-- Bloco: Placar Diário Competitivo -->
+                <!-- Placar Diário -->
                 <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-4">
                     <h2 class="text-xl font-bold text-amber-400">🏆 Placar Diário</h2>
                     <div id="leaderboard" class="space-y-2 max-h-80 overflow-y-auto"></div>
                 </div>
             </div>
 
-            <!-- ================= BLOCO: PLACAR MENSAL ================= -->
+            <!-- Placar Mensal -->
             <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-4">
                 <div class="flex justify-between items-center">
-                    <h2 class="text-xl font-bold text-indigo-400">📈 Desempenho Mensal (Acumulado)</h2>
+                    <h2 class="text-xl font-bold text-indigo-400">📈 Desempenho Mensal</h2>
                     <span id="current-month-label" class="text-xs bg-indigo-500/20 text-indigo-300 px-3 py-1 rounded-full font-bold">Mês Atual</span>
                 </div>
                 <div id="monthly-leaderboard" class="space-y-2 max-h-60 overflow-y-auto"></div>
             </div>
 
-            <!-- ================= BLOCO DO CHAT E FAVORITAS ================= -->
+            <!-- Chat -->
             <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-4">
                 <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
                     <h2 class="text-xl font-bold text-sky-400">💬 Chat Interativo</h2>
                     <div class="flex gap-2">
                         <button onclick="mudarAbaChat('geral')" id="btn-chat-geral" class="text-xs px-3 py-1.5 rounded-lg bg-sky-500 text-slate-950 font-bold transition cursor-pointer">Chat Geral (24h)</button>
-                        <button onclick="mudarAbaChat('favoritas')" id="btn-chat-fav" class="text-xs px-3 py-1.5 rounded-lg bg-slate-700 text-slate-300 font-bold transition cursor-pointer">⭐ Salvas (90 dias)</button>
+                        <button onclick="mudarAbaChat('favoritas')" id="btn-chat-fav" class="text-xs px-3 py-1.5 rounded-lg bg-slate-700 text-slate-300 font-bold transition cursor-pointer">⭐ Salvas</button>
                     </div>
                 </div>
-
-                <!-- Aba 1: Chat Geral -->
                 <div id="container-chat-geral" class="space-y-3">
                     <div id="chat-messages" class="bg-slate-900 h-48 rounded-xl p-4 overflow-y-auto space-y-3 border border-slate-700/50"></div>
                     <div class="flex gap-2">
-                        <input type="text" id="chat-input" placeholder="Mande uma provocação ou dica..." class="flex-1 bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-sky-400" onkeypress="handleChatKey(event)">
+                        <input type="text" id="chat-input" placeholder="Mande uma mensagem para Angola..." class="flex-1 bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-sky-400" onkeypress="handleChatKey(event)">
                         <button onclick="enviarMensagem()" class="bg-sky-500 hover:bg-sky-600 text-slate-950 font-bold px-6 py-3 rounded-xl transition cursor-pointer">Enviar</button>
                     </div>
                 </div>
-
-                <!-- Aba 2: Mensagens Salvas/Favoritas (90 dias) -->
                 <div id="container-chat-fav" class="space-y-3 hidden">
                     <div id="fav-messages" class="bg-slate-900 h-48 rounded-xl p-4 overflow-y-auto space-y-3 border border-slate-700/50"></div>
-                    <p class="text-xs text-slate-400 text-center">💡 Mensagens salvas ficam guardadas por até 90 dias. Você pode renovar o prazo a qualquer momento!</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ================= MOTOR JAVASCRIPT DO SISTEMA ================= -->
+    <!-- ================= MOTOR JAVASCRIPT COM SUPABASE ================= -->
     <script>
-        let currentUser = localStorage.getItem('fitbattle_user') || null;
-        let users = JSON.parse(localStorage.getItem('fitbattle_users_db')) || [];
-        let workouts = JSON.parse(localStorage.getItem('fitbattle_workouts')) || [];
-        let messages = JSON.parse(localStorage.getItem('fitbattle_messages')) || [];
+        // Configuração do Supabase (A Nuvem!)
+        const { createClient } = supabase;
+        const supabaseUrl = 'https://elmfmdpduqusmlskklrp.supabase.co';
+        const supabaseKey = 'sb_publishable_IwBop8aSQwOem6wk-sMiyw_EJvHxm4b';
+        const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
-        // O primeiro usuário cadastrado no sistema é considerado o ADMIN supremo
-        function verificarSeEhAdmin(nomeUsuario) {
-            if (users.length === 0) return false;
-            return users[0].name.toLowerCase() === nomeUsuario.toLowerCase();
+        let currentUser = localStorage.getItem('fitbattle_user') || null;
+        let users = [];
+        let workouts = [];
+        let messages = [];
+
+        // Função que salva os dados na nuvem sempre que você ou seu amigo fizerem algo
+        async function salvarNaNuvem() {
+            const estadoAtual = { users, workouts, messages };
+            await supabaseClient.from('app_state').update({ state_data: estadoAtual }).eq('id', 1);
         }
 
-        function init() {
+        // Função que busca os dados da nuvem ao abrir o app
+        async function carregarDaNuvem() {
+            const { data, error } = await supabaseClient.from('app_state').select('state_data').eq('id', 1).single();
+            if (data && data.state_data) {
+                users = data.state_data.users || [];
+                workouts = data.state_data.workouts || [];
+                messages = data.state_data.messages || [];
+            }
+        }
+
+        // Configura a magia do Tempo Real (Realtime)
+        function escutarMudancasEmTempoReal() {
+            supabaseClient
+                .channel('room-1')
+                .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'app_state' }, (payload) => {
+                    const novoEstado = payload.new.state_data;
+                    users = novoEstado.users || [];
+                    workouts = novoEstado.workouts || [];
+                    messages = novoEstado.messages || [];
+                    
+                    if (currentUser) {
+                        renderizarMeusExercicios();
+                        atualizarPlacar();
+                        atualizarPlacarMensal();
+                        atualizarChat();
+                        atualizarFavoritas();
+                    } else {
+                        renderizarListaUsuarios();
+                    }
+                })
+                .subscribe();
+        }
+
+        // Inicializa o Aplicativo puxando da nuvem primeiro
+        async function iniciarApp() {
+            await carregarDaNuvem();
+            document.getElementById('status-nuvem').innerText = '✅ Online e sincronizado globalmente!';
+            document.getElementById('status-nuvem').classList.remove('animate-pulse');
+            
+            escutarMudancasEmTempoReal();
+
             if (currentUser) {
                 document.getElementById('auth-section').classList.add('hidden');
                 document.getElementById('main-panel').classList.remove('hidden');
                 document.getElementById('current-user-display').innerText = currentUser;
                 
-                // Mostra ou esconde a badge de Admin
                 const badgeAdmin = document.getElementById('admin-badge');
-                if (verificarSeEhAdmin(currentUser)) {
-                    badgeAdmin.classList.remove('hidden');
-                } else {
-                    badgeAdmin.classList.add('hidden');
-                }
+                if (verificarSeEhAdmin(currentUser)) badgeAdmin.classList.remove('hidden');
+                else badgeAdmin.classList.add('hidden');
 
                 renderizarMeusExercicios();
                 atualizarPlacar();
@@ -175,114 +202,81 @@
             }
         }
 
-        // Função para alternar visualização da senha (Olhinho)
+        function verificarSeEhAdmin(nomeUsuario) {
+            if (users.length === 0) return false;
+            return users[0].name.toLowerCase() === nomeUsuario.toLowerCase();
+        }
+
         function toggleSenha() {
             const inputPass = document.getElementById('auth-password');
             const btnEye = document.getElementById('btn-eye');
-            if (inputPass.type === 'password') {
-                inputPass.type = 'text';
-                btnEye.innerText = '🙈';
-            } else {
-                inputPass.type = 'password';
-                btnEye.innerText = '👁️';
-            }
+            if (inputPass.type === 'password') { inputPass.type = 'text'; btnEye.innerText = '🙈'; } 
+            else { inputPass.type = 'password'; btnEye.innerText = '👁️'; }
         }
 
-        // Alternar entre tela de Login e tela de Recuperação de Senha
         function alternarTelaRecuperacao(mostrar) {
-            const boxLogin = document.getElementById('form-login-box');
-            const boxRec = document.getElementById('form-recovery-box');
-            if (mostrar) {
-                boxLogin.classList.add('hidden');
-                boxRec.classList.remove('hidden');
-            } else {
-                boxRec.classList.add('hidden');
-                boxLogin.classList.remove('hidden');
-            }
+            document.getElementById('form-login-box').classList.toggle('hidden', mostrar);
+            document.getElementById('form-recovery-box').classList.toggle('hidden', !mostrar);
         }
 
-        // Executa a recuperação de senha validando nome e contato
-        function executarRecuperacao() {
+        async function executarRecuperacao() {
             const nome = document.getElementById('rec-username').value.trim();
             const contato = document.getElementById('rec-contact').value.trim();
             const novaSenha = document.getElementById('rec-new-password').value.trim();
-
-            if (!nome || !contato || !novaSenha) {
-                return alert('Por favor, preencha todos os campos de recuperação!');
-            }
-
+            if (!nome || !contato || !novaSenha) return alert('Preencha tudo!');
+            
             const usuario = users.find(u => u.name.toLowerCase() === nome.toLowerCase() && u.contact && u.contact.toLowerCase() === contato.toLowerCase());
-
-            if (!usuario) {
-                return alert('Dados incorretos! Nome de usuário ou contato (WhatsApp/E-mail) não conferem.');
-            }
+            if (!usuario) return alert('Dados incorretos!');
 
             usuario.pass = novaSenha;
-            localStorage.setItem('fitbattle_users_db', JSON.stringify(users));
-            alert('Senha redefinida com sucesso! Faça login com sua nova senha. 🚀');
+            await salvarNaNuvem();
+            alert('Senha redefinida com sucesso! Faça login.');
             alternarTelaRecuperacao(false);
-            document.getElementById('rec-username').value = '';
-            document.getElementById('rec-contact').value = '';
-            document.getElementById('rec-new-password').value = '';
         }
 
-        function criarPerfilComSenha() {
+        async function criarPerfilComSenha() {
             const nome = document.getElementById('auth-username').value.trim();
             const senha = document.getElementById('auth-password').value.trim();
             const contato = document.getElementById('auth-contact').value.trim();
 
-            if (!nome || !senha || !contato) {
-                return alert('Por favor, preencha o nome, a senha e o seu WhatsApp ou E-mail!');
-            }
-            if (users.find(u => u.name.toLowerCase() === nome.toLowerCase())) {
-                return alert('Esse nome já existe! Escolha outro ou clique em Entrar.');
-            }
+            if (!nome || !senha || !contato) return alert('Preencha o nome, senha e WhatsApp/E-mail!');
+            if (users.find(u => u.name.toLowerCase() === nome.toLowerCase())) return alert('Nome já existe!');
+            
             users.push({ name: nome, pass: senha, contact: contato });
-            localStorage.setItem('fitbattle_users_db', JSON.stringify(users));
             currentUser = nome;
             localStorage.setItem('fitbattle_user', currentUser);
+            
+            await salvarNaNuvem();
+            
             document.getElementById('auth-username').value = '';
             document.getElementById('auth-password').value = '';
             document.getElementById('auth-contact').value = '';
-            init();
+            iniciarApp();
         }
 
         function fazerLogin() {
             const nome = document.getElementById('auth-username').value.trim();
             const senha = document.getElementById('auth-password').value.trim();
-            if (!nome || !senha) return alert('Por favor, digite o nome e a senha!');
             const conta = users.find(u => u.name.toLowerCase() === nome.toLowerCase() && u.pass === senha);
-            if (!conta) return alert('Nome de usuário ou senha incorretos!');
+            
+            if (!conta) return alert('Nome ou senha incorretos!');
+            
             currentUser = conta.name;
             localStorage.setItem('fitbattle_user', currentUser);
             document.getElementById('auth-username').value = '';
             document.getElementById('auth-password').value = '';
-            document.getElementById('auth-contact').value = '';
-            init();
+            iniciarApp();
         }
 
-        // Função do Admin para remover um usuário da plataforma
-        function excluirUsuario(nomeUsuarioParaRemover, event) {
-            event.stopPropagation(); // Evita clicar no botão de login ao tentar excluir
-
-            // Impede que o admin remova a si mesmo por engano na lista principal
-            if (verificarSeEhAdmin(nomeUsuarioParaRemover)) {
-                return alert('Você não pode excluir a conta do Administrador Principal por aqui!');
-            }
-
-            if (confirm(`Tem certeza que deseja banir e remover o usuário "${nomeUsuarioParaRemover}" da plataforma?`)) {
-                // Remove da lista de usuários
+        async function excluirUsuario(nomeUsuarioParaRemover, event) {
+            event.stopPropagation();
+            if (verificarSeEhAdmin(nomeUsuarioParaRemover)) return alert('O Admin não pode ser excluído por aqui!');
+            if (confirm(`Banir o usuário "${nomeUsuarioParaRemover}"?`)) {
                 users = users.filter(u => u.name.toLowerCase() !== nomeUsuarioParaRemover.toLowerCase());
-                localStorage.setItem('fitbattle_users_db', JSON.stringify(users));
-
-                // Remove também os treinos e mensagens desse usuário para limpar o sistema
                 workouts = workouts.filter(w => w.user.toLowerCase() !== nomeUsuarioParaRemover.toLowerCase());
-                localStorage.setItem('fitbattle_workouts', JSON.stringify(workouts));
-
                 messages = messages.filter(m => m.user.toLowerCase() !== nomeUsuarioParaRemover.toLowerCase());
-                localStorage.setItem('fitbattle_messages', JSON.stringify(messages));
-
-                alert(`Usuário ${nomeUsuarioParaRemover} removido com sucesso.`);
+                await salvarNaNuvem();
+                alert(`Usuário removido.`);
                 renderizarListaUsuarios();
             }
         }
@@ -290,14 +284,7 @@
         function renderizarListaUsuarios() {
             const lista = document.getElementById('users-list');
             lista.innerHTML = '';
-            if (users.length === 0) {
-                lista.innerHTML = '<p class="text-xs text-slate-500 italic">Nenhuma conta criada ainda. Crie a sua acima!</p>';
-                return;
-            }
-
-            // Verifica se quem está visualizando no momento é o Admin (primeiro usuário cadastrado)
-            // Se ainda não logou, assume que o primeiro da lista é o admin de referência
-            const primeiroAdmin = users.length > 0 ? users[0].name : null;
+            if (users.length === 0) { lista.innerHTML = '<p class="text-xs text-slate-500 italic">Nenhuma conta ainda.</p>'; return; }
 
             users.forEach((u, index) => {
                 const containerBtn = document.createElement('div');
@@ -312,20 +299,13 @@
                 };
                 containerBtn.appendChild(btnUser);
 
-                // Se houver mais de um usuário ou se permitirmos gerenciar, adiciona o botão de exclusão para o Admin principal
-                // (Aqui permitimos que qualquer um veja o botão de lixeira nos outros perfis se for o admin)
-                if (index !== 0) { // O criador (índice 0) não pode ser excluído por essa listagem direta
-                    const btnDel = document.createElement('button0'); // Usaremos button padrão
+                if (index !== 0) {
+                    const btnExcluir = document.createElement('button');
+                    btnExcluir.innerText = '❌';
+                    btnExcluir.className = 'px-2 py-1.5 bg-rose-600/50 hover:bg-rose-600 text-white cursor-pointer transition';
+                    btnExcluir.onclick = (e) => excluirUsuario(u.name, e);
+                    containerBtn.appendChild(btnExcluir);
                 }
-
-                // Botão de deletar visível para cada perfil secundário
-                const btnExcluir = document.createElement('button');
-                btnExcluir.innerText = '❌';
-                btnExcluir.className = 'px-2 py-1.5 bg-rose-600/50 hover:bg-rose-600 text-white cursor-pointer transition';
-                btnExcluir.title = `Remover ${u.name}`;
-                btnExcluir.onclick = (e) => excluirUsuario(u.name, e);
-                containerBtn.appendChild(btnExcluir);
-
                 lista.appendChild(containerBtn);
             });
         }
@@ -333,30 +313,27 @@
         function sair() {
             currentUser = null;
             localStorage.removeItem('fitbattle_user');
-            init();
+            iniciarApp();
         }
 
-        function adicionarExercicioFixo() {
+        async function adicionarExercicioFixo() {
             const nomeEx = document.getElementById('exercise-name').value.trim();
-            if (!nomeEx) return alert('Digite o nome do exercício!');
+            if (!nomeEx) return alert('Digite o exercício!');
             const hoje = new Date().toLocaleDateString();
-            let exercicioExistente = workouts.find(w => w.user === currentUser && w.date === hoje && w.exercise.toLowerCase() === nomeEx.toLowerCase());
-            if (exercicioExistente) {
-                alert('Esse exercício já está fixado na sua lista de hoje!');
-            } else {
-                workouts.push({ user: currentUser, exercise: nomeEx, reps: 0, date: hoje });
-                localStorage.setItem('fitbattle_workouts', JSON.stringify(workouts));
+            if (workouts.find(w => w.user === currentUser && w.date === hoje && w.exercise.toLowerCase() === nomeEx.toLowerCase())) {
+                return alert('Exercício já fixado hoje!');
             }
-            document.getElementById('exercise-name').value = '';
+            workouts.push({ user: currentUser, exercise: nomeEx, reps: 0, date: hoje });
+            await salvarNaNuvem();
             renderizarMeusExercicios();
             atualizarPlacar();
             atualizarPlacarMensal();
         }
 
-        function somarReps(indexOriginal, qtd) {
-            if (isNaN(qtd) || qtd <= 0) return alert('Digite um valor válido!');
+        async function somarReps(indexOriginal, qtd) {
+            if (isNaN(qtd) || qtd <= 0) return alert('Valor inválido!');
             workouts[indexOriginal].reps += qtd;
-            localStorage.setItem('fitbattle_workouts', JSON.stringify(workouts));
+            await salvarNaNuvem();
             renderizarMeusExercicios();
             atualizarPlacar();
             atualizarPlacarMensal();
@@ -367,10 +344,9 @@
             const listaDiv = document.getElementById('my-exercises-list');
             listaDiv.innerHTML = '';
             const meusExercicios = workouts.map((w, i) => ({ ...w, originalIndex: i })).filter(w => w.user === currentUser && w.date === hoje);
-            if (meusExercicios.length === 0) {
-                listaDiv.innerHTML = '<p class="text-slate-500 italic text-sm">Nenhum exercício fixado para hoje ainda. Adicione acima! 🎯</p>';
-                return;
-            }
+            
+            if (meusExercicios.length === 0) return listaDiv.innerHTML = '<p class="text-slate-500 italic text-sm">Nenhum exercício fixado para hoje.</p>';
+            
             meusExercicios.forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'bg-slate-900 p-3.5 rounded-xl border border-slate-700/60 flex flex-col gap-2';
@@ -397,24 +373,19 @@
         function atualizarPlacar() {
             const hoje = new Date().toLocaleDateString();
             const placarMap = {};
-            workouts.filter(w => w.date === hoje).forEach(w => {
-                placarMap[w.user] = (placarMap[w.user] || 0) + w.reps;
-            });
+            workouts.filter(w => w.date === hoje).forEach(w => placarMap[w.user] = (placarMap[w.user] || 0) + w.reps);
+            
             const leaderboardDiv = document.getElementById('leaderboard');
             leaderboardDiv.innerHTML = '';
             const ranking = Object.entries(placarMap).sort((a, b) => b[1] - a[1]);
-            if (ranking.length === 0) {
-                leaderboardDiv.innerHTML = '<p class="text-slate-500 italic text-sm">Nenhuma pontuação registrada hoje ainda. 🥇</p>';
-                return;
-            }
+            
+            if (ranking.length === 0) return leaderboardDiv.innerHTML = '<p class="text-slate-500 italic text-sm">Nenhuma pontuação registrada hoje.</p>';
+            
             ranking.forEach(([user, total], index) => {
                 const item = document.createElement('div');
                 item.className = `flex justify-between items-center p-3 rounded-xl border ${user === currentUser ? 'bg-amber-500/10 border-amber-500/30' : 'bg-slate-900 border-slate-700/50'}`;
                 item.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <span class="font-bold text-amber-400">#${index + 1}</span>
-                        <span>${user}</span>
-                    </div>
+                    <div class="flex items-center gap-3"><span class="font-bold text-amber-400">#${index + 1}</span><span>${user}</span></div>
                     <span class="font-extrabold text-emerald-400">${total} reps</span>
                 `;
                 leaderboardDiv.appendChild(item);
@@ -443,44 +414,35 @@
             mensalDiv.innerHTML = '';
             const rankingMensal = Object.entries(mensalMap).sort((a, b) => b[1] - a[1]);
 
-            if (rankingMensal.length === 0) {
-                mensalDiv.innerHTML = '<p class="text-slate-500 italic text-sm">Nenhum treino acumulado neste mês ainda. Vamos começar! 📈</p>';
-                return;
-            }
+            if (rankingMensal.length === 0) return mensalDiv.innerHTML = '<p class="text-slate-500 italic text-sm">Nenhum treino acumulado neste mês ainda.</p>';
 
             rankingMensal.forEach(([user, total], index) => {
                 const item = document.createElement('div');
                 item.className = `flex justify-between items-center p-3 rounded-xl border ${user === currentUser ? 'bg-indigo-500/10 border-indigo-500/30' : 'bg-slate-900 border-slate-700/50'}`;
                 item.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <span class="font-bold text-indigo-400">#${index + 1}</span>
-                        <span>${user}</span>
-                    </div>
+                    <div class="flex items-center gap-3"><span class="font-bold text-indigo-400">#${index + 1}</span><span>${user}</span></div>
                     <span class="font-extrabold text-indigo-300">${total} reps acumuladas</span>
                 `;
                 mensalDiv.appendChild(item);
             });
         }
 
-        function enviarMensagem() {
+        async function enviarMensagem() {
             const texto = document.getElementById('chat-input').value.trim();
             if (!texto) return;
             messages.push({
-                id: Date.now(),
-                user: currentUser,
-                text: texto,
+                id: Date.now(), user: currentUser, text: texto,
                 time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                isFavorite: false,
-                expireAt: null
+                isFavorite: false, expireAt: null
             });
-            localStorage.setItem('fitbattle_messages', JSON.stringify(messages));
+            await salvarNaNuvem();
             document.getElementById('chat-input').value = '';
             atualizarChat();
         }
 
         function handleChatKey(e) { if (e.key === 'Enter') enviarMensagem(); }
 
-        function alternarFavorito(msgId) {
+        async function alternarFavorito(msgId) {
             const msg = messages.find(m => m.id === msgId);
             if (!msg) return;
             if (!msg.isFavorite) {
@@ -492,29 +454,27 @@
                 msg.isFavorite = false;
                 msg.expireAt = null;
             }
-            localStorage.setItem('fitbattle_messages', JSON.stringify(messages));
+            await salvarNaNuvem();
             atualizarChat();
             atualizarFavoritas();
         }
 
-        function renovarPrazo(msgId) {
+        async function renovarPrazo(msgId) {
             const msg = messages.find(m => m.id === msgId);
             if (!msg) return;
             const novaExpiracao = new Date();
             novaExpiracao.setDate(novaExpiracao.getDate() + 90);
             msg.expireAt = novaExpiracao.getTime();
-            localStorage.setItem('fitbattle_messages', JSON.stringify(messages));
+            await salvarNaNuvem();
             atualizarFavoritas();
-            alert('Prazo renovado por mais 90 dias com sucesso! ⏳✨');
+            alert('Prazo renovado por 90 dias!');
         }
 
         function atualizarChat() {
             const chatDiv = document.getElementById('chat-messages');
             chatDiv.innerHTML = '';
-            if (messages.length === 0) {
-                chatDiv.innerHTML = '<p class="text-slate-500 italic text-sm text-center py-8">O chat está silencioso... Mande a primeira mensagem! ⚡</p>';
-                return;
-            }
+            if (messages.length === 0) return chatDiv.innerHTML = '<p class="text-slate-500 italic text-sm text-center py-8">Mande a primeira mensagem!</p>';
+            
             messages.forEach(msg => {
                 const bubble = document.createElement('div');
                 bubble.className = 'space-y-0.5';
@@ -523,7 +483,7 @@
                         <span class="font-semibold text-amber-400">${msg.user}</span>
                         <div class="flex items-center gap-2">
                             <span>${msg.time}</span>
-                            <button onclick="alternarFavorito(${msg.id})" class="cursor-pointer hover:scale-125 transition text-xs" title="Salvar mensagem">
+                            <button onclick="alternarFavorito(${msg.id})" class="cursor-pointer hover:scale-125 transition text-xs">
                                 ${msg.isFavorite ? '⭐' : '☆'}
                             </button>
                         </div>
@@ -540,10 +500,7 @@
             favDiv.innerHTML = '';
             const favoritas = messages.filter(m => m.isFavorite);
 
-            if (favoritas.length === 0) {
-                favDiv.innerHTML = '<p class="text-slate-500 italic text-sm text-center py-8">Nenhuma mensagem salva ainda. Clique no ícone de estrela (☆) em uma mensagem para guardá-la por 90 dias! ⭐</p>';
-                return;
-            }
+            if (favoritas.length === 0) return favDiv.innerHTML = '<p class="text-slate-500 italic text-sm text-center py-8">Nenhuma mensagem salva ainda.</p>';
 
             favoritas.forEach(msg => {
                 const diasRestantes = msg.expireAt ? Math.ceil((msg.expireAt - Date.now()) / (1000 * 60 * 60 * 24)) : 90;
@@ -556,8 +513,8 @@
                     </div>
                     <div class="text-sm text-slate-200">${msg.text}</div>
                     <div class="flex justify-end gap-2 pt-1">
-                        <button onclick="renovarPrazo(${msg.id})" class="bg-amber-500/20 text-amber-400 hover:bg-amber-500 hover:text-slate-950 font-bold text-xs px-3 py-1 rounded-lg transition cursor-pointer">Renovar +90 dias 🔄</button>
-                        <button onclick="alternarFavorito(${msg.id})" class="bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white font-bold text-xs px-3 py-1 rounded-lg transition cursor-pointer">Remover 🗑️</button>
+                        <button onclick="renovarPrazo(${msg.id})" class="bg-amber-500/20 text-amber-400 hover:bg-amber-500 hover:text-slate-950 font-bold text-xs px-3 py-1 rounded-lg">Renovar 🔄</button>
+                        <button onclick="alternarFavorito(${msg.id})" class="bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white font-bold text-xs px-3 py-1 rounded-lg">Remover 🗑️</button>
                     </div>
                 `;
                 favDiv.appendChild(bubble);
@@ -571,20 +528,19 @@
             const btnFav = document.getElementById('btn-chat-fav');
 
             if (aba === 'geral') {
-                geral.classList.remove('hidden');
-                fav.classList.add('hidden');
-                btnGeral.className = 'text-xs px-3 py-1.5 rounded-lg bg-sky-500 text-slate-950 font-bold transition cursor-pointer';
-                btnFav.className = 'text-xs px-3 py-1.5 rounded-lg bg-slate-700 text-slate-300 font-bold transition cursor-pointer';
+                geral.classList.remove('hidden'); fav.classList.add('hidden');
+                btnGeral.className = 'text-xs px-3 py-1.5 rounded-lg bg-sky-500 text-slate-950 font-bold';
+                btnFav.className = 'text-xs px-3 py-1.5 rounded-lg bg-slate-700 text-slate-300 font-bold';
             } else {
-                geral.classList.add('hidden');
-                fav.classList.remove('hidden');
-                btnFav.className = 'text-xs px-3 py-1.5 rounded-lg bg-amber-500 text-slate-950 font-bold transition cursor-pointer';
-                btnGeral.className = 'text-xs px-3 py-1.5 rounded-lg bg-slate-700 text-slate-300 font-bold transition cursor-pointer';
+                geral.classList.add('hidden'); fav.classList.remove('hidden');
+                btnFav.className = 'text-xs px-3 py-1.5 rounded-lg bg-amber-500 text-slate-950 font-bold';
+                btnGeral.className = 'text-xs px-3 py-1.5 rounded-lg bg-slate-700 text-slate-300 font-bold';
                 atualizarFavoritas();
             }
         }
 
-        init();
+        // Chama a função principal de inicialização
+        iniciarApp();
     </script>
 </body>
 </html>
