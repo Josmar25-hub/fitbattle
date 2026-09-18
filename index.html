@@ -9,7 +9,7 @@
     <style>
         @import "https://cdn.jsdelivr.net/npm/tailwindcss@4.0.0/dist/tailwind.min.css";
     </style>
-    <!-- SDK DO SUPABASE (A Magia da Nuvem) -->
+    <!-- SDK DO SUPABASE -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans min-h-screen p-4 md:p-8">
@@ -103,7 +103,7 @@
                 <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
                     <h2 class="text-xl font-bold text-sky-400">💬 Chat Interativo</h2>
                     <div class="flex gap-2">
-                        <button onclick="mudarAbaChat('geral')" id="btn-chat-geral" class="text-xs px-3 py-1.5 rounded-lg bg-sky-500 text-slate-950 font-bold transition cursor-pointer">Chat Geral (24h)</button>
+                        <button onclick="mudarAbaChat('geral')" id="btn-chat-geral" class="text-xs px-3 py-1.5 rounded-lg bg-sky-500 text-slate-950 font-bold transition cursor-pointer">Chat Geral</button>
                         <button onclick="mudarAbaChat('favoritas')" id="btn-chat-fav" class="text-xs px-3 py-1.5 rounded-lg bg-slate-700 text-slate-300 font-bold transition cursor-pointer">⭐ Salvas</button>
                     </div>
                 </div>
@@ -121,9 +121,8 @@
         </div>
     </div>
 
-    <!-- ================= MOTOR JAVASCRIPT COM SUPABASE ================= -->
+    <!-- ================= MOTOR JAVASCRIPT OTIMIZADO VIA RPC ================= -->
     <script>
-        // Configuração do Supabase (A Nuvem!)
         const { createClient } = supabase;
         const supabaseUrl = 'https://elmfmdpduqusmlskklrp.supabase.co';
         const supabaseKey = 'sb_publishable_IwBop8aSQwOem6wk-sMiyw_EJvHxm4b';
@@ -134,23 +133,26 @@
         let workouts = [];
         let messages = [];
 
-        // Função que salva os dados na nuvem sempre que você ou seu amigo fizerem algo
+        // Salva na nuvem usando funções RPC (ignora erros 406 da API REST)
         async function salvarNaNuvem() {
             const estadoAtual = { users, workouts, messages };
-            await supabaseClient.from('app_state').update({ state_data: estadoAtual }).eq('id', 1);
+            const { error } = await supabaseClient.rpc('update_app_state', { new_state: estadoAtual });
+            if (error) console.error('Erro ao salvar:', error);
         }
 
-        // Função que busca os dados da nuvem ao abrir o app
+        // Carrega da nuvem usando funções RPC
         async function carregarDaNuvem() {
-            const { data, error } = await supabaseClient.from('app_state').select('state_data').eq('id', 1).single();
-            if (data && data.state_data) {
-                users = data.state_data.users || [];
-                workouts = data.state_data.workouts || [];
-                messages = data.state_data.messages || [];
+            const { data, error } = await supabaseClient.rpc('get_app_state');
+            if (data) {
+                users = data.users || [];
+                workouts = data.workouts || [];
+                messages = data.messages || [];
+            } else if (error) {
+                console.error('Erro ao carregar:', error);
             }
         }
 
-        // Configura a magia do Tempo Real (Realtime)
+        // Escuta atualizações em tempo real
         function escutarMudancasEmTempoReal() {
             supabaseClient
                 .channel('room-1')
@@ -173,7 +175,6 @@
                 .subscribe();
         }
 
-        // Inicializa o Aplicativo puxando da nuvem primeiro
         async function iniciarApp() {
             await carregarDaNuvem();
             document.getElementById('status-nuvem').innerText = '✅ Online e sincronizado globalmente!';
@@ -270,13 +271,12 @@
 
         async function excluirUsuario(nomeUsuarioParaRemover, event) {
             event.stopPropagation();
-            if (verificarSeEhAdmin(nomeUsuarioParaRemover)) return alert('O Admin não pode ser excluído por aqui!');
+            if (verificarSeEhAdmin(nomeUsuarioParaRemover)) return alert('O Admin não pode ser excluído!');
             if (confirm(`Banir o usuário "${nomeUsuarioParaRemover}"?`)) {
                 users = users.filter(u => u.name.toLowerCase() !== nomeUsuarioParaRemover.toLowerCase());
                 workouts = workouts.filter(w => w.user.toLowerCase() !== nomeUsuarioParaRemover.toLowerCase());
                 messages = messages.filter(m => m.user.toLowerCase() !== nomeUsuarioParaRemover.toLowerCase());
                 await salvarNaNuvem();
-                alert(`Usuário removido.`);
                 renderizarListaUsuarios();
             }
         }
@@ -539,7 +539,6 @@
             }
         }
 
-        // Chama a função principal de inicialização
         iniciarApp();
     </script>
 </body>
