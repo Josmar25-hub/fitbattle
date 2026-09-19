@@ -36,7 +36,6 @@
                 </div>
                 <input type="text" id="auth-contact" placeholder="Seu E-mail ou WhatsApp (para recuperação)" class="w-full bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-amber-400">
                 
-                <!-- Botões responsivos: lado a lado no PC (sm:flex-row), empilhados no mobile (flex-col) -->
                 <div class="flex flex-col sm:flex-row gap-3 pt-2">
                     <button onclick="fazerLogin()" class="w-full sm:flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl transition cursor-pointer">Entrar 🚀</button>
                     <button onclick="criarPerfilComSenha()" class="w-full sm:flex-1 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-3 rounded-xl transition cursor-pointer">Criar Conta ➕</button>
@@ -53,7 +52,6 @@
                 <input type="text" id="rec-contact" placeholder="E-mail ou WhatsApp cadastrado" class="w-full bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-sky-400">
                 <input type="password" id="rec-new-password" placeholder="Nova senha desejada" class="w-full bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-sky-400">
                 
-                <!-- Botões responsivos -->
                 <div class="flex flex-col sm:flex-row gap-3 pt-2">
                     <button onclick="executarRecuperacao()" class="w-full sm:flex-1 bg-sky-500 hover:bg-sky-600 text-slate-950 font-bold py-3 rounded-xl transition cursor-pointer">Redefinir Senha 🔄</button>
                     <button onclick="alternarTelaRecuperacao(false)" class="w-full sm:flex-1 bg-slate-700 hover:bg-slate-600 text-slate-200 py-3 rounded-xl transition cursor-pointer">Voltar</button>
@@ -117,7 +115,6 @@
                 <div id="container-chat-geral" class="space-y-3">
                     <div id="chat-messages" class="bg-slate-900 h-64 rounded-xl p-4 overflow-y-auto space-y-3 border border-slate-700/50"></div>
                     
-                    <!-- Campo de Chat responsivo -->
                     <div class="flex flex-col sm:flex-row gap-2">
                         <input type="text" id="chat-input" placeholder="Mande uma mensagem..." class="w-full bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-sky-400" onkeypress="handleChatKey(event)">
                         <button onclick="enviarMensagem()" class="w-full sm:w-auto bg-sky-500 hover:bg-sky-600 text-slate-950 font-bold px-8 py-3 rounded-xl transition cursor-pointer">Enviar</button>
@@ -322,10 +319,16 @@
             }
             workouts.push({ user: currentUser, exercise: nomeEx, reps: 0, date: hoje });
             
-            // LIMPA O CAMPO DE TEXTO APÓS ADICIONAR
             document.getElementById('exercise-name').value = ''; 
-            
             await salvarNaNuvenFirebase();
+        }
+
+        // --- NOVA FUNÇÃO PARA APAGAR EXERCÍCIO ---
+        async function removerExercicio(indexOriginal) {
+            if (confirm('Tem certeza que deseja remover este exercício e perder as repetições acumuladas nele?')) {
+                workouts.splice(indexOriginal, 1);
+                await salvarNaNuvenFirebase();
+            }
         }
 
         async function somarReps(indexOriginal, qtd) {
@@ -348,9 +351,12 @@
                 card.innerHTML = `
                     <div class="flex justify-between items-center">
                         <span class="font-bold text-slate-200">${item.exercise}</span>
-                        <span class="text-xs bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full font-bold">Total: ${item.reps} reps</span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full font-bold">Total: ${item.reps} reps</span>
+                            <!-- Botão de Apagar -->
+                            <button onclick="removerExercicio(${item.originalIndex})" class="bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer" title="Apagar Exercício">❌</button>
+                        </div>
                     </div>
-                    <!-- Área de adicionar Reps responsiva -->
                     <div class="flex flex-col sm:flex-row gap-2">
                         <input type="number" id="add-val-${item.originalIndex}" placeholder="+ Reps" class="w-full bg-slate-800 border border-slate-700 px-4 py-2 text-sm rounded-lg focus:outline-none focus:border-emerald-400">
                         <button onclick="executarSoma(${item.originalIndex})" class="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-sm px-6 py-2 rounded-lg transition cursor-pointer">Adicionar</button>
@@ -363,7 +369,7 @@
         function executarSoma(idx) {
             const inputVal = document.getElementById(`add-val-${idx}`);
             somarReps(idx, parseInt(inputVal.value));
-            inputVal.value = ''; // Limpa o campo de repetições também!
+            inputVal.value = '';
         }
 
         function atualizarPlacar() {
