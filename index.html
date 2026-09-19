@@ -35,10 +35,13 @@
                     <button type="button" onclick="toggleSenha()" class="absolute right-3 top-3.5 text-slate-400 hover:text-slate-200 text-sm cursor-pointer" id="btn-eye">👁️</button>
                 </div>
                 <input type="text" id="auth-contact" placeholder="Seu E-mail ou WhatsApp (para recuperação)" class="w-full bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-amber-400">
-                <div class="flex gap-3 pt-2">
-                    <button onclick="fazerLogin()" class="flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl transition cursor-pointer">Entrar 🚀</button>
-                    <button onclick="criarPerfilComSenha()" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-3 rounded-xl transition cursor-pointer">Criar Conta ➕</button>
+                
+                <!-- Botões responsivos: lado a lado no PC (sm:flex-row), empilhados no mobile (flex-col) -->
+                <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                    <button onclick="fazerLogin()" class="w-full sm:flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl transition cursor-pointer">Entrar 🚀</button>
+                    <button onclick="criarPerfilComSenha()" class="w-full sm:flex-1 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-3 rounded-xl transition cursor-pointer">Criar Conta ➕</button>
                 </div>
+                
                 <div class="text-center pt-2">
                     <button onclick="alternarTelaRecuperacao(true)" class="text-xs text-sky-400 hover:underline cursor-pointer">Esqueceu sua senha? Clique aqui 🔑</button>
                 </div>
@@ -49,9 +52,11 @@
                 <input type="text" id="rec-username" placeholder="Seu nome de usuário" class="w-full bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-sky-400">
                 <input type="text" id="rec-contact" placeholder="E-mail ou WhatsApp cadastrado" class="w-full bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-sky-400">
                 <input type="password" id="rec-new-password" placeholder="Nova senha desejada" class="w-full bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-sky-400">
-                <div class="flex gap-3 pt-2">
-                    <button onclick="executarRecuperacao()" class="flex-1 bg-sky-500 hover:bg-sky-600 text-slate-950 font-bold py-3 rounded-xl transition cursor-pointer">Redefinir Senha 🔄</button>
-                    <button onclick="alternarTelaRecuperacao(false)" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-4 py-3 rounded-xl transition cursor-pointer">Voltar</button>
+                
+                <!-- Botões responsivos -->
+                <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                    <button onclick="executarRecuperacao()" class="w-full sm:flex-1 bg-sky-500 hover:bg-sky-600 text-slate-950 font-bold py-3 rounded-xl transition cursor-pointer">Redefinir Senha 🔄</button>
+                    <button onclick="alternarTelaRecuperacao(false)" class="w-full sm:flex-1 bg-slate-700 hover:bg-slate-600 text-slate-200 py-3 rounded-xl transition cursor-pointer">Voltar</button>
                 </div>
             </div>
 
@@ -63,13 +68,13 @@
 
         <!-- Painel Principal -->
         <div id="main-panel" class="hidden space-y-6">
-            <div class="bg-slate-800 p-4 rounded-xl flex justify-between items-center border border-slate-700">
-                <div>
+            <div class="bg-slate-800 p-4 rounded-xl flex flex-col sm:flex-row justify-between items-center border border-slate-700 gap-3">
+                <div class="text-center sm:text-left">
                     <span class="text-slate-400">Logado como:</span>
-                    <strong id="current-user-display" class="text-amber-400 text-lg"></strong>
+                    <strong id="current-user-display" class="text-amber-400 text-lg block sm:inline"></strong>
                     <span id="admin-badge" class="hidden ml-2 text-xs bg-rose-500/20 text-rose-400 px-2 py-0.5 rounded-full font-bold">🛡️ ADMIN</span>
                 </div>
-                <button onclick="sair()" class="text-sm bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white px-3 py-1.5 rounded-lg transition cursor-pointer">Sair</button>
+                <button onclick="sair()" class="w-full sm:w-auto text-sm bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white px-4 py-2 rounded-lg transition cursor-pointer">Sair</button>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -80,49 +85,53 @@
                         <input type="text" id="exercise-name" placeholder="Nome do Exercício (ex: Flexão)" class="w-full bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-amber-400">
                         <button onclick="adicionarExercicioFixo()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-3 rounded-xl transition cursor-pointer">Fixar Novo Exercício 🚀</button>
                     </div>
-                    <div id="my-exercises-list" class="space-y-3 mt-4 max-h-72 overflow-y-auto"></div>
+                    <div id="my-exercises-list" class="space-y-3 mt-4 max-h-72 overflow-y-auto pr-2"></div>
                 </div>
 
                 <!-- Placar Diário -->
                 <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-4">
                     <h2 class="text-xl font-bold text-amber-400">🏆 Placar Diário</h2>
-                    <div id="leaderboard" class="space-y-2 max-h-80 overflow-y-auto"></div>
+                    <div id="leaderboard" class="space-y-2 max-h-80 overflow-y-auto pr-2"></div>
                 </div>
             </div>
 
             <!-- Placar Mensal -->
             <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-4">
-                <div class="flex justify-between items-center">
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
                     <h2 class="text-xl font-bold text-indigo-400">📈 Desempenho Mensal</h2>
                     <span id="current-month-label" class="text-xs bg-indigo-500/20 text-indigo-300 px-3 py-1 rounded-full font-bold">Mês Atual</span>
                 </div>
-                <div id="monthly-leaderboard" class="space-y-2 max-h-60 overflow-y-auto"></div>
+                <div id="monthly-leaderboard" class="space-y-2 max-h-60 overflow-y-auto pr-2"></div>
             </div>
 
             <!-- Chat -->
             <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-4">
-                <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-3">
                     <h2 class="text-xl font-bold text-sky-400">💬 Chat Interativo</h2>
-                    <div class="flex gap-2">
-                        <button onclick="mudarAbaChat('geral')" id="btn-chat-geral" class="text-xs px-3 py-1.5 rounded-lg bg-sky-500 text-slate-950 font-bold transition cursor-pointer">Chat Geral</button>
-                        <button onclick="mudarAbaChat('favoritas')" id="btn-chat-fav" class="text-xs px-3 py-1.5 rounded-lg bg-slate-700 text-slate-300 font-bold transition cursor-pointer">⭐ Salvas</button>
+                    <div class="flex gap-2 w-full sm:w-auto">
+                        <button onclick="mudarAbaChat('geral')" id="btn-chat-geral" class="flex-1 sm:flex-none text-xs px-3 py-2 rounded-lg bg-sky-500 text-slate-950 font-bold transition cursor-pointer">Chat Geral</button>
+                        <button onclick="mudarAbaChat('favoritas')" id="btn-chat-fav" class="flex-1 sm:flex-none text-xs px-3 py-2 rounded-lg bg-slate-700 text-slate-300 font-bold transition cursor-pointer">⭐ Salvas</button>
                     </div>
                 </div>
+                
                 <div id="container-chat-geral" class="space-y-3">
-                    <div id="chat-messages" class="bg-slate-900 h-48 rounded-xl p-4 overflow-y-auto space-y-3 border border-slate-700/50"></div>
-                    <div class="flex gap-2">
-                        <input type="text" id="chat-input" placeholder="Mande uma mensagem..." class="flex-1 bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-sky-400" onkeypress="handleChatKey(event)">
-                        <button onclick="enviarMensagem()" class="bg-sky-500 hover:bg-sky-600 text-slate-950 font-bold px-6 py-3 rounded-xl transition cursor-pointer">Enviar</button>
+                    <div id="chat-messages" class="bg-slate-900 h-64 rounded-xl p-4 overflow-y-auto space-y-3 border border-slate-700/50"></div>
+                    
+                    <!-- Campo de Chat responsivo -->
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <input type="text" id="chat-input" placeholder="Mande uma mensagem..." class="w-full bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-sky-400" onkeypress="handleChatKey(event)">
+                        <button onclick="enviarMensagem()" class="w-full sm:w-auto bg-sky-500 hover:bg-sky-600 text-slate-950 font-bold px-8 py-3 rounded-xl transition cursor-pointer">Enviar</button>
                     </div>
                 </div>
+
                 <div id="container-chat-fav" class="space-y-3 hidden">
-                    <div id="fav-messages" class="bg-slate-900 h-48 rounded-xl p-4 overflow-y-auto space-y-3 border border-slate-700/50"></div>
+                    <div id="fav-messages" class="bg-slate-900 h-64 rounded-xl p-4 overflow-y-auto space-y-3 border border-slate-700/50"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- SCRIPT FIREBASE COMPLETO -->
+    <!-- SCRIPT FIREBASE -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyCHKSlMQ8l0Uu7L2nnqtLl3pNHZQFSxZ9o",
@@ -280,7 +289,7 @@
                 
                 const btnUser = document.createElement('button');
                 btnUser.innerText = u.name + (index === 0 ? ' 👑' : '');
-                btnUser.className = 'px-3 py-1.5 cursor-pointer';
+                btnUser.className = 'px-3 py-1.5 cursor-pointer w-full text-left';
                 btnUser.onclick = () => {
                     document.getElementById('auth-username').value = u.name;
                     document.getElementById('auth-password').focus();
@@ -290,7 +299,7 @@
                 if (index !== 0) {
                     const btnExcluir = document.createElement('button');
                     btnExcluir.innerText = '❌';
-                    btnExcluir.className = 'px-2 py-1.5 bg-rose-600/50 hover:bg-rose-600 text-white cursor-pointer transition';
+                    btnExcluir.className = 'px-3 py-1.5 bg-rose-600/50 hover:bg-rose-600 text-white cursor-pointer transition';
                     btnExcluir.onclick = (e) => excluirUsuario(u.name, e);
                     containerBtn.appendChild(btnExcluir);
                 }
@@ -312,6 +321,10 @@
                 return alert('Exercício já fixado hoje!');
             }
             workouts.push({ user: currentUser, exercise: nomeEx, reps: 0, date: hoje });
+            
+            // LIMPA O CAMPO DE TEXTO APÓS ADICIONAR
+            document.getElementById('exercise-name').value = ''; 
+            
             await salvarNaNuvenFirebase();
         }
 
@@ -331,15 +344,16 @@
             
             meusExercicios.forEach(item => {
                 const card = document.createElement('div');
-                card.className = 'bg-slate-900 p-3.5 rounded-xl border border-slate-700/60 flex flex-col gap-2';
+                card.className = 'bg-slate-900 p-4 rounded-xl border border-slate-700/60 flex flex-col gap-3';
                 card.innerHTML = `
                     <div class="flex justify-between items-center">
                         <span class="font-bold text-slate-200">${item.exercise}</span>
-                        <span class="text-xs bg-emerald-500/20 text-emerald-400 px-2.5 py-1 rounded-full font-bold">Total: ${item.reps} reps</span>
+                        <span class="text-xs bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full font-bold">Total: ${item.reps} reps</span>
                     </div>
-                    <div class="flex gap-2">
-                        <input type="number" id="add-val-${item.originalIndex}" placeholder="+ Reps" class="flex-1 bg-slate-800 border border-slate-700 px-3 py-2 text-sm rounded-lg focus:outline-none focus:border-emerald-400">
-                        <button onclick="executarSoma(${item.originalIndex})" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-sm px-4 py-2 rounded-lg transition cursor-pointer">Adicionar</button>
+                    <!-- Área de adicionar Reps responsiva -->
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <input type="number" id="add-val-${item.originalIndex}" placeholder="+ Reps" class="w-full bg-slate-800 border border-slate-700 px-4 py-2 text-sm rounded-lg focus:outline-none focus:border-emerald-400">
+                        <button onclick="executarSoma(${item.originalIndex})" class="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-sm px-6 py-2 rounded-lg transition cursor-pointer">Adicionar</button>
                     </div>
                 `;
                 listaDiv.appendChild(card);
@@ -349,7 +363,7 @@
         function executarSoma(idx) {
             const inputVal = document.getElementById(`add-val-${idx}`);
             somarReps(idx, parseInt(inputVal.value));
-            inputVal.value = '';
+            inputVal.value = ''; // Limpa o campo de repetições também!
         }
 
         function atualizarPlacar() {
@@ -365,9 +379,9 @@
             
             ranking.forEach(([user, total], index) => {
                 const item = document.createElement('div');
-                item.className = `flex justify-between items-center p-3 rounded-xl border ${user === currentUser ? 'bg-amber-500/10 border-amber-500/30' : 'bg-slate-900 border-slate-700/50'}`;
+                item.className = `flex justify-between items-center p-3.5 rounded-xl border ${user === currentUser ? 'bg-amber-500/10 border-amber-500/30' : 'bg-slate-900 border-slate-700/50'}`;
                 item.innerHTML = `
-                    <div class="flex items-center gap-3"><span class="font-bold text-amber-400">#${index + 1}</span><span>${user}</span></div>
+                    <div class="flex items-center gap-3"><span class="font-bold text-amber-400">#${index + 1}</span><span class="font-medium">${user}</span></div>
                     <span class="font-extrabold text-emerald-400">${total} reps</span>
                 `;
                 leaderboardDiv.appendChild(item);
@@ -400,10 +414,10 @@
 
             rankingMensal.forEach(([user, total], index) => {
                 const item = document.createElement('div');
-                item.className = `flex justify-between items-center p-3 rounded-xl border ${user === currentUser ? 'bg-indigo-500/10 border-indigo-500/30' : 'bg-slate-900 border-slate-700/50'}`;
+                item.className = `flex justify-between items-center p-3.5 rounded-xl border ${user === currentUser ? 'bg-indigo-500/10 border-indigo-500/30' : 'bg-slate-900 border-slate-700/50'}`;
                 item.innerHTML = `
-                    <div class="flex items-center gap-3"><span class="font-bold text-indigo-400">#${index + 1}</span><span>${user}</span></div>
-                    <span class="font-extrabold text-indigo-300">${total} reps acumuladas</span>
+                    <div class="flex items-center gap-3"><span class="font-bold text-indigo-400">#${index + 1}</span><span class="font-medium">${user}</span></div>
+                    <span class="font-extrabold text-indigo-300">${total} reps</span>
                 `;
                 mensalDiv.appendChild(item);
             });
@@ -455,18 +469,18 @@
             
             messages.forEach(msg => {
                 const bubble = document.createElement('div');
-                bubble.className = 'space-y-0.5';
+                bubble.className = 'space-y-1';
                 bubble.innerHTML = `
-                    <div class="flex justify-between text-xs text-slate-400">
+                    <div class="flex justify-between items-center text-xs text-slate-400">
                         <span class="font-semibold text-amber-400">${msg.user}</span>
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-3">
                             <span>${msg.time}</span>
-                            <button onclick="alternarFavorito(${msg.id})" class="cursor-pointer hover:scale-125 transition text-xs">
+                            <button onclick="alternarFavorito(${msg.id})" class="cursor-pointer hover:scale-125 transition text-base leading-none">
                                 ${msg.isFavorite ? '⭐' : '☆'}
                             </button>
                         </div>
                     </div>
-                    <div class="bg-slate-800 p-2.5 rounded-xl border border-slate-700/60 text-sm">${msg.text}</div>
+                    <div class="bg-slate-800 p-3 rounded-xl border border-slate-700/60 text-sm leading-relaxed">${msg.text}</div>
                 `;
                 chatDiv.appendChild(bubble);
             });
@@ -483,16 +497,16 @@
             favoritas.forEach(msg => {
                 const diasRestantes = msg.expireAt ? Math.ceil((msg.expireAt - Date.now()) / (1000 * 60 * 60 * 24)) : 90;
                 const bubble = document.createElement('div');
-                bubble.className = 'space-y-1 bg-slate-800 p-3 rounded-xl border border-amber-500/30';
+                bubble.className = 'space-y-2 bg-slate-800 p-4 rounded-xl border border-amber-500/30';
                 bubble.innerHTML = `
-                    <div class="flex justify-between text-xs text-slate-400">
-                        <span class="font-semibold text-amber-400">${msg.user} (${msg.time})</span>
-                        <span class="text-amber-300 font-bold">Expira em: ${diasRestantes > 0 ? diasRestantes + ' dias' : 'Expirando'}</span>
+                    <div class="flex justify-between items-center text-xs text-slate-400">
+                        <span class="font-semibold text-amber-400">${msg.user} <span class="text-slate-500 font-normal ml-1">(${msg.time})</span></span>
+                        <span class="text-amber-300 font-bold bg-amber-500/10 px-2 py-0.5 rounded-full">Expira em: ${diasRestantes > 0 ? diasRestantes + ' dias' : 'Expirando'}</span>
                     </div>
-                    <div class="text-sm text-slate-200">${msg.text}</div>
-                    <div class="flex justify-end gap-2 pt-1">
-                        <button onclick="renovarPrazo(${msg.id})" class="bg-amber-500/20 text-amber-400 hover:bg-amber-500 hover:text-slate-950 font-bold text-xs px-3 py-1 rounded-lg">Renovar 🔄</button>
-                        <button onclick="alternarFavorito(${msg.id})" class="bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white font-bold text-xs px-3 py-1 rounded-lg">Remover 🗑️</button>
+                    <div class="text-sm text-slate-200 leading-relaxed">${msg.text}</div>
+                    <div class="flex justify-end gap-2 pt-2 border-t border-slate-700/50">
+                        <button onclick="renovarPrazo(${msg.id})" class="bg-amber-500/20 text-amber-400 hover:bg-amber-500 hover:text-slate-950 font-bold text-xs px-3 py-1.5 rounded-lg transition">Renovar 🔄</button>
+                        <button onclick="alternarFavorito(${msg.id})" class="bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">Remover 🗑️</button>
                     </div>
                 `;
                 favDiv.appendChild(bubble);
@@ -507,12 +521,12 @@
 
             if (aba === 'geral') {
                 geral.classList.remove('hidden'); fav.classList.add('hidden');
-                btnGeral.className = 'text-xs px-3 py-1.5 rounded-lg bg-sky-500 text-slate-950 font-bold';
-                btnFav.className = 'text-xs px-3 py-1.5 rounded-lg bg-slate-700 text-slate-300 font-bold';
+                btnGeral.className = 'flex-1 sm:flex-none text-xs px-4 py-2 rounded-lg bg-sky-500 text-slate-950 font-bold';
+                btnFav.className = 'flex-1 sm:flex-none text-xs px-4 py-2 rounded-lg bg-slate-700 text-slate-300 font-bold';
             } else {
                 geral.classList.add('hidden'); fav.classList.remove('hidden');
-                btnFav.className = 'text-xs px-3 py-1.5 rounded-lg bg-amber-500 text-slate-950 font-bold';
-                btnGeral.className = 'text-xs px-3 py-1.5 rounded-lg bg-slate-700 text-slate-300 font-bold';
+                btnFav.className = 'flex-1 sm:flex-none text-xs px-4 py-2 rounded-lg bg-amber-500 text-slate-950 font-bold';
+                btnGeral.className = 'flex-1 sm:flex-none text-xs px-4 py-2 rounded-lg bg-slate-700 text-slate-300 font-bold';
                 atualizarFavoritas();
             }
         }
