@@ -39,10 +39,24 @@
                     <button onclick="fazerLogin()" class="flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl transition cursor-pointer">Entrar 🚀</button>
                     <button onclick="criarPerfilComSenha()" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-3 rounded-xl transition cursor-pointer">Criar Conta ➕</button>
                 </div>
+                <div class="text-center pt-2">
+                    <button onclick="alternarTelaRecuperacao(true)" class="text-xs text-sky-400 hover:underline cursor-pointer">Esqueceu sua senha? Clique aqui 🔑</button>
+                </div>
+            </div>
+
+            <div id="form-recovery-box" class="space-y-3 hidden">
+                <h3 class="text-sm font-bold text-sky-400">🔑 Recuperação de Senha</h3>
+                <input type="text" id="rec-username" placeholder="Seu nome de usuário" class="w-full bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-sky-400">
+                <input type="text" id="rec-contact" placeholder="E-mail ou WhatsApp cadastrado" class="w-full bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-sky-400">
+                <input type="password" id="rec-new-password" placeholder="Nova senha desejada" class="w-full bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-sky-400">
+                <div class="flex gap-3 pt-2">
+                    <button onclick="executarRecuperacao()" class="flex-1 bg-sky-500 hover:bg-sky-600 text-slate-950 font-bold py-3 rounded-xl transition cursor-pointer">Redefinir Senha 🔄</button>
+                    <button onclick="alternarTelaRecuperacao(false)" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-4 py-3 rounded-xl transition cursor-pointer">Voltar</button>
+                </div>
             </div>
 
             <div class="pt-4 border-t border-slate-700/60">
-                <span class="text-xs text-slate-400 block mb-2">Perfis cadastrados:</span>
+                <span class="text-xs text-slate-400 block mb-2">Perfis cadastrados (Admin pode remover):</span>
                 <div id="users-list" class="flex flex-wrap gap-2"></div>
             </div>
         </section>
@@ -53,6 +67,7 @@
                 <div>
                     <span class="text-slate-400">Logado como:</span>
                     <strong id="current-user-display" class="text-amber-400 text-lg"></strong>
+                    <span id="admin-badge" class="hidden ml-2 text-xs bg-rose-500/20 text-rose-400 px-2 py-0.5 rounded-full font-bold">🛡️ ADMIN</span>
                 </div>
                 <button onclick="sair()" class="text-sm bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white px-3 py-1.5 rounded-lg transition cursor-pointer">Sair</button>
             </div>
@@ -75,30 +90,49 @@
                 </div>
             </div>
 
+            <!-- Placar Mensal -->
+            <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-4">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-indigo-400">📈 Desempenho Mensal</h2>
+                    <span id="current-month-label" class="text-xs bg-indigo-500/20 text-indigo-300 px-3 py-1 rounded-full font-bold">Mês Atual</span>
+                </div>
+                <div id="monthly-leaderboard" class="space-y-2 max-h-60 overflow-y-auto"></div>
+            </div>
+
             <!-- Chat -->
             <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-4">
-                <h2 class="text-xl font-bold text-sky-400">💬 Chat Interativo</h2>
-                <div id="chat-messages" class="bg-slate-900 h-48 rounded-xl p-4 overflow-y-auto space-y-3 border border-slate-700/50"></div>
-                <div class="flex gap-2">
-                    <input type="text" id="chat-input" placeholder="Mande uma mensagem..." class="flex-1 bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-sky-400" onkeypress="handleChatKey(event)">
-                    <button onclick="enviarMensagem()" class="bg-sky-500 hover:bg-sky-600 text-slate-950 font-bold px-6 py-3 rounded-xl transition cursor-pointer">Enviar</button>
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
+                    <h2 class="text-xl font-bold text-sky-400">💬 Chat Interativo</h2>
+                    <div class="flex gap-2">
+                        <button onclick="mudarAbaChat('geral')" id="btn-chat-geral" class="text-xs px-3 py-1.5 rounded-lg bg-sky-500 text-slate-950 font-bold transition cursor-pointer">Chat Geral</button>
+                        <button onclick="mudarAbaChat('favoritas')" id="btn-chat-fav" class="text-xs px-3 py-1.5 rounded-lg bg-slate-700 text-slate-300 font-bold transition cursor-pointer">⭐ Salvas</button>
+                    </div>
+                </div>
+                <div id="container-chat-geral" class="space-y-3">
+                    <div id="chat-messages" class="bg-slate-900 h-48 rounded-xl p-4 overflow-y-auto space-y-3 border border-slate-700/50"></div>
+                    <div class="flex gap-2">
+                        <input type="text" id="chat-input" placeholder="Mande uma mensagem..." class="flex-1 bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-sky-400" onkeypress="handleChatKey(event)">
+                        <button onclick="enviarMensagem()" class="bg-sky-500 hover:bg-sky-600 text-slate-950 font-bold px-6 py-3 rounded-xl transition cursor-pointer">Enviar</button>
+                    </div>
+                </div>
+                <div id="container-chat-fav" class="space-y-3 hidden">
+                    <div id="fav-messages" class="bg-slate-900 h-48 rounded-xl p-4 overflow-y-auto space-y-3 border border-slate-700/50"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- SCRIPT FIREBASE -->
+    <!-- SCRIPT FIREBASE COMPLETO -->
     <script>
-        // CONFIGURAÇÃO DO FIREBASE (Substitua depois se criar o seu próprio projeto)
         const firebaseConfig = {
-    apiKey: "AIzaSyCHKSlMQ8l0Uu7L2nnqtLl3pNHZQFSxZ9o",
-    authDomain: "fitbattle-2ba4d.firebaseapp.com",
-    projectId: "fitbattle-2ba4d",
-    storageBucket: "fitbattle-2ba4d.firebasestorage.app",
-    messagingSenderId: "786627964179",
-    appId: "1:786627964179:web:4674053bc4e1f0d0bd7ee6",
-    measurementId: "G-RSY4407BWF"
-    };
+            apiKey: "AIzaSyCHKSlMQ8l0Uu7L2nnqtLl3pNHZQFSxZ9o",
+            authDomain: "fitbattle-2ba4d.firebaseapp.com",
+            projectId: "fitbattle-2ba4d",
+            storageBucket: "fitbattle-2ba4d.firebasestorage.app",
+            messagingSenderId: "786627964179",
+            appId: "1:786627964179:web:4674053bc4e1f0d0bd7ee6",
+            measurementId: "G-RSY4407BWF"
+        };
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
@@ -108,57 +142,59 @@
         let workouts = [];
         let messages = [];
 
-        // Salvar dados no Firestore
         async function salvarNaNuvenFirebase() {
             try {
-                await db.collection("app").doc("estado_global").set({
-                    users: users,
-                    workouts: workouts,
-                    messages: messages
-                });
+                await db.collection("app").doc("estado_global").set({ users, workouts, messages });
             } catch (e) {
-                console.error("Erro ao salvar no Firebase:", e);
+                console.error("Erro ao salvar:", e);
             }
         }
 
-        // Ouvir em tempo real (Realtime automático do Firestore)
         function escutarFirebase() {
-            db.collection("app").doc("estado_global")
-                .onSnapshot((doc) => {
-                    if (doc.exists) {
-                        const data = doc.data();
-                        users = data.users || [];
-                        workouts = data.workouts || [];
-                        messages = data.messages || [];
-                        
-                        document.getElementById('status-nuvem').innerText = '✅ Online e sincronizado via Firebase!';
-                        document.getElementById('status-nuvem').classList.remove('animate-pulse');
+            db.collection("app").doc("estado_global").onSnapshot((doc) => {
+                if (doc.exists) {
+                    const data = doc.data();
+                    users = data.users || [];
+                    workouts = data.workouts || [];
+                    messages = data.messages || [];
+                    
+                    document.getElementById('status-nuvem').innerText = '✅ Online e sincronizado via Firebase!';
+                    document.getElementById('status-nuvem').classList.remove('animate-pulse');
 
-                        if (currentUser) {
-                            renderizarMeusExercicios();
-                            atualizarPlacar();
-                            atualizarChat();
-                        } else {
-                            renderizarListaUsuarios();
-                        }
+                    if (currentUser) {
+                        renderizarMeusExercicios();
+                        atualizarPlacar();
+                        atualizarPlacarMensal();
+                        atualizarChat();
+                        atualizarFavoritas();
                     } else {
-                        // Se o documento não existe ainda, cria o primeiro estado vazio
-                        salvarNaNuvenFirebase();
+                        renderizarListaUsuarios();
                     }
-                });
+                } else {
+                    salvarNaNuvenFirebase();
+                }
+            });
         }
 
         function iniciarApp() {
             escutarFirebase();
-
             if (currentUser) {
                 document.getElementById('auth-section').classList.add('hidden');
                 document.getElementById('main-panel').classList.remove('hidden');
                 document.getElementById('current-user-display').innerText = currentUser;
+                
+                const badgeAdmin = document.getElementById('admin-badge');
+                if (verificarSeEhAdmin(currentUser)) badgeAdmin.classList.remove('hidden');
+                else badgeAdmin.classList.add('hidden');
             } else {
                 document.getElementById('auth-section').classList.remove('hidden');
                 document.getElementById('main-panel').classList.add('hidden');
             }
+        }
+
+        function verificarSeEhAdmin(nomeUsuario) {
+            if (users.length === 0) return false;
+            return users[0].name.toLowerCase() === nomeUsuario.toLowerCase();
         }
 
         function toggleSenha() {
@@ -168,12 +204,32 @@
             else { inputPass.type = 'password'; btnEye.innerText = '👁️'; }
         }
 
+        function alternarTelaRecuperacao(mostrar) {
+            document.getElementById('form-login-box').classList.toggle('hidden', mostrar);
+            document.getElementById('form-recovery-box').classList.toggle('hidden', !mostrar);
+        }
+
+        async function executarRecuperacao() {
+            const nome = document.getElementById('rec-username').value.trim();
+            const contato = document.getElementById('rec-contact').value.trim();
+            const novaSenha = document.getElementById('rec-new-password').value.trim();
+            if (!nome || !contato || !novaSenha) return alert('Preencha tudo!');
+            
+            const usuario = users.find(u => u.name.toLowerCase() === nome.toLowerCase() && u.contact && u.contact.toLowerCase() === contato.toLowerCase());
+            if (!usuario) return alert('Dados incorretos!');
+
+            usuario.pass = novaSenha;
+            await salvarNaNuvenFirebase();
+            alert('Senha redefinida com sucesso! Faça login.');
+            alternarTelaRecuperacao(false);
+        }
+
         async function criarPerfilComSenha() {
             const nome = document.getElementById('auth-username').value.trim();
             const senha = document.getElementById('auth-password').value.trim();
             const contato = document.getElementById('auth-contact').value.trim();
 
-            if (!nome || !senha || !contato) return alert('Preencha todos os campos!');
+            if (!nome || !senha || !contato) return alert('Preencha o nome, senha e WhatsApp/E-mail!');
             if (users.find(u => u.name.toLowerCase() === nome.toLowerCase())) return alert('Nome já existe!');
             
             users.push({ name: nome, pass: senha, contact: contato });
@@ -181,6 +237,10 @@
             localStorage.setItem('fitbattle_user', currentUser);
             
             await salvarNaNuvenFirebase();
+            
+            document.getElementById('auth-username').value = '';
+            document.getElementById('auth-password').value = '';
+            document.getElementById('auth-contact').value = '';
             iniciarApp();
         }
 
@@ -193,7 +253,20 @@
             
             currentUser = conta.name;
             localStorage.setItem('fitbattle_user', currentUser);
+            document.getElementById('auth-username').value = '';
+            document.getElementById('auth-password').value = '';
             iniciarApp();
+        }
+
+        async function excluirUsuario(nomeUsuarioParaRemover, event) {
+            event.stopPropagation();
+            if (verificarSeEhAdmin(nomeUsuarioParaRemover)) return alert('O Admin não pode ser excluído!');
+            if (confirm(`Banir o usuário "${nomeUsuarioParaRemover}"?`)) {
+                users = users.filter(u => u.name.toLowerCase() !== nomeUsuarioParaRemover.toLowerCase());
+                workouts = workouts.filter(w => w.user.toLowerCase() !== nomeUsuarioParaRemover.toLowerCase());
+                messages = messages.filter(m => m.user.toLowerCase() !== nomeUsuarioParaRemover.toLowerCase());
+                await salvarNaNuvenFirebase();
+            }
         }
 
         function renderizarListaUsuarios() {
@@ -201,15 +274,27 @@
             lista.innerHTML = '';
             if (users.length === 0) { lista.innerHTML = '<p class="text-xs text-slate-500 italic">Nenhuma conta ainda. Crie a primeira!</p>'; return; }
 
-            users.forEach((u) => {
+            users.forEach((u, index) => {
+                const containerBtn = document.createElement('div');
+                containerBtn.className = 'inline-flex items-center bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs rounded-lg overflow-hidden border border-slate-600 transition';
+                
                 const btnUser = document.createElement('button');
-                btnUser.innerText = u.name;
-                btnUser.className = 'bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs px-3 py-1.5 rounded-lg cursor-pointer';
+                btnUser.innerText = u.name + (index === 0 ? ' 👑' : '');
+                btnUser.className = 'px-3 py-1.5 cursor-pointer';
                 btnUser.onclick = () => {
                     document.getElementById('auth-username').value = u.name;
                     document.getElementById('auth-password').focus();
                 };
-                lista.appendChild(btnUser);
+                containerBtn.appendChild(btnUser);
+
+                if (index !== 0) {
+                    const btnExcluir = document.createElement('button');
+                    btnExcluir.innerText = '❌';
+                    btnExcluir.className = 'px-2 py-1.5 bg-rose-600/50 hover:bg-rose-600 text-white cursor-pointer transition';
+                    btnExcluir.onclick = (e) => excluirUsuario(u.name, e);
+                    containerBtn.appendChild(btnExcluir);
+                }
+                lista.appendChild(containerBtn);
             });
         }
 
@@ -223,18 +308,17 @@
             const nomeEx = document.getElementById('exercise-name').value.trim();
             if (!nomeEx) return alert('Digite o exercício!');
             const hoje = new Date().toLocaleDateString();
+            if (workouts.find(w => w.user === currentUser && w.date === hoje && w.exercise.toLowerCase() === nomeEx.toLowerCase())) {
+                return alert('Exercício já fixado hoje!');
+            }
             workouts.push({ user: currentUser, exercise: nomeEx, reps: 0, date: hoje });
             await salvarNaNuvenFirebase();
-            renderizarMeusExercicios();
-            atualizarPlacar();
         }
 
         async function somarReps(indexOriginal, qtd) {
             if (isNaN(qtd) || qtd <= 0) return alert('Valor inválido!');
             workouts[indexOriginal].reps += qtd;
             await salvarNaNuvenFirebase();
-            renderizarMeusExercicios();
-            atualizarPlacar();
         }
 
         function renderizarMeusExercicios() {
@@ -243,7 +327,7 @@
             listaDiv.innerHTML = '';
             const meusExercicios = workouts.map((w, i) => ({ ...w, originalIndex: i })).filter(w => w.user === currentUser && w.date === hoje);
             
-            if (meusExercicios.length === 0) return listaDiv.innerHTML = '<p class="text-slate-500 italic text-sm">Nenhum exercício hoje.</p>';
+            if (meusExercicios.length === 0) return listaDiv.innerHTML = '<p class="text-slate-500 italic text-sm">Nenhum exercício fixado para hoje.</p>';
             
             meusExercicios.forEach(item => {
                 const card = document.createElement('div');
@@ -277,7 +361,7 @@
             leaderboardDiv.innerHTML = '';
             const ranking = Object.entries(placarMap).sort((a, b) => b[1] - a[1]);
             
-            if (ranking.length === 0) return leaderboardDiv.innerHTML = '<p class="text-slate-500 italic text-sm">Nenhuma pontuação hoje.</p>';
+            if (ranking.length === 0) return leaderboardDiv.innerHTML = '<p class="text-slate-500 italic text-sm">Nenhuma pontuação registrada hoje.</p>';
             
             ranking.forEach(([user, total], index) => {
                 const item = document.createElement('div');
@@ -290,19 +374,79 @@
             });
         }
 
+        function atualizarPlacarMensal() {
+            const agora = new Date();
+            const mesAtual = agora.getMonth();
+            const anoAtual = agora.getFullYear();
+            const nomesMeses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+            document.getElementById('current-month-label').innerText = `${nomesMeses[mesAtual]} de ${anoAtual}`;
+
+            const mensalMap = {};
+            workouts.forEach(w => {
+                const partes = w.date.split('/');
+                if (partes.length === 3) {
+                    const dataTreino = new Date(partes[2], partes[1] - 1, partes[0]);
+                    if (dataTreino.getMonth() === mesAtual && dataTreino.getFullYear() === anoAtual) {
+                        mensalMap[w.user] = (mensalMap[w.user] || 0) + w.reps;
+                    }
+                }
+            });
+
+            const mensalDiv = document.getElementById('monthly-leaderboard');
+            mensalDiv.innerHTML = '';
+            const rankingMensal = Object.entries(mensalMap).sort((a, b) => b[1] - a[1]);
+
+            if (rankingMensal.length === 0) return mensalDiv.innerHTML = '<p class="text-slate-500 italic text-sm">Nenhum treino acumulado neste mês ainda.</p>';
+
+            rankingMensal.forEach(([user, total], index) => {
+                const item = document.createElement('div');
+                item.className = `flex justify-between items-center p-3 rounded-xl border ${user === currentUser ? 'bg-indigo-500/10 border-indigo-500/30' : 'bg-slate-900 border-slate-700/50'}`;
+                item.innerHTML = `
+                    <div class="flex items-center gap-3"><span class="font-bold text-indigo-400">#${index + 1}</span><span>${user}</span></div>
+                    <span class="font-extrabold text-indigo-300">${total} reps acumuladas</span>
+                `;
+                mensalDiv.appendChild(item);
+            });
+        }
+
         async function enviarMensagem() {
             const texto = document.getElementById('chat-input').value.trim();
             if (!texto) return;
             messages.push({
-                user: currentUser, text: texto,
-                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                id: Date.now(), user: currentUser, text: texto,
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                isFavorite: false, expireAt: null
             });
             await salvarNaNuvenFirebase();
             document.getElementById('chat-input').value = '';
-            atualizarChat();
         }
 
         function handleChatKey(e) { if (e.key === 'Enter') enviarMensagem(); }
+
+        async function alternarFavorito(msgId) {
+            const msg = messages.find(m => m.id === msgId);
+            if (!msg) return;
+            if (!msg.isFavorite) {
+                msg.isFavorite = true;
+                const dataExpiracao = new Date();
+                dataExpiracao.setDate(dataExpiracao.getDate() + 90);
+                msg.expireAt = dataExpiracao.getTime();
+            } else {
+                msg.isFavorite = false;
+                msg.expireAt = null;
+            }
+            await salvarNaNuvenFirebase();
+        }
+
+        async function renovarPrazo(msgId) {
+            const msg = messages.find(m => m.id === msgId);
+            if (!msg) return;
+            const novaExpiracao = new Date();
+            novaExpiracao.setDate(novaExpiracao.getDate() + 90);
+            msg.expireAt = novaExpiracao.getTime();
+            await salvarNaNuvenFirebase();
+            alert('Prazo renovado por 90 dias!');
+        }
 
         function atualizarChat() {
             const chatDiv = document.getElementById('chat-messages');
@@ -315,13 +459,62 @@
                 bubble.innerHTML = `
                     <div class="flex justify-between text-xs text-slate-400">
                         <span class="font-semibold text-amber-400">${msg.user}</span>
-                        <span>${msg.time}</span>
+                        <div class="flex items-center gap-2">
+                            <span>${msg.time}</span>
+                            <button onclick="alternarFavorito(${msg.id})" class="cursor-pointer hover:scale-125 transition text-xs">
+                                ${msg.isFavorite ? '⭐' : '☆'}
+                            </button>
+                        </div>
                     </div>
                     <div class="bg-slate-800 p-2.5 rounded-xl border border-slate-700/60 text-sm">${msg.text}</div>
                 `;
                 chatDiv.appendChild(bubble);
             });
             chatDiv.scrollTop = chatDiv.scrollHeight;
+        }
+
+        function atualizarFavoritas() {
+            const favDiv = document.getElementById('fav-messages');
+            favDiv.innerHTML = '';
+            const favoritas = messages.filter(m => m.isFavorite);
+
+            if (favoritas.length === 0) return favDiv.innerHTML = '<p class="text-slate-500 italic text-sm text-center py-8">Nenhuma mensagem salva ainda.</p>';
+
+            favoritas.forEach(msg => {
+                const diasRestantes = msg.expireAt ? Math.ceil((msg.expireAt - Date.now()) / (1000 * 60 * 60 * 24)) : 90;
+                const bubble = document.createElement('div');
+                bubble.className = 'space-y-1 bg-slate-800 p-3 rounded-xl border border-amber-500/30';
+                bubble.innerHTML = `
+                    <div class="flex justify-between text-xs text-slate-400">
+                        <span class="font-semibold text-amber-400">${msg.user} (${msg.time})</span>
+                        <span class="text-amber-300 font-bold">Expira em: ${diasRestantes > 0 ? diasRestantes + ' dias' : 'Expirando'}</span>
+                    </div>
+                    <div class="text-sm text-slate-200">${msg.text}</div>
+                    <div class="flex justify-end gap-2 pt-1">
+                        <button onclick="renovarPrazo(${msg.id})" class="bg-amber-500/20 text-amber-400 hover:bg-amber-500 hover:text-slate-950 font-bold text-xs px-3 py-1 rounded-lg">Renovar 🔄</button>
+                        <button onclick="alternarFavorito(${msg.id})" class="bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white font-bold text-xs px-3 py-1 rounded-lg">Remover 🗑️</button>
+                    </div>
+                `;
+                favDiv.appendChild(bubble);
+            });
+        }
+
+        function mudarAbaChat(aba) {
+            const geral = document.getElementById('container-chat-geral');
+            const fav = document.getElementById('container-chat-fav');
+            const btnGeral = document.getElementById('btn-chat-geral');
+            const btnFav = document.getElementById('btn-chat-fav');
+
+            if (aba === 'geral') {
+                geral.classList.remove('hidden'); fav.classList.add('hidden');
+                btnGeral.className = 'text-xs px-3 py-1.5 rounded-lg bg-sky-500 text-slate-950 font-bold';
+                btnFav.className = 'text-xs px-3 py-1.5 rounded-lg bg-slate-700 text-slate-300 font-bold';
+            } else {
+                geral.classList.add('hidden'); fav.classList.remove('hidden');
+                btnFav.className = 'text-xs px-3 py-1.5 rounded-lg bg-amber-500 text-slate-950 font-bold';
+                btnGeral.className = 'text-xs px-3 py-1.5 rounded-lg bg-slate-700 text-slate-300 font-bold';
+                atualizarFavoritas();
+            }
         }
 
         iniciarApp();
