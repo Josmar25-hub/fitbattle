@@ -92,7 +92,7 @@
                     <div id="leaderboard" class="space-y-2 max-h-80 overflow-y-auto pr-2"></div>
                 </div>
 
-                <!-- Treino da Galera (NOVO BLOCO) -->
+                <!-- Treino da Galera -->
                 <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-4">
                     <h2 class="text-xl font-bold text-sky-400">👀 Treino da Galera (Hoje)</h2>
                     <div id="friends-activity-list" class="space-y-3 max-h-72 overflow-y-auto pr-2"></div>
@@ -134,7 +134,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT FIREBASE -->
+    <!-- SCRIPT FIREBASE COM CORREÇÃO DE FUSO HORÁRIO -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyCHKSlMQ8l0Uu7L2nnqtLl3pNHZQFSxZ9o",
@@ -153,6 +153,15 @@
         let users = [];
         let workouts = [];
         let messages = [];
+
+        // --- RELÓGIO GLOBAL (Sincroniza Brasil e Angola) ---
+        function obterDataGlobal() {
+            return new Date().toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+        }
+        
+        function obterHoraGlobal() {
+            return new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' });
+        }
 
         async function salvarNaNuvenFirebase() {
             try {
@@ -177,7 +186,7 @@
                         renderizarMeusExercicios();
                         atualizarPlacar();
                         atualizarPlacarMensal();
-                        renderizarAtividadeAmigos(); // ATUALIZA A TELA DA GALERA
+                        renderizarAtividadeAmigos(); 
                         atualizarChat();
                         atualizarFavoritas();
                     } else {
@@ -320,7 +329,7 @@
         async function adicionarExercicioFixo() {
             const nomeEx = document.getElementById('exercise-name').value.trim();
             if (!nomeEx) return alert('Digite o exercício!');
-            const hoje = new Date().toLocaleDateString();
+            const hoje = obterDataGlobal();
             if (workouts.find(w => w.user === currentUser && w.date === hoje && w.exercise.toLowerCase() === nomeEx.toLowerCase())) {
                 return alert('Exercício já fixado hoje!');
             }
@@ -344,7 +353,7 @@
         }
 
         function renderizarMeusExercicios() {
-            const hoje = new Date().toLocaleDateString();
+            const hoje = obterDataGlobal();
             const listaDiv = document.getElementById('my-exercises-list');
             listaDiv.innerHTML = '';
             const meusExercicios = workouts.map((w, i) => ({ ...w, originalIndex: i })).filter(w => w.user === currentUser && w.date === hoje);
@@ -371,27 +380,23 @@
             });
         }
 
-        // --- NOVA FUNÇÃO: VER TREINO DA GALERA ---
         function renderizarAtividadeAmigos() {
-            const hoje = new Date().toLocaleDateString();
+            const hoje = obterDataGlobal();
             const divAmigos = document.getElementById('friends-activity-list');
             divAmigos.innerHTML = '';
 
-            // Pega os exercícios de hoje, de todo mundo, MENOS os seus
             const treinosAmigos = workouts.filter(w => w.date === hoje && w.user !== currentUser);
 
             if (treinosAmigos.length === 0) {
                 return divAmigos.innerHTML = '<p class="text-slate-500 italic text-sm text-center py-4">A galera ainda não treinou hoje. Mande uma mensagem no chat para motivar!</p>';
             }
 
-            // Agrupa por amigo
             const agrupado = {};
             treinosAmigos.forEach(w => {
                 if (!agrupado[w.user]) agrupado[w.user] = [];
                 agrupado[w.user].push(w);
             });
 
-            // Cria os blocos visuais para cada amigo
             for (const [amigo, exercicios] of Object.entries(agrupado)) {
                 const card = document.createElement('div');
                 card.className = 'bg-slate-900 p-4 rounded-xl border border-sky-500/30 space-y-3';
@@ -427,7 +432,7 @@
         }
 
         function atualizarPlacar() {
-            const hoje = new Date().toLocaleDateString();
+            const hoje = obterDataGlobal();
             const placarMap = {};
             workouts.filter(w => w.date === hoje).forEach(w => placarMap[w.user] = (placarMap[w.user] || 0) + w.reps);
             
@@ -449,7 +454,7 @@
         }
 
         function atualizarPlacarMensal() {
-            const agora = new Date();
+            const agora = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
             const mesAtual = agora.getMonth();
             const anoAtual = agora.getFullYear();
             const nomesMeses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
@@ -488,7 +493,7 @@
             if (!texto) return;
             messages.push({
                 id: Date.now(), user: currentUser, text: texto,
-                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                time: obterHoraGlobal(),
                 isFavorite: false, expireAt: null
             });
             await salvarNaNuvenFirebase();
