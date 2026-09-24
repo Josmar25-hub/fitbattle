@@ -15,6 +15,9 @@
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans min-h-screen p-4 md:p-8">
 
+    <!-- Div oculta para garantir que o Tailwind carrega as cores dinâmicas do chat -->
+    <div class="hidden text-pink-400 text-emerald-400 text-indigo-400 text-amber-400 text-fuchsia-400 text-cyan-400 text-lime-400 text-rose-400 text-violet-400"></div>
+
     <div class="max-w-5xl mx-auto space-y-6">
         
         <!-- Cabeçalho -->
@@ -134,7 +137,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT FIREBASE COM CORREÇÃO DE FUSO HORÁRIO -->
+    <!-- SCRIPT FIREBASE COMPLETO -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyCHKSlMQ8l0Uu7L2nnqtLl3pNHZQFSxZ9o",
@@ -163,6 +166,16 @@
             return new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' });
         }
 
+        // --- FUNÇÃO PARA GERAR CORES ÚNICAS POR UTILIZADOR ---
+        function obterCorUsuario(nome) {
+            const cores = ['text-pink-400', 'text-emerald-400', 'text-indigo-400', 'text-amber-400', 'text-fuchsia-400', 'text-cyan-400', 'text-lime-400', 'text-rose-400', 'text-violet-400'];
+            let hash = 0;
+            for (let i = 0; i < nome.length; i++) {
+                hash = nome.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            return cores[Math.abs(hash) % cores.length];
+        }
+
         async function salvarNaNuvenFirebase() {
             try {
                 await db.collection("app").doc("estado_global").set({ users, workouts, messages });
@@ -177,7 +190,20 @@
                     const data = doc.data();
                     users = data.users || [];
                     workouts = data.workouts || [];
-                    messages = data.messages || [];
+                    let mensagenseServidor = data.messages || [];
+
+                    // --- LIMPEZA AUTOMÁTICA DE 7 DIAS ---
+                    const seteDiasEmMs = 7 * 24 * 60 * 60 * 1000;
+                    const agora = Date.now();
+                    const totalAnterior = mensagenseServidor.length;
+                    
+                    // Só mantém se for favorita OU se a mensagem tiver menos de 7 dias
+                    messages = mensagenseServidor.filter(msg => msg.isFavorite || (agora - msg.id) <= seteDiasEmMs);
+
+                    // Se alguma mensagem antiga foi apagada durante a leitura, guarda a limpeza na nuvem
+                    if (messages.length !== totalAnterior && currentUser) {
+                        salvarNaNuvenFirebase();
+                    }
                     
                     document.getElementById('status-nuvem').innerText = '✅ Online e sincronizado via Firebase!';
                     document.getElementById('status-nuvem').classList.remove('animate-pulse');
@@ -492,9 +518,13 @@
             const texto = document.getElementById('chat-input').value.trim();
             if (!texto) return;
             messages.push({
-                id: Date.now(), user: currentUser, text: texto,
+                id: Date.now(), 
+                user: currentUser, 
+                text: texto,
                 time: obterHoraGlobal(),
-                isFavorite: false, expireAt: null
+                date: obterDataGlobal(), // Adiciona a data no envio da mensagem
+                isFavorite: false, 
+                expireAt: null
             });
             await salvarNaNuvenFirebase();
             document.getElementById('chat-input').value = '';
@@ -527,17 +557,40 @@
             alert('Prazo renovado por 90 dias!');
         }
 
+        // --- ATUALIZAR CHAT (Com cores e separador de dias) ---
         function atualizarChat() {
             const chatDiv = document.getElementById('chat-messages');
             chatDiv.innerHTML = '';
             if (messages.length === 0) return chatDiv.innerHTML = '<p class="text-slate-500 italic text-sm text-center py-8">Mande a primeira mensagem!</p>';
             
+            let ultimaDataRenderizada = null;
+
             messages.forEach(msg => {
+                // Recupera a data da mensagem (se for antiga, assume "Data Anterior")
+                const dataDaMensagem = msg.date || "Histórico Antigo";
+
+                // Se a data mudou em relação à mensagem anterior, desenha uma linha separadora
+                if (dataDaMensagem !== ultimaDataRenderizada) {
+                    const dataExibicao = (dataDaMensagem === obterDataGlobal()) ? 'Hoje' : dataDaMensagem;
+                    const separador = document.createElement('div');
+                    separador.className = 'relative flex items-center py-2';
+                    separador.innerHTML = `
+                        <div class="flex-grow border-t border-slate-700/60"></div>
+                        <span class="flex-shrink-0 mx-4 text-xs text-slate-500 font-bold uppercase tracking-wider">${dataExibicao}</span>
+                        <div class="flex-grow border-t border-slate-700/60"></div>
+                    `;
+                    chatDiv.appendChild(separador);
+                    ultimaDataRenderizada = dataDaMensagem;
+                }
+
+                // Obtém a cor única do utilizador
+                const corDoUser = obterCorUsuario(msg.user);
+
                 const bubble = document.createElement('div');
                 bubble.className = 'space-y-1';
                 bubble.innerHTML = `
                     <div class="flex justify-between items-center text-xs text-slate-400">
-                        <span class="font-semibold text-pink-400">${msg.user}</span>
+                        <span class="font-extrabold ${corDoUser}">${msg.user}</span>
                         <div class="flex items-center gap-3">
                             <span>${msg.time}</span>
                             <button onclick="alternarFavorito(${msg.id})" class="cursor-pointer hover:scale-125 transition text-base leading-none">
@@ -561,11 +614,15 @@
 
             favoritas.forEach(msg => {
                 const diasRestantes = msg.expireAt ? Math.ceil((msg.expireAt - Date.now()) / (1000 * 60 * 60 * 24)) : 90;
+                
+                // Obtém a cor também para a aba de favoritas
+                const corDoUser = obterCorUsuario(msg.user);
+
                 const bubble = document.createElement('div');
                 bubble.className = 'space-y-2 bg-slate-800 p-4 rounded-xl border border-pink-500/30';
                 bubble.innerHTML = `
                     <div class="flex justify-between items-center text-xs text-slate-400">
-                        <span class="font-semibold text-pink-400">${msg.user} <span class="text-slate-500 font-normal ml-1">(${msg.time})</span></span>
+                        <span class="font-extrabold ${corDoUser}">${msg.user} <span class="text-slate-500 font-normal ml-1">(${msg.date || ''} às ${msg.time})</span></span>
                         <span class="text-pink-300 font-bold bg-pink-500/10 px-2 py-0.5 rounded-full">Expira em: ${diasRestantes > 0 ? diasRestantes + ' dias' : 'Expirando'}</span>
                     </div>
                     <div class="text-sm text-slate-200 leading-relaxed">${msg.text}</div>
