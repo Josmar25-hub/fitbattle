@@ -8,23 +8,30 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         @import "https://cdn.jsdelivr.net/npm/tailwindcss@4.0.0/dist/tailwind.min.css";
-        /* Oculta scrollbar para ficar com cara de App */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        
+        /* Animação suave para as notificações */
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .toast-enter { animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     </style>
     <!-- SDK DO FIREBASE -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
-<body class="bg-slate-900 text-slate-100 font-sans min-h-screen p-4 md:p-8 pb-24">
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen p-4 md:p-8 pb-24 relative overflow-x-hidden">
 
-    <!-- Div oculta para garantir as cores do Tailwind -->
+    <!-- Container de Notificações (Fica a flutuar por cima de tudo) -->
+    <div id="toast-container" class="fixed top-4 right-4 left-4 sm:left-auto sm:w-80 z-[100] flex flex-col gap-3 pointer-events-none"></div>
+
     <div class="hidden text-pink-400 text-emerald-400 text-indigo-400 text-amber-400 text-fuchsia-400 text-cyan-400 text-lime-400 text-rose-400 text-violet-400"></div>
 
     <div class="max-w-5xl mx-auto space-y-6">
         
-        <!-- Cabeçalho -->
         <header class="text-center space-y-2">
             <h1 class="text-4xl font-extrabold text-amber-400">🏋️‍♂️ FitBattle Interativo</h1>
             <p class="text-slate-400">Supere seus limites e domine o placar com seus amigos! 🔥</p>
@@ -67,13 +74,13 @@
             </div>
         </section>
 
-        <!-- ======================= PAINEL PRINCIPAL COM NAVEGAÇÃO ======================= -->
+        <!-- Painel Principal com Navegação -->
         <div id="main-panel" class="hidden space-y-6">
             
-            <!-- Barra de Navegação (Menu da App) -->
-            <div class="bg-slate-800 p-2 rounded-2xl flex flex-wrap sm:flex-nowrap justify-between items-center border border-slate-700 gap-2 sticky top-4 z-50 shadow-lg">
+            <!-- Menu da App -->
+            <div class="bg-slate-800 p-2 rounded-2xl flex flex-wrap sm:flex-nowrap justify-between items-center border border-slate-700 gap-2 sticky top-4 z-40 shadow-lg">
                 <div class="flex w-full sm:w-auto gap-2">
-                    <button onclick="mudarPaginaPrincipal('treino')" id="nav-treino" class="flex-1 sm:flex-none text-sm px-4 py-2.5 rounded-xl bg-amber-500 text-slate-950 font-bold transition cursor-pointer">🏋️‍♂️ Treino</button>
+                    <button onclick="mudarPaginaPrincipal('treino')" id="nav-treino" class="flex-1 sm:flex-none text-sm px-4 py-2.5 rounded-xl bg-amber-500 text-slate-950 font-bold transition cursor-pointer shadow-md">🏋️‍♂️ Treino</button>
                     <button onclick="mudarPaginaPrincipal('competicao')" id="nav-competicao" class="flex-1 sm:flex-none text-sm px-4 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold transition cursor-pointer">🏆 Placar</button>
                     <button onclick="mudarPaginaPrincipal('chat')" id="nav-chat" class="flex-1 sm:flex-none text-sm px-4 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold transition cursor-pointer">💬 Chat</button>
                 </div>
@@ -85,7 +92,7 @@
                 </div>
             </div>
 
-            <!-- ----------------- PÁGINA 1: MEU TREINO ----------------- -->
+            <!-- PÁGINA 1: MEU TREINO -->
             <div id="pagina-treino" class="space-y-6">
                 <div class="grid grid-cols-1 gap-6">
                     <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-4">
@@ -99,23 +106,18 @@
                 </div>
             </div>
 
-            <!-- ----------------- PÁGINA 2: COMPETIÇÃO ----------------- -->
+            <!-- PÁGINA 2: COMPETIÇÃO -->
             <div id="pagina-competicao" class="hidden space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Placar Diário -->
                     <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-4">
                         <h2 class="text-xl font-bold text-amber-400">🔥 Placar Diário</h2>
                         <div id="leaderboard" class="space-y-2"></div>
                     </div>
-
-                    <!-- Treino da Galera -->
                     <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-4">
                         <h2 class="text-xl font-bold text-sky-400">👀 Treino da Galera (Hoje)</h2>
                         <div id="friends-activity-list" class="space-y-3"></div>
                     </div>
                 </div>
-
-                <!-- Placar Mensal -->
                 <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-4">
                     <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
                         <h2 class="text-xl font-bold text-indigo-400">📈 Desempenho Mensal</h2>
@@ -125,7 +127,7 @@
                 </div>
             </div>
 
-            <!-- ----------------- PÁGINA 3: CHAT ----------------- -->
+            <!-- PÁGINA 3: CHAT -->
             <div id="pagina-chat" class="hidden space-y-6">
                 <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-4 flex flex-col h-[70vh]">
                     <div class="flex flex-col sm:flex-row justify-between items-center gap-3 shrink-0">
@@ -154,7 +156,7 @@
         </div>
     </div>
 
-    <!-- ======================= MOTOR JAVASCRIPT ======================= -->
+    <!-- SCRIPT FIREBASE COMPLETO COM NOTIFICAÇÕES -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyCHKSlMQ8l0Uu7L2nnqtLl3pNHZQFSxZ9o",
@@ -174,11 +176,9 @@
         let workouts = [];
         let messages = [];
 
-        // --- RELÓGIO GLOBAL ---
         function obterDataGlobal() { return new Date().toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }); }
         function obterHoraGlobal() { return new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' }); }
 
-        // --- CORES DINÂMICAS ---
         function obterCorUsuario(nome) {
             const cores = ['text-pink-400', 'text-emerald-400', 'text-indigo-400', 'text-amber-400', 'text-fuchsia-400', 'text-cyan-400', 'text-lime-400', 'text-rose-400', 'text-violet-400'];
             let hash = 0;
@@ -186,26 +186,103 @@
             return cores[Math.abs(hash) % cores.length];
         }
 
+        // ================= SISTEMA DE NOTIFICAÇÕES (TOASTS) =================
+        function mostrarNotificacao(titulo, texto, tipo) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            // Estilos visuais consoante o tipo (chat = rosa, treino = verde/amarelo)
+            const corBase = tipo === 'chat' ? 'bg-pink-500 text-slate-950' : 'bg-amber-400 text-slate-950';
+            const icone = tipo === 'chat' ? '💬' : '🏆';
+
+            toast.className = `toast-enter pointer-events-auto ${corBase} p-4 rounded-2xl shadow-2xl flex flex-col cursor-pointer hover:scale-105 transition-transform duration-200 border-b-4 border-black/20`;
+            toast.innerHTML = `
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="text-xl">${icone}</span>
+                    <strong class="font-extrabold text-sm uppercase tracking-wider">${titulo}</strong>
+                </div>
+                <span class="text-sm font-semibold leading-snug">${texto}</span>
+            `;
+            
+            // Clicar no toast leva o utilizador para a página certa
+            toast.onclick = () => {
+                mudarPaginaPrincipal(tipo === 'chat' ? 'chat' : 'competicao');
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            };
+
+            container.appendChild(toast);
+
+            // Auto-remover após 5 segundos
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                toast.style.transition = 'all 0.5s ease';
+                setTimeout(() => toast.remove(), 500);
+            }, 5000);
+        }
+
         async function salvarNaNuvenFirebase() {
             try { await db.collection("app").doc("estado_global").set({ users, workouts, messages }); } 
             catch (e) { console.error("Erro ao salvar:", e); }
         }
 
+        let isPrimeiroCarregamento = true; // Evita spam de notificações quando a página abre
+
         function escutarFirebase() {
             db.collection("app").doc("estado_global").onSnapshot((doc) => {
                 if (doc.exists) {
                     const data = doc.data();
+                    
+                    // --- LÓGICA DE DETEÇÃO DE NOTIFICAÇÕES ---
+                    if (currentUser && !isPrimeiroCarregamento) {
+                        const newMessages = data.messages || [];
+                        const newWorkouts = data.workouts || [];
+
+                        // 1. Detetar nova mensagem no chat
+                        if (newMessages.length > messages.length) {
+                            const ultimaMsg = newMessages[newMessages.length - 1];
+                            if (ultimaMsg.user !== currentUser) {
+                                mostrarNotificacao('Nova Mensagem', `${ultimaMsg.user}: ${ultimaMsg.text}`, 'chat');
+                            }
+                        }
+
+                        // 2. Detetar novos pontos no treino de hoje
+                        if (newWorkouts.length > 0) {
+                            newWorkouts.forEach(newW => {
+                                if (newW.user !== currentUser && newW.date === obterDataGlobal()) {
+                                    // Procura o exercício antigo para ver se os reps aumentaram
+                                    const oldW = workouts.find(w => w.user === newW.user && w.exercise === newW.exercise && w.date === newW.date);
+                                    
+                                    // Se já existia e as reps aumentaram, ou se é um exercício novo com reps > 0
+                                    const repOld = oldW ? oldW.reps : 0;
+                                    if (newW.reps > repOld) {
+                                        const diff = newW.reps - repOld;
+                                        const frasesMotivacionais = [
+                                            `${newW.user} mandou +${diff} reps em ${newW.exercise}! 💪 Não fiques para trás!`,
+                                            `Fogo! 🔥 ${newW.user} acabou de fazer +${diff} ${newW.exercise}!`,
+                                            `${newW.user} está a voar! +${diff} ${newW.exercise} pra conta! 🚀`,
+                                            `Atenção! ${newW.user} está a roubar a liderança com +${diff} ${newW.exercise}! 👑`
+                                        ];
+                                        const fraseAleatoria = frasesMotivacionais[Math.floor(Math.random() * frasesMotivacionais.length)];
+                                        mostrarNotificacao(`${newW.user} pontuou!`, fraseAleatoria, 'treino');
+                                    }
+                                }
+                            });
+                        }
+                    }
+
+                    // --- ATUALIZAÇÃO DO ESTADO ---
                     users = data.users || [];
                     workouts = data.workouts || [];
                     let mensagenseServidor = data.messages || [];
 
-                    // --- LIMPEZA DE 7 DIAS ---
+                    // Limpeza de 7 dias
                     const seteDiasEmMs = 7 * 24 * 60 * 60 * 1000;
                     const agora = Date.now();
                     const totalAnterior = mensagenseServidor.length;
                     
                     messages = mensagenseServidor.filter(msg => msg.isFavorite || (agora - msg.id) <= seteDiasEmMs);
-
                     if (messages.length !== totalAnterior && currentUser) salvarNaNuvenFirebase();
                     
                     document.getElementById('status-nuvem').innerText = '✅ Online e sincronizado via Firebase!';
@@ -221,6 +298,8 @@
                     } else {
                         renderizarListaUsuarios();
                     }
+
+                    isPrimeiroCarregamento = false;
                 } else {
                     salvarNaNuvenFirebase();
                 }
@@ -233,14 +312,13 @@
                 document.getElementById('auth-section').classList.add('hidden');
                 document.getElementById('main-panel').classList.remove('hidden');
                 document.getElementById('current-user-display').innerText = currentUser;
-                mudarPaginaPrincipal('treino'); // Inicia sempre na aba de treino
+                mudarPaginaPrincipal('treino'); 
             } else {
                 document.getElementById('auth-section').classList.remove('hidden');
                 document.getElementById('main-panel').classList.add('hidden');
             }
         }
 
-        // --- SISTEMA DE NAVEGAÇÃO ENTRE PÁGINAS ---
         function mudarPaginaPrincipal(pagina) {
             const btnTreino = document.getElementById('nav-treino');
             const btnCompeticao = document.getElementById('nav-competicao');
@@ -250,27 +328,25 @@
             const pagCompeticao = document.getElementById('pagina-competicao');
             const pagChat = document.getElementById('pagina-chat');
 
-            // Reset Estilos
             [btnTreino, btnCompeticao, btnChat].forEach(btn => {
-                btn.className = 'flex-1 sm:flex-none text-sm px-4 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold transition cursor-pointer';
+                btn.className = 'flex-1 sm:flex-none text-sm px-4 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold transition cursor-pointer shadow-none';
             });
             [pagTreino, pagCompeticao, pagChat].forEach(pag => pag.classList.add('hidden'));
 
             if(pagina === 'treino') {
                 pagTreino.classList.remove('hidden');
-                btnTreino.className = 'flex-1 sm:flex-none text-sm px-4 py-2.5 rounded-xl bg-amber-500 text-slate-950 font-bold transition cursor-pointer';
+                btnTreino.className = 'flex-1 sm:flex-none text-sm px-4 py-2.5 rounded-xl bg-amber-500 text-slate-950 font-bold transition cursor-pointer shadow-md shadow-amber-500/20';
             } else if (pagina === 'competicao') {
                 pagCompeticao.classList.remove('hidden');
-                btnCompeticao.className = 'flex-1 sm:flex-none text-sm px-4 py-2.5 rounded-xl bg-indigo-500 text-slate-950 font-bold transition cursor-pointer';
+                btnCompeticao.className = 'flex-1 sm:flex-none text-sm px-4 py-2.5 rounded-xl bg-indigo-500 text-slate-950 font-bold transition cursor-pointer shadow-md shadow-indigo-500/20';
             } else if (pagina === 'chat') {
                 pagChat.classList.remove('hidden');
-                btnChat.className = 'flex-1 sm:flex-none text-sm px-4 py-2.5 rounded-xl bg-pink-500 text-slate-950 font-bold transition cursor-pointer';
+                btnChat.className = 'flex-1 sm:flex-none text-sm px-4 py-2.5 rounded-xl bg-pink-500 text-slate-950 font-bold transition cursor-pointer shadow-md shadow-pink-500/20';
                 const chatDiv = document.getElementById('chat-messages');
-                chatDiv.scrollTop = chatDiv.scrollHeight; // Desce o chat
+                chatDiv.scrollTop = chatDiv.scrollHeight;
             }
         }
 
-        // --- AUTENTICAÇÃO E PERFIL ---
         function toggleSenha() {
             const inputPass = document.getElementById('auth-password');
             const btnEye = document.getElementById('btn-eye');
@@ -310,38 +386,12 @@
             iniciarApp();
         }
 
-        async function excluirUsuario(nome, e) {
-            e.stopPropagation();
-            if (confirm(`Banir o usuário "${nome}"?`)) {
-                users = users.filter(u => u.name !== nome);
-                await salvarNaNuvenFirebase();
-            }
-        }
-
-        function renderizarListaUsuarios() {
-            const lista = document.getElementById('users-list');
-            lista.innerHTML = '';
-            if (users.length === 0) return lista.innerHTML = '<p class="text-xs text-slate-500 italic">Crie a primeira conta!</p>';
-
-            users.forEach((u, index) => {
-                const btn = document.createElement('button');
-                btn.innerText = u.name;
-                btn.className = 'px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-xs font-bold text-slate-200 cursor-pointer';
-                btn.onclick = () => {
-                    document.getElementById('auth-username').value = u.name;
-                    document.getElementById('auth-password').focus();
-                };
-                lista.appendChild(btn);
-            });
-        }
-
         function sair() {
             currentUser = null;
             localStorage.removeItem('fitbattle_user');
             iniciarApp();
         }
 
-        // --- SISTEMA DE TREINO ---
         async function adicionarExercicioFixo() {
             const nomeEx = document.getElementById('exercise-name').value.trim();
             if (!nomeEx) return alert('Digite o exercício!');
@@ -498,7 +548,6 @@
             });
         }
 
-        // --- SISTEMA DE CHAT COM REAÇÕES ---
         async function enviarMensagem() {
             const texto = document.getElementById('chat-input').value.trim();
             if (!texto) return;
@@ -510,7 +559,7 @@
                 date: obterDataGlobal(),
                 isFavorite: false, 
                 expireAt: null,
-                reactions: { fire: [], laugh: [], flex: [] } // Inicializa reações vazias
+                reactions: { fire: [], laugh: [], flex: [] } 
             });
             await salvarNaNuvenFirebase();
             document.getElementById('chat-input').value = '';
@@ -536,14 +585,13 @@
         async function alternarReacao(msgId, tipoEmoji) {
             const msg = messages.find(m => m.id === msgId);
             if (!msg) return;
-            // Garante retrocompatibilidade para mensagens antigas sem reações
             if (!msg.reactions) msg.reactions = { fire: [], laugh: [], flex: [] };
             
             const indexUsuario = msg.reactions[tipoEmoji].indexOf(currentUser);
             if (indexUsuario === -1) {
-                msg.reactions[tipoEmoji].push(currentUser); // Adiciona reação
+                msg.reactions[tipoEmoji].push(currentUser); 
             } else {
-                msg.reactions[tipoEmoji].splice(indexUsuario, 1); // Remove se já clicou
+                msg.reactions[tipoEmoji].splice(indexUsuario, 1); 
             }
             await salvarNaNuvenFirebase();
         }
@@ -570,7 +618,6 @@
                     ultimaData = dataMsg;
                 }
 
-                // Proteção para mensagens velhas
                 const reacoes = msg.reactions || { fire: [], laugh: [], flex: [] };
                 const countFire = reacoes.fire ? reacoes.fire.length : 0;
                 const countLaugh = reacoes.laugh ? reacoes.laugh.length : 0;
@@ -584,7 +631,6 @@
                 const bubble = document.createElement('div');
                 bubble.className = `flex flex-col space-y-1 w-full ${msg.user === currentUser ? 'items-end' : 'items-start'}`;
                 
-                // Estrutura do balão de chat
                 bubble.innerHTML = `
                     <div class="flex items-center gap-2 text-xs text-slate-400 mb-0.5 px-1">
                         ${msg.user !== currentUser ? `<span class="font-extrabold ${corDoUser}">${msg.user}</span>` : ''}
@@ -596,7 +642,6 @@
                         </button>
                         <span class="text-slate-200">${msg.text}</span>
                         
-                        <!-- Barra de Reações -->
                         <div class="flex gap-1.5 mt-2 pt-2 border-t border-slate-700/40">
                             <button onclick="alternarReacao(${msg.id}, 'fire')" class="flex items-center gap-1 text-[11px] px-2 py-1 rounded-full transition ${hasFire ? 'bg-amber-500/20 text-amber-400 border border-amber-500/50' : 'bg-slate-900/50 text-slate-400 hover:bg-slate-700'}">🔥 ${countFire > 0 ? countFire : ''}</button>
                             <button onclick="alternarReacao(${msg.id}, 'laugh')" class="flex items-center gap-1 text-[11px] px-2 py-1 rounded-full transition ${hasLaugh ? 'bg-sky-500/20 text-sky-400 border border-sky-500/50' : 'bg-slate-900/50 text-slate-400 hover:bg-slate-700'}">😂 ${countLaugh > 0 ? countLaugh : ''}</button>
@@ -618,6 +663,7 @@
 
             favoritas.forEach(msg => {
                 const corDoUser = obterCorUsuario(msg.user);
+                const diasRestantes = msg.expireAt ? Math.ceil((msg.expireAt - Date.now()) / (1000 * 60 * 60 * 24)) : 90;
                 const bubble = document.createElement('div');
                 bubble.className = 'space-y-2 bg-slate-800 p-4 rounded-xl border border-pink-500/30';
                 bubble.innerHTML = `
