@@ -97,10 +97,20 @@
                     <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-4">
                         <h2 class="text-xl font-bold text-emerald-400">💪 Minha Ficha de Exercícios</h2>
                         <p class="text-xs text-slate-400 -mt-2">Cria os teus exercícios uma vez. Eles ficam guardados aqui para sempre!</p>
+                        
                         <div class="flex flex-col sm:flex-row gap-2">
                             <input type="text" id="exercise-name" placeholder="Ex: Flexão, Abdominal..." class="flex-1 bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-emerald-400">
                             <button onclick="adicionarExercicioFixo()" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-6 py-3 rounded-xl transition cursor-pointer">Guardar Exercício 💾</button>
                         </div>
+
+                        <!-- ABA DE SUGESTÕES AUTOMÁTICAS DE EXERCÍCIOS -->
+                        <div class="bg-slate-900/60 p-3.5 rounded-xl border border-slate-700/60 space-y-2">
+                            <span class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">💡 Sugestões Rápidas:</span>
+                            <div id="suggestions-box" class="flex flex-wrap gap-2">
+                                <!-- Preenchido dinamicamente por JS -->
+                            </div>
+                        </div>
+
                         <div id="my-exercises-list" class="space-y-3 mt-4"></div>
                     </div>
                 </div>
@@ -118,6 +128,18 @@
                         <div id="friends-activity-list" class="space-y-3"></div>
                     </div>
                 </div>
+                
+                <!-- RELATÓRIO E ESTATÍSTICAS DA SEMANA -->
+                <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-4">
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
+                        <h2 class="text-xl font-bold text-cyan-400">📊 Resumo e Desempenho da Semana</h2>
+                        <span id="weekly-dates-label" class="text-xs bg-cyan-500/20 text-cyan-300 px-3 py-1 rounded-full font-bold">Últimos 7 Dias</span>
+                    </div>
+                    <div id="weekly-stats-container" class="space-y-3">
+                        <!-- Preenchido via JS -->
+                    </div>
+                </div>
+
                 <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-4">
                     <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
                         <h2 class="text-xl font-bold text-indigo-400">📈 Desempenho Mensal</h2>
@@ -445,8 +467,10 @@
                     if (currentUser) {
                         atualizarAvatarNavbar();
                         renderizarMeusExercicios();
+                        renderizarSugestoesExercicios();
                         atualizarPlacar();
                         atualizarPlacarMensal();
+                        atualizarEstatisticasSemanais();
                         renderizarAtividadeAmigos(); 
                         atualizarChat();
                         atualizarFavoritas();
@@ -579,6 +603,14 @@
             await salvarNaNuvenFirebase();
         }
 
+        async function adicionarSugestao(nomeEx) {
+            if (!dadosCarregados) return;
+            const jaExiste = userExercises.find(e => e.user === currentUser && e.exercise.toLowerCase() === nomeEx.toLowerCase());
+            if (jaExiste) return alert('Este exercício já está na tua Ficha!');
+            userExercises.push({ user: currentUser, exercise: nomeEx });
+            await salvarNaNuvenFirebase();
+        }
+
         async function removerExercicio(globalIndex) {
             if (confirm('Queres apagar este exercício da tua Ficha DEFINITIVAMENTE?')) { 
                 userExercises.splice(globalIndex, 1); await salvarNaNuvenFirebase(); 
@@ -595,7 +627,6 @@
             const hoje = obterDataGlobal();
             const userObj = users.find(u => u.name === currentUser);
 
-            // 1. CÁLCULO DOS TOTAIS ANTES DA SOMA
             let totalDiarioAntes = 0;
             workouts.filter(w => w.user === currentUser && w.date === hoje).forEach(w => totalDiarioAntes += w.reps);
 
@@ -616,15 +647,11 @@
                 }
             });
 
-            // 2. EFETUA A SOMA NO BANCO DE DADOS
             let w = workouts.find(w => w.user === currentUser && w.exercise === item.exercise && w.date === hoje);
             if (w) { w.reps += qtd; } else { workouts.push({ user: currentUser, exercise: item.exercise, reps: qtd, date: hoje }); }
 
-            // 3. CÁLCULO DOS TOTAIS APÓS A SOMA
             const totalDiarioDepois = totalDiarioAntes + qtd;
             const totalMensalDepois = totalMensalAntes + qtd;
-
-            // 4. VERIFICA SE ULTRAPASSOU A META E DISPARA O EVENTO
             const msgVitoria = userObj.victoryMessage || "Superei os meus limites e bati a meta! 💪🔥";
 
             if (userObj.dailyGoal > 0 && totalDiarioAntes < userObj.dailyGoal && totalDiarioDepois >= userObj.dailyGoal) {
@@ -650,12 +677,33 @@
             await salvarNaNuvenFirebase();
         }
 
+        function renderizarSugestoesExercicios() {
+            const box = document.getElementById('suggestions-box');
+            box.innerHTML = '';
+            const sugestoes = ['Flexões', 'Agachamentos'];
+
+            sugestoes.forEach(nome => {
+                const jaTem = userExercises.some(e => e.user === currentUser && e.exercise.toLowerCase() === nome.toLowerCase());
+                const btn = document.createElement('button');
+                if (jaTem) {
+                    btn.className = 'px-3 py-1.5 bg-slate-800 text-slate-500 rounded-lg text-xs font-bold border border-slate-700 cursor-not-allowed';
+                    btn.innerHTML = `✅ ${nome} (Na Ficha)`;
+                    btn.disabled = true;
+                } else {
+                    btn.className = 'px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 rounded-lg text-xs font-bold border border-emerald-500/30 transition cursor-pointer flex items-center gap-1';
+                    btn.innerHTML = `➕ ${nome}`;
+                    btn.onclick = () => adicionarSugestao(nome);
+                }
+                box.appendChild(btn);
+            });
+        }
+
         function renderizarMeusExercicios() {
             const hoje = obterDataGlobal();
             const listaDiv = document.getElementById('my-exercises-list');
             listaDiv.innerHTML = '';
             const meusExercicios = userExercises.map((e, idx) => ({...e, globalIndex: idx})).filter(e => e.user === currentUser);
-            if (meusExercicios.length === 0) return listaDiv.innerHTML = '<p class="text-slate-500 italic text-sm">A tua ficha está vazia. Adiciona exercícios lá em cima!</p>';
+            if (meusExercicios.length === 0) return listaDiv.innerHTML = '<p class="text-slate-500 italic text-sm">A tua ficha está vazia. Adiciona exercícios lá em cima ou escolhe uma sugestão!</p>';
 
             meusExercicios.forEach(item => {
                 const hojeWorkout = workouts.find(w => w.user === currentUser && w.exercise === item.exercise && w.date === hoje);
@@ -792,6 +840,61 @@
             });
         }
 
+        function atualizarEstatisticasSemanais() {
+            const container = document.getElementById('weekly-stats-container');
+            container.innerHTML = '';
+
+            const hojeObj = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+            const seteDiasAtras = new Date(hojeObj.getTime() - (7 * 24 * 60 * 60 * 1000));
+
+            // Filtra treinos do utilizador logado nos últimos 7 dias
+            const meusTreinosSemana = workouts.filter(w => {
+                if (w.user !== currentUser) return false;
+                const p = w.date.split('/');
+                if (p.length !== 3) return false;
+                const dataW = new Date(p[2], p[1] - 1, p[0]);
+                return dataW >= seteDiasAtras && dataW <= hojeObj;
+            });
+
+            if (meusTreinosSemana.length === 0) {
+                container.innerHTML = '<p class="text-slate-500 italic text-sm">Ainda não tens registos de treinos nos últimos 7 dias. Começa a somar reps!</p>';
+                return;
+            }
+
+            // Somatório por exercício
+            const porExercicio = {};
+            let totalGeralSemana = 0;
+            meusTreinosSemana.forEach(w => {
+                porExercicio[w.exercise] = (porExercicio[w.exercise] || 0) + w.reps;
+                totalGeralSemana += w.reps;
+            });
+
+            let htmlGeral = `<div class="bg-slate-900 p-4 rounded-xl border border-cyan-500/30 space-y-3">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                    <span class="font-bold text-slate-200 text-sm">Total Geral (7 dias):</span>
+                    <span class="font-extrabold text-cyan-400 text-lg">${totalGeralSemana} Reps</span>
+                </div>
+                <div class="space-y-2 pt-1">`;
+
+            for (const [ex, qtd] of Object.entries(porExercicio)) {
+                const percentagem = totalGeralSemana > 0 ? ((qtd / totalGeralSemana) * 100).toFixed(1) : 0;
+                htmlGeral += `
+                    <div>
+                        <div class="flex justify-between text-xs font-bold mb-1">
+                            <span class="text-slate-300">${ex}</span>
+                            <span class="text-cyan-300">${qtd} reps (${percentagem}%)</span>
+                        </div>
+                        <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden border border-slate-700/50">
+                            <div class="h-full bg-cyan-400 transition-all duration-500" style="width: ${percentagem}%"></div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            htmlGeral += `</div></div>`;
+            container.innerHTML = htmlGeral;
+        }
+
         function iniciarResposta(msgId, user, text) {
             replyData = { id: msgId, user: user, text: text };
             document.getElementById('reply-banner').classList.remove('hidden');
@@ -891,15 +994,12 @@
                 bubble.id = `msg-${msg.id}`; 
                 bubble.className = `flex flex-col space-y-1 w-full transition-colors duration-500 rounded-2xl ${msg.user === currentUser ? 'items-end' : 'items-start'}`;
 
-                // Formatação especial se for uma mensagem de meta batida (opcional)
                 const isMetaMsg = msg.text.includes("BATI A META");
                 const bgBubble = msg.user === currentUser 
                     ? (isMetaMsg ? 'bg-amber-500/20 border-amber-500/40 rounded-tr-none' : 'border-pink-500/20 bg-pink-900/10 rounded-tr-none') 
                     : (isMetaMsg ? 'bg-amber-500/20 border-amber-500/40 rounded-tl-none' : 'border-slate-700/50 rounded-tl-none');
 
                 const textoSeguro = msg.text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                
-                // Trata as quebras de linha para mostrar bem no HTML
                 const textoFormatado = msg.text.replace(/\n/g, '<br>');
 
                 const cabecalho = msg.user === currentUser 
