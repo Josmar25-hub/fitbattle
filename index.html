@@ -24,10 +24,11 @@
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans min-h-screen p-4 md:p-8 pb-24 relative overflow-x-hidden">
 
+    <!-- Notificações Flutuantes -->
     <div id="toast-container" class="fixed top-4 right-4 left-4 sm:left-auto sm:w-80 z-[100] flex flex-col gap-3 pointer-events-none"></div>
     <div class="hidden text-pink-400 text-emerald-400 text-indigo-400 text-amber-400 text-fuchsia-400 text-cyan-400 text-lime-400 text-rose-400 text-violet-400"></div>
 
-    <!-- Inputs escondidos (Backup e FOTO DE PERFIL) -->
+    <!-- Inputs escondidos -->
     <input type="file" id="file-import-backup" class="hidden" accept=".json" onchange="processarRestauro(event)">
     <input type="file" id="file-avatar" class="hidden" accept="image/*" onchange="processarFoto(event)">
 
@@ -39,7 +40,7 @@
             <div id="status-nuvem" class="text-xs text-emerald-400 font-bold animate-pulse">⏳ Conectando ao Firebase... Aguarde!</div>
         </header>
 
-        <!-- Seção de Autenticação -->
+        <!-- SEÇÃO DE LOGIN -->
         <section id="auth-section" class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-4 hidden max-w-lg mx-auto">
             <h2 class="text-xl font-bold text-emerald-400">👤 Acesso ao Perfil</h2>
             <div id="form-login-box" class="space-y-3">
@@ -48,6 +49,7 @@
                     <input type="password" id="auth-password" placeholder="Sua senha de acesso" class="w-full bg-slate-900 border border-slate-700 px-4 py-3 pr-12 rounded-xl focus:outline-none focus:border-amber-400">
                     <button type="button" onclick="toggleSenha()" class="absolute right-3 top-3.5 text-slate-400 hover:text-slate-200 text-sm cursor-pointer" id="btn-eye">👁️</button>
                 </div>
+                <!-- Contacto movido para dentro da criação, ou deixado oculto até o Perfil -->
                 <div class="flex flex-col sm:flex-row gap-3 pt-2">
                     <button onclick="fazerLogin()" class="w-full sm:flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl transition cursor-pointer">Entrar 🚀</button>
                     <button onclick="criarPerfilComSenha()" class="w-full sm:flex-1 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-3 rounded-xl transition cursor-pointer">Criar Conta ➕</button>
@@ -59,29 +61,27 @@
             </div>
         </section>
 
-        <!-- Painel Principal -->
+        <!-- PAINEL PRINCIPAL -->
         <div id="main-panel" class="hidden space-y-6">
             
+            <!-- Barra de Navegação -->
             <div class="bg-slate-800 p-2 rounded-2xl flex flex-wrap sm:flex-nowrap justify-between items-center border border-slate-700 gap-2 sticky top-4 z-40 shadow-lg">
-                <div class="flex w-full sm:w-auto gap-2">
-                    <button onclick="mudarPaginaPrincipal('treino')" id="nav-treino" class="flex-1 sm:flex-none text-sm px-4 py-2.5 rounded-xl bg-amber-500 text-slate-950 font-bold transition cursor-pointer shadow-md">🏋️‍♂️ Treino</button>
-                    <button onclick="mudarPaginaPrincipal('competicao')" id="nav-competicao" class="flex-1 sm:flex-none text-sm px-4 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold transition cursor-pointer">🏆 Placar</button>
-                    <button onclick="mudarPaginaPrincipal('chat')" id="nav-chat" class="flex-1 sm:flex-none text-sm px-4 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold transition cursor-pointer">💬 Chat</button>
+                <div class="flex w-full sm:w-auto gap-2 flex-wrap sm:flex-nowrap">
+                    <button onclick="mudarPaginaPrincipal('treino')" id="nav-treino" class="flex-1 sm:flex-none text-xs sm:text-sm px-3 py-2.5 rounded-xl bg-amber-500 text-slate-950 font-bold transition cursor-pointer shadow-md">🏋️‍♂️ Treino</button>
+                    <button onclick="mudarPaginaPrincipal('competicao')" id="nav-competicao" class="flex-1 sm:flex-none text-xs sm:text-sm px-3 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold transition cursor-pointer">🏆 Placar</button>
+                    <button onclick="mudarPaginaPrincipal('chat')" id="nav-chat" class="flex-1 sm:flex-none text-xs sm:text-sm px-3 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold transition cursor-pointer">💬 Chat</button>
+                    <button onclick="mudarPaginaPrincipal('perfil')" id="nav-perfil" class="flex-1 sm:flex-none text-xs sm:text-sm px-3 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold transition cursor-pointer">⚙️ Perfil</button>
                 </div>
                 
-                <div class="flex w-full sm:w-auto items-center justify-between sm:justify-end bg-slate-900 px-4 py-2 rounded-xl border border-slate-700">
+                <div class="flex w-full sm:w-auto items-center justify-between sm:justify-end bg-slate-900 px-4 py-2 rounded-xl border border-slate-700 mt-2 sm:mt-0">
                     <span class="text-xs text-slate-400 mr-2">Logado:</span>
                     <strong id="current-user-display" class="text-amber-400 text-sm truncate max-w-[100px] mr-2"></strong>
-                    
-                    <!-- FOTO DE PERFIL NO MENU -->
-                    <div id="navbar-avatar-container" onclick="document.getElementById('file-avatar').click()" class="cursor-pointer hover:scale-110 transition-transform" title="Alterar Foto de Perfil">
-                        <!-- Renderizado via JS -->
-                    </div>
-
+                    <div id="navbar-avatar-container" onclick="mudarPaginaPrincipal('perfil')" class="cursor-pointer hover:scale-110 transition-transform" title="Aceder ao Perfil"></div>
                     <button onclick="sair()" class="ml-4 text-xs bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white px-3 py-1.5 rounded-lg transition cursor-pointer">Sair</button>
                 </div>
             </div>
 
+            <!-- PAINEL ADMIN (BACKUP) -->
             <div id="admin-panel" class="hidden bg-amber-500/10 border border-amber-500/30 p-4 rounded-xl flex flex-col sm:flex-row justify-between items-center gap-3">
                 <div class="text-sm">
                     <span class="font-bold text-amber-400">🛡️ Painel do Administrador:</span>
@@ -132,7 +132,6 @@
             <!-- PÁGINA 3: CHAT -->
             <div id="pagina-chat" class="hidden space-y-6">
                 <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-4 flex flex-col h-[70vh]">
-                    
                     <div class="flex flex-col sm:flex-row justify-between items-center gap-3 shrink-0">
                         <h2 class="text-xl font-bold text-pink-400">💬 Chat Interativo</h2>
                         <div class="flex gap-2 w-full sm:w-auto">
@@ -140,29 +139,51 @@
                             <button onclick="mudarAbaChat('favoritas')" id="btn-chat-fav" class="flex-1 sm:flex-none text-xs px-4 py-2 rounded-lg bg-slate-700 text-slate-300 font-bold transition cursor-pointer">⭐ Salvas</button>
                         </div>
                     </div>
-                    
                     <div id="container-chat-geral" class="flex-1 flex flex-col min-h-0 space-y-3 relative">
                         <div id="chat-messages" class="flex-1 bg-slate-900 rounded-xl p-4 overflow-y-auto space-y-3 border border-slate-700/50 scroll-smooth"></div>
-                        
                         <div id="reply-banner" class="hidden bg-slate-900/80 backdrop-blur-sm text-xs border border-pink-500/50 p-2 rounded-t-xl mx-2 -mb-4 z-10 relative flex justify-between items-center shadow-lg">
-                            <div class="flex flex-col truncate pr-4">
-                                <span class="text-pink-400 font-bold" id="reply-banner-user">Respondendo a...</span>
-                                <span class="text-slate-400 truncate" id="reply-banner-text">...</span>
-                            </div>
+                            <div class="flex flex-col truncate pr-4"><span class="text-pink-400 font-bold" id="reply-banner-user">Respondendo a...</span><span class="text-slate-400 truncate" id="reply-banner-text">...</span></div>
                             <button onclick="cancelarResposta()" class="text-slate-400 hover:text-rose-400 font-extrabold px-3 py-1 cursor-pointer">✖</button>
                         </div>
-
                         <div class="flex gap-2 shrink-0 relative z-20">
-                            <input type="text" id="chat-input" placeholder="Escreve uma mensagem para motivar..." class="flex-1 bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-pink-400 relative z-20" onkeypress="handleChatKey(event)">
+                            <input type="text" id="chat-input" placeholder="Escreve uma mensagem..." class="flex-1 bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-pink-400 relative z-20" onkeypress="handleChatKey(event)">
                             <button onclick="enviarMensagem()" class="bg-pink-500 hover:bg-pink-600 text-slate-950 font-bold px-6 py-3 rounded-xl transition cursor-pointer hidden sm:block relative z-20">Enviar</button>
                             <button onclick="enviarMensagem()" class="bg-pink-500 hover:bg-pink-600 text-slate-950 font-bold px-4 py-3 rounded-xl transition cursor-pointer sm:hidden relative z-20">➡️</button>
                         </div>
                     </div>
-
                     <div id="container-chat-fav" class="flex-1 flex flex-col min-h-0 hidden">
                         <div id="fav-messages" class="flex-1 bg-slate-900 rounded-xl p-4 overflow-y-auto space-y-3 border border-slate-700/50"></div>
                     </div>
+                </div>
+            </div>
 
+            <!-- PÁGINA 4: PERFIL -->
+            <div id="pagina-perfil" class="hidden space-y-6">
+                <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-6 max-w-lg mx-auto">
+                    <h2 class="text-xl font-bold text-fuchsia-400">⚙️ O Meu Perfil</h2>
+                    
+                    <div class="flex flex-col items-center gap-2 border-b border-slate-700 pb-6">
+                        <div id="perfil-avatar-preview" onclick="document.getElementById('file-avatar').click()" class="cursor-pointer hover:scale-105 transition-transform relative group shadow-xl rounded-full">
+                            <!-- Renderizado via JS -->
+                        </div>
+                        <span class="text-xs text-slate-400 bg-slate-900 px-3 py-1 rounded-full border border-slate-700 mt-2">👆 Clica na foto para alterar</span>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-xs text-slate-400 ml-1 font-bold">Nome de Usuário (ID da Conta)</label>
+                            <input type="text" id="perfil-nome" disabled class="w-full bg-slate-900/50 border border-slate-700/50 px-4 py-3 rounded-xl text-slate-500 cursor-not-allowed mt-1" title="O nome não pode ser alterado para não perder o teu histórico de treinos!">
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400 ml-1 font-bold">Palavra-passe (Senha)</label>
+                            <input type="password" id="perfil-senha" placeholder="A tua senha atual ou nova" class="w-full bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-fuchsia-400 mt-1">
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400 ml-1 font-bold">Contacto (WhatsApp ou E-mail)</label>
+                            <input type="text" id="perfil-contato" placeholder="Para recuperares a conta" class="w-full bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-fuchsia-400 mt-1">
+                        </div>
+                        <button onclick="salvarPerfil()" class="w-full bg-fuchsia-500 hover:bg-fuchsia-600 text-slate-950 font-extrabold py-3.5 rounded-xl transition cursor-pointer mt-4 shadow-lg shadow-fuchsia-500/20">Guardar Alterações 💾</button>
+                    </div>
                 </div>
             </div>
 
@@ -185,7 +206,7 @@
         const db = firebase.firestore();
 
         let currentUser = localStorage.getItem('fitbattle_user') || null;
-        let users = []; // Array que agora suporta { name, pass, avatar }
+        let users = []; 
         let workouts = []; 
         let userExercises = []; 
         let messages = [];
@@ -203,16 +224,12 @@
             return cores[Math.abs(hash) % cores.length];
         }
 
-        // --- SISTEMA DE AVATAR (FOTO DE PERFIL) ---
+        // --- SISTEMA DE AVATAR ---
         function getAvatarHtml(nome, sizeClass = "w-8 h-8", textClass = "text-xs") {
             const u = users.find(user => user.name === nome);
-            if (u && u.avatar) {
-                // Tem foto personalizada
-                return `<img src="${u.avatar}" class="${sizeClass} rounded-full object-cover border border-slate-600 shadow-sm shrink-0" alt="${nome}">`;
-            }
-            // Não tem foto -> Mostra a letra inicial com a cor do usuário
+            if (u && u.avatar) return `<img src="${u.avatar}" class="${sizeClass} rounded-full object-cover border-2 border-slate-700 shadow-sm shrink-0" alt="${nome}">`;
             const inicial = nome ? nome.charAt(0).toUpperCase() : '?';
-            return `<div class="${sizeClass} shrink-0 rounded-full flex items-center justify-center font-extrabold ${obterCorUsuario(nome)} bg-slate-800 border border-slate-600 shadow-sm ${textClass}">${inicial}</div>`;
+            return `<div class="${sizeClass} shrink-0 rounded-full flex items-center justify-center font-extrabold ${obterCorUsuario(nome)} bg-slate-800 border-2 border-slate-700 shadow-sm ${textClass}">${inicial}</div>`;
         }
 
         function processarFoto(event) {
@@ -222,36 +239,31 @@
             reader.onload = function(e) {
                 const img = new Image();
                 img.onload = async function() {
-                    // Compressão em Canvas para poupar espaço na Base de Dados
                     const canvas = document.createElement('canvas');
-                    const MAX_SIZE = 100; // Tamanho ideal e leve
-                    let width = img.width;
-                    let height = img.height;
-                    
-                    // Cortar quadrado perfeito
+                    const MAX_SIZE = 120; // Leve e nítido
+                    let width = img.width, height = img.height;
                     const size = Math.min(width, height);
                     const startX = (width - size) / 2;
                     const startY = (height - size) / 2;
 
-                    canvas.width = MAX_SIZE;
-                    canvas.height = MAX_SIZE;
+                    canvas.width = MAX_SIZE; canvas.height = MAX_SIZE;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, startX, startY, size, size, 0, 0, MAX_SIZE, MAX_SIZE);
+                    const base64Foto = canvas.toDataURL('image/jpeg', 0.7);
 
-                    const base64Foto = canvas.toDataURL('image/jpeg', 0.7); // Compressão Jpeg 70%
-
-                    // Salva no perfil do usuário
                     const userObj = users.find(u => u.name === currentUser);
                     if (userObj) {
                         userObj.avatar = base64Foto;
                         await salvarNaNuvenFirebase();
-                        mostrarNotificacao('Sucesso!', 'A tua foto de perfil foi atualizada.', 'treino');
+                        mostrarNotificacao('Foto Atualizada!', 'O teu novo visual já está online.', 'treino');
+                        atualizarAvatarNavbar();
+                        preencherPerfil(); // Atualiza a aba do perfil instantaneamente
                     }
                 }
                 img.src = e.target.result;
             }
             reader.readAsDataURL(file);
-            event.target.value = ''; // Limpa o input
+            event.target.value = '';
         }
 
         function atualizarAvatarNavbar() {
@@ -260,7 +272,31 @@
             }
         }
 
-        // --- SISTEMA DE BACKUP ---
+        // --- SISTEMA DE PERFIL ---
+        function preencherPerfil() {
+            const u = users.find(user => user.name === currentUser);
+            if(u) {
+                document.getElementById('perfil-nome').value = u.name;
+                document.getElementById('perfil-senha').value = u.pass;
+                document.getElementById('perfil-contato').value = u.contact || '';
+                document.getElementById('perfil-avatar-preview').innerHTML = getAvatarHtml(u.name, 'w-24 h-24', 'text-4xl');
+            }
+        }
+
+        async function salvarPerfil() {
+            if (!dadosCarregados) return;
+            const u = users.find(user => user.name === currentUser);
+            if(u) {
+                const novaSenha = document.getElementById('perfil-senha').value.trim();
+                const novoContato = document.getElementById('perfil-contato').value.trim();
+                if(novaSenha) u.pass = novaSenha;
+                u.contact = novoContato;
+                await salvarNaNuvenFirebase();
+                mostrarNotificacao('Perfil Guardado!', 'As tuas alterações foram salvas.', 'treino');
+            }
+        }
+
+        // --- BACKUP ---
         function verificarSeEhAdmin(nomeUsuario) {
             if (users.length === 0) return false;
             return users[0].name.toLowerCase() === nomeUsuario.toLowerCase();
@@ -281,11 +317,9 @@
             const jsonStr = JSON.stringify(dadosExport, null, 2);
             const blob = new Blob([jsonStr], { type: "application/json" });
             const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `FitBattle_Backup_${obterDataGlobal().replace(/\//g, '-')}.json`;
+            const a = document.createElement('a'); a.href = url; a.download = `FitBattle_Backup_${obterDataGlobal().replace(/\//g, '-')}.json`;
             document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-            mostrarNotificacao('Backup Concluído', 'Ficheiro guardado no teu dispositivo com sucesso!', 'treino');
+            mostrarNotificacao('Backup Concluído', 'Ficheiro guardado com sucesso!', 'treino');
         }
 
         function processarRestauro(event) {
@@ -297,13 +331,11 @@
                     const dados = JSON.parse(e.target.result);
                     if (dados.users && Array.isArray(dados.workouts) && Array.isArray(dados.messages)) {
                         users = dados.users; workouts = dados.workouts; messages = dados.messages; userExercises = dados.userExercises || [];
-                        await salvarNaNuvenFirebase();
-                        alert("🎉 Backup restaurado com sucesso!");
+                        await salvarNaNuvenFirebase(); alert("🎉 Backup restaurado com sucesso!");
                     } else { alert("❌ Erro: Ficheiro inválido."); }
                 } catch (error) { alert("❌ Erro ao ler ficheiro."); }
             };
-            reader.readAsText(file);
-            event.target.value = '';
+            reader.readAsText(file); event.target.value = '';
         }
 
         function mostrarNotificacao(titulo, texto, tipo) {
@@ -375,6 +407,7 @@
                         atualizarChat();
                         atualizarFavoritas();
                         atualizarPainelAdmin();
+                        preencherPerfil(); // Mantém o perfil sincronizado
                     } else { renderizarListaUsuarios(); }
                     isPrimeiroCarregamento = false;
                 } else { if(dadosCarregados) salvarNaNuvenFirebase(); }
@@ -400,23 +433,30 @@
             const btnTreino = document.getElementById('nav-treino');
             const btnCompeticao = document.getElementById('nav-competicao');
             const btnChat = document.getElementById('nav-chat');
+            const btnPerfil = document.getElementById('nav-perfil');
+            
             const pagTreino = document.getElementById('pagina-treino');
             const pagCompeticao = document.getElementById('pagina-competicao');
             const pagChat = document.getElementById('pagina-chat');
+            const pagPerfil = document.getElementById('pagina-perfil');
 
-            [btnTreino, btnCompeticao, btnChat].forEach(btn => btn.className = 'flex-1 sm:flex-none text-sm px-4 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold transition cursor-pointer shadow-none');
-            [pagTreino, pagCompeticao, pagChat].forEach(pag => pag.classList.add('hidden'));
+            [btnTreino, btnCompeticao, btnChat, btnPerfil].forEach(btn => btn.className = 'flex-1 sm:flex-none text-xs sm:text-sm px-3 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold transition cursor-pointer shadow-none');
+            [pagTreino, pagCompeticao, pagChat, pagPerfil].forEach(pag => pag.classList.add('hidden'));
 
             if(pagina === 'treino') {
                 pagTreino.classList.remove('hidden');
-                btnTreino.className = 'flex-1 sm:flex-none text-sm px-4 py-2.5 rounded-xl bg-amber-500 text-slate-950 font-bold transition cursor-pointer shadow-md shadow-amber-500/20';
+                btnTreino.className = 'flex-1 sm:flex-none text-xs sm:text-sm px-3 py-2.5 rounded-xl bg-amber-500 text-slate-950 font-bold transition cursor-pointer shadow-md shadow-amber-500/20';
             } else if (pagina === 'competicao') {
                 pagCompeticao.classList.remove('hidden');
-                btnCompeticao.className = 'flex-1 sm:flex-none text-sm px-4 py-2.5 rounded-xl bg-indigo-500 text-slate-950 font-bold transition cursor-pointer shadow-md shadow-indigo-500/20';
+                btnCompeticao.className = 'flex-1 sm:flex-none text-xs sm:text-sm px-3 py-2.5 rounded-xl bg-indigo-500 text-slate-950 font-bold transition cursor-pointer shadow-md shadow-indigo-500/20';
             } else if (pagina === 'chat') {
                 pagChat.classList.remove('hidden');
-                btnChat.className = 'flex-1 sm:flex-none text-sm px-4 py-2.5 rounded-xl bg-pink-500 text-slate-950 font-bold transition cursor-pointer shadow-md shadow-pink-500/20';
+                btnChat.className = 'flex-1 sm:flex-none text-xs sm:text-sm px-3 py-2.5 rounded-xl bg-pink-500 text-slate-950 font-bold transition cursor-pointer shadow-md shadow-pink-500/20';
                 setTimeout(() => { document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight; }, 100);
+            } else if (pagina === 'perfil') {
+                pagPerfil.classList.remove('hidden');
+                btnPerfil.className = 'flex-1 sm:flex-none text-xs sm:text-sm px-3 py-2.5 rounded-xl bg-fuchsia-500 text-slate-950 font-bold transition cursor-pointer shadow-md shadow-fuchsia-500/20';
+                preencherPerfil();
             }
         }
 
@@ -450,11 +490,9 @@
             const senha = document.getElementById('auth-password').value.trim();
             if (!nome || !senha) return alert('Preencha nome e senha!');
             if (users.find(u => u.name.toLowerCase() === nome.toLowerCase())) return alert('Nome já existe!');
-            users.push({ name: nome, pass: senha, avatar: null }); // Inicia sem avatar
-            currentUser = nome;
-            localStorage.setItem('fitbattle_user', currentUser);
-            await salvarNaNuvenFirebase();
-            iniciarApp();
+            users.push({ name: nome, pass: senha, contact: '', avatar: null });
+            currentUser = nome; localStorage.setItem('fitbattle_user', currentUser);
+            await salvarNaNuvenFirebase(); iniciarApp();
         }
 
         function fazerLogin() {
@@ -463,9 +501,7 @@
             const senha = document.getElementById('auth-password').value.trim();
             const conta = users.find(u => u.name.toLowerCase() === nome.toLowerCase() && u.pass === senha);
             if (!conta) return alert('Nome ou senha incorretos!');
-            currentUser = conta.name;
-            localStorage.setItem('fitbattle_user', currentUser);
-            iniciarApp();
+            currentUser = conta.name; localStorage.setItem('fitbattle_user', currentUser); iniciarApp();
         }
 
         function renderizarListaUsuarios() {
@@ -474,7 +510,6 @@
             users.forEach(u => {
                 const btn = document.createElement('button');
                 btn.className = 'flex items-center gap-2 px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-xs font-bold text-slate-200 cursor-pointer transition';
-                // Mostra a bolinha do avatar também na lista de login
                 btn.innerHTML = `${getAvatarHtml(u.name, 'w-5 h-5', 'text-[10px]')} <span>${u.name}</span>`;
                 btn.onclick = () => { document.getElementById('auth-username').value = u.name; };
                 lista.appendChild(btn);
@@ -483,6 +518,7 @@
 
         function sair() { currentUser = null; localStorage.removeItem('fitbattle_user'); iniciarApp(); }
 
+        // --- EXERCÍCIOS FIXOS, PLACAR E CHAT ---
         async function adicionarExercicioFixo() {
             if (!dadosCarregados) return;
             const nomeEx = document.getElementById('exercise-name').value.trim();
@@ -546,7 +582,7 @@
 
             for (const [amigo, exercicios] of Object.entries(agrupado)) {
                 const cor = obterCorUsuario(amigo);
-                const avatar = getAvatarHtml(amigo, 'w-6 h-6', 'text-[10px]'); // Foto do amigo
+                const avatar = getAvatarHtml(amigo, 'w-6 h-6', 'text-[10px]');
                 const card = document.createElement('div');
                 card.className = 'bg-slate-900 p-4 rounded-xl border border-slate-700/60 space-y-3';
                 let total = 0, html = '';
@@ -613,17 +649,11 @@
             document.getElementById('chat-input').focus();
         }
 
-        function cancelarResposta() {
-            replyData = null; document.getElementById('reply-banner').classList.add('hidden');
-        }
+        function cancelarResposta() { replyData = null; document.getElementById('reply-banner').classList.add('hidden'); }
 
         function rolarParaMensagem(id) {
             const el = document.getElementById(`msg-${id}`);
-            if (el) {
-                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                el.classList.add('bg-pink-500/30');
-                setTimeout(() => el.classList.remove('bg-pink-500/30'), 1500);
-            }
+            if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.classList.add('bg-pink-500/30'); setTimeout(() => el.classList.remove('bg-pink-500/30'), 1500); }
         }
 
         async function enviarMensagem() {
@@ -695,8 +725,6 @@
                 const cFire = reacoes.fire?.length || 0, cLaugh = reacoes.laugh?.length || 0, cFlex = reacoes.flex?.length || 0;
                 const hFire = reacoes.fire?.includes(currentUser), hLaugh = reacoes.laugh?.includes(currentUser), hFlex = reacoes.flex?.includes(currentUser);
                 const cor = obterCorUsuario(msg.user);
-                
-                // Pega o Avatar da mensagem
                 const avatar = getAvatarHtml(msg.user, 'w-6 h-6', 'text-[10px]');
 
                 let quoteHtml = '';
@@ -710,27 +738,19 @@
 
                 const bubble = document.createElement('div');
                 bubble.id = `msg-${msg.id}`; 
-                // Alinha o balão consoante o autor
                 bubble.className = `flex flex-col space-y-1 w-full transition-colors duration-500 rounded-2xl ${msg.user === currentUser ? 'items-end' : 'items-start'}`;
                 
                 const textoSeguro = msg.text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-
-                // O cabeçalho da mensagem inverte a ordem (foto -> nome) se for do usuário
                 const cabecalho = msg.user === currentUser 
-                    ? `<div class="flex items-center gap-2 text-xs text-slate-400 mb-0.5 px-1 flex-row-reverse">
-                        ${avatar}<span>${msg.time}</span></div>`
-                    : `<div class="flex items-center gap-2 text-xs text-slate-400 mb-0.5 px-1">
-                        ${avatar}<span class="font-extrabold ${cor}">${msg.user}</span><span>${msg.time}</span></div>`;
+                    ? `<div class="flex items-center gap-2 text-xs text-slate-400 mb-0.5 px-1 flex-row-reverse">${avatar}<span>${msg.time}</span></div>`
+                    : `<div class="flex items-center gap-2 text-xs text-slate-400 mb-0.5 px-1">${avatar}<span class="font-extrabold ${cor}">${msg.user}</span><span>${msg.time}</span></div>`;
 
                 bubble.innerHTML = `
                     ${cabecalho}
                     <div class="relative max-w-[85%] sm:max-w-[75%] bg-slate-800 p-3 rounded-2xl border text-sm ${msg.user === currentUser ? 'rounded-tr-none border-pink-500/20 bg-pink-900/10' : 'border-slate-700/50 rounded-tl-none'}">
-                        
                         <button onclick="alternarFavorito(${msg.id})" class="absolute -right-6 top-1 text-base opacity-40 hover:opacity-100 transition" title="Salvar Mensagem">${msg.isFavorite ? '⭐' : '☆'}</button>
-                        
                         ${quoteHtml}
                         <span class="text-slate-200">${msg.text}</span>
-                        
                         <div class="flex flex-wrap gap-1.5 mt-2 pt-2 border-t border-slate-700/40">
                             <button onclick="alternarReacao(${msg.id}, 'fire')" class="px-2 py-1 rounded-full text-[11px] ${hFire ? 'bg-amber-500/20 text-amber-400 border border-amber-500/50' : 'bg-slate-900/50 text-slate-400 hover:bg-slate-700'}">🔥 ${cFire||''}</button>
                             <button onclick="alternarReacao(${msg.id}, 'laugh')" class="px-2 py-1 rounded-full text-[11px] ${hLaugh ? 'bg-sky-500/20 text-sky-400 border border-sky-500/50' : 'bg-slate-900/50 text-slate-400 hover:bg-slate-700'}">😂 ${cLaugh||''}</button>
