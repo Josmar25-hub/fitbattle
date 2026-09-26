@@ -49,7 +49,6 @@
                     <input type="password" id="auth-password" placeholder="Sua senha de acesso" class="w-full bg-slate-900 border border-slate-700 px-4 py-3 pr-12 rounded-xl focus:outline-none focus:border-amber-400">
                     <button type="button" onclick="toggleSenha()" class="absolute right-3 top-3.5 text-slate-400 hover:text-slate-200 text-sm cursor-pointer" id="btn-eye">👁️</button>
                 </div>
-                <!-- Contacto movido para dentro da criação, ou deixado oculto até o Perfil -->
                 <div class="flex flex-col sm:flex-row gap-3 pt-2">
                     <button onclick="fazerLogin()" class="w-full sm:flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl transition cursor-pointer">Entrar 🚀</button>
                     <button onclick="criarPerfilComSenha()" class="w-full sm:flex-1 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-3 rounded-xl transition cursor-pointer">Criar Conta ➕</button>
@@ -190,7 +189,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT FIREBASE COMPLETO -->
+    <!-- SCRIPT FIREBASE -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyCHKSlMQ8l0Uu7L2nnqtLl3pNHZQFSxZ9o",
@@ -518,7 +517,6 @@
 
         function sair() { currentUser = null; localStorage.removeItem('fitbattle_user'); iniciarApp(); }
 
-        // --- EXERCÍCIOS FIXOS, PLACAR E CHAT ---
         async function adicionarExercicioFixo() {
             if (!dadosCarregados) return;
             const nomeEx = document.getElementById('exercise-name').value.trim();
@@ -741,8 +739,10 @@
                 bubble.className = `flex flex-col space-y-1 w-full transition-colors duration-500 rounded-2xl ${msg.user === currentUser ? 'items-end' : 'items-start'}`;
                 
                 const textoSeguro = msg.text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                
+                // MUDANÇA AQUI: Agora o nome (msg.user) aparece também para o currentUser!
                 const cabecalho = msg.user === currentUser 
-                    ? `<div class="flex items-center gap-2 text-xs text-slate-400 mb-0.5 px-1 flex-row-reverse">${avatar}<span>${msg.time}</span></div>`
+                    ? `<div class="flex items-center gap-2 text-xs text-slate-400 mb-0.5 px-1 flex-row-reverse">${avatar}<span class="font-extrabold ${cor}">${msg.user}</span><span>${msg.time}</span></div>`
                     : `<div class="flex items-center gap-2 text-xs text-slate-400 mb-0.5 px-1">${avatar}<span class="font-extrabold ${cor}">${msg.user}</span><span>${msg.time}</span></div>`;
 
                 bubble.innerHTML = `
