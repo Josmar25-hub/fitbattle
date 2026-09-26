@@ -228,6 +228,15 @@
                             </div>
                         </div>
 
+                        <!-- SISTEMA DE NOTIFICAÇÕES -->
+                        <div class="pt-4 border-t border-slate-700/60 space-y-3">
+                            <h3 class="text-sm font-bold text-fuchsia-400 flex items-center gap-2">🔔 Notificações</h3>
+                            <button onclick="pedirPermissaoNotificacao()" class="w-full bg-slate-900 border border-fuchsia-500/50 hover:bg-slate-800 text-slate-200 font-bold py-3 rounded-xl transition cursor-pointer text-sm shadow-sm flex justify-center items-center gap-2">
+                                Ativar Notificações no Dispositivo 📲
+                            </button>
+                            <p class="text-[10px] text-slate-500 text-center">Permite que o FitBattle te avise no ecrã quando os teus kambas pontuarem ou mandarem mensagem!</p>
+                        </div>
+
                         <button onclick="salvarPerfil()" class="w-full bg-fuchsia-500 hover:bg-fuchsia-600 text-slate-950 font-extrabold py-3.5 rounded-xl transition cursor-pointer mt-4 shadow-lg shadow-fuchsia-500/20">Guardar Alterações 💾</button>
                     </div>
                     
@@ -273,6 +282,29 @@
             let hash = 0;
             for (let i = 0; i < nome.length; i++) { hash = nome.charCodeAt(i) + ((hash << 5) - hash); }
             return cores[Math.abs(hash) % cores.length];
+        }
+
+        // --- SISTEMA DE NOTIFICAÇÕES NATIVAS (PUSH) ---
+        function pedirPermissaoNotificacao() {
+            if (!("Notification" in window)) {
+                alert("O teu navegador não suporta notificações de sistema.");
+                return;
+            }
+            Notification.requestPermission().then(permission => {
+                if (permission === "granted") {
+                    mostrarNotificacao('Notificações ON!', 'Vais receber alertas no dispositivo.', 'perfil');
+                    new Notification("FitBattle 🔥", { body: "As notificações estão ativadas com sucesso! 💪" });
+                } else {
+                    alert("Permissão negada. Podes precisar de alterar nas configurações do teu navegador.");
+                }
+            });
+        }
+
+        function enviarNotificacaoSistema(titulo, texto) {
+            if ("Notification" in window && Notification.permission === "granted") {
+                // Envia notificação nativa para o PC/Telemóvel
+                new Notification(titulo, { body: texto });
+            }
         }
 
         // --- SISTEMA DE AVATAR ---
@@ -435,14 +467,21 @@
                         const newWorkouts = data.workouts || [];
                         if (newMessages.length > messages.length) {
                             const ultimaMsg = newMessages[newMessages.length - 1];
-                            if (ultimaMsg.user !== currentUser) mostrarNotificacao('Nova Mensagem', `${ultimaMsg.user}: ${ultimaMsg.text}`, 'chat');
+                            if (ultimaMsg.user !== currentUser) {
+                                mostrarNotificacao('Nova Mensagem', `${ultimaMsg.user}: ${ultimaMsg.text}`, 'chat');
+                                enviarNotificacaoSistema(`💬 Mensagem de ${ultimaMsg.user}`, ultimaMsg.text); // NOTIFICAÇÃO NATIVA
+                            }
                         }
                         if (newWorkouts.length > 0) {
                             newWorkouts.forEach(newW => {
                                 if (newW.user !== currentUser && newW.date === obterDataGlobal()) {
                                     const oldW = workouts.find(w => w.user === newW.user && w.exercise === newW.exercise && w.date === newW.date);
                                     const repOld = oldW ? oldW.reps : 0;
-                                    if (newW.reps > repOld) mostrarNotificacao(`${newW.user} pontuou!`, `${newW.user} fez +${newW.reps - repOld} ${newW.exercise}! 💪`, 'treino');
+                                    if (newW.reps > repOld) {
+                                        const msgTreino = `${newW.user} fez +${newW.reps - repOld} ${newW.exercise}! 💪`;
+                                        mostrarNotificacao(`${newW.user} pontuou!`, msgTreino, 'treino');
+                                        enviarNotificacaoSistema(`🏆 ${newW.user} pontuou!`, msgTreino); // NOTIFICAÇÃO NATIVA
+                                    }
                                 }
                             });
                         }
@@ -656,6 +695,7 @@
 
             if (userObj.dailyGoal > 0 && totalDiarioAntes < userObj.dailyGoal && totalDiarioDepois >= userObj.dailyGoal) {
                 mostrarNotificacao('Meta Diária Batida! 🏆', msgVitoria, 'competicao');
+                enviarNotificacaoSistema('🏆 Meta Diária Batida!', msgVitoria);
                 messages.push({ 
                     id: Date.now(), user: currentUser, 
                     text: `🏆 BATI A META DIÁRIA! \n"${msgVitoria}"`, 
@@ -666,6 +706,7 @@
 
             if (userObj.monthlyGoal > 0 && totalMensalAntes < userObj.monthlyGoal && totalMensalDepois >= userObj.monthlyGoal) {
                 mostrarNotificacao('Meta Mensal Batida! 👑', msgVitoria, 'competicao');
+                enviarNotificacaoSistema('👑 Meta Mensal Batida!', msgVitoria);
                 messages.push({ 
                     id: Date.now() + 1, user: currentUser, 
                     text: `👑 BATI A META MENSAL! \n"${msgVitoria}"`, 
@@ -685,13 +726,17 @@
             sugestoes.forEach(nome => {
                 const jaTem = userExercises.some(e => e.user === currentUser && e.exercise.toLowerCase() === nome.toLowerCase());
                 const btn = document.createElement('button');
+                
+                // MUDANÇA AQUI: Visibilidade muito mais clara de quando o botão está bloqueado
                 if (jaTem) {
-                    btn.className = 'px-3 py-1.5 bg-slate-800 text-slate-500 rounded-lg text-xs font-bold border border-slate-700 cursor-not-allowed';
-                    btn.innerHTML = `✅ ${nome} (Na Ficha)`;
+                    btn.className = 'px-3 py-1.5 bg-slate-800 text-slate-500 rounded-lg text-xs font-bold border border-slate-700 cursor-not-allowed opacity-50';
+                    btn.innerHTML = `🔒 ${nome} (Já na Ficha)`;
                     btn.disabled = true;
+                    btn.title = "Já estás a treinar este exercício! Vai à ficha lá em baixo somar repetições.";
                 } else {
                     btn.className = 'px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 rounded-lg text-xs font-bold border border-emerald-500/30 transition cursor-pointer flex items-center gap-1';
                     btn.innerHTML = `➕ ${nome}`;
+                    btn.title = "Clica para adicionar rapidamente à tua ficha!";
                     btn.onclick = () => adicionarSugestao(nome);
                 }
                 box.appendChild(btn);
@@ -1006,6 +1051,11 @@
                     ? `<div class="flex items-center gap-2 text-xs text-slate-400 mb-0.5 px-1 flex-row-reverse">${avatar}<span class="font-extrabold ${cor}">${msg.user}</span><span>${msg.time}</span></div>`
                     : `<div class="flex items-center gap-2 text-xs text-slate-400 mb-0.5 px-1">${avatar}<span class="font-extrabold ${cor}">${msg.user}</span><span>${msg.time}</span></div>`;
 
+                // MUDANÇA AQUI: Tooltips (caixas de título) com os nomes de quem reagiu!
+                const tooltipFire = cFire > 0 ? `Reagido por: ${reacoes.fire.join(', ')}` : 'Reagir com Fogo!';
+                const tooltipLaugh = cLaugh > 0 ? `Reagido por: ${reacoes.laugh.join(', ')}` : 'Reagir com Riso!';
+                const tooltipFlex = cFlex > 0 ? `Reagido por: ${reacoes.flex.join(', ')}` : 'Reagir com Força!';
+
                 bubble.innerHTML = `
                     ${cabecalho}
                     <div class="relative max-w-[85%] sm:max-w-[75%] bg-slate-800 p-3 rounded-2xl border text-sm ${bgBubble}">
@@ -1013,9 +1063,9 @@
                         ${quoteHtml}
                         <span class="text-slate-200">${textoFormatado}</span>
                         <div class="flex flex-wrap gap-1.5 mt-2 pt-2 border-t border-slate-700/40">
-                            <button onclick="alternarReacao(${msg.id}, 'fire')" class="px-2 py-1 rounded-full text-[11px] ${hFire ? 'bg-amber-500/20 text-amber-400 border border-amber-500/50' : 'bg-slate-900/50 text-slate-400 hover:bg-slate-700'}">🔥 ${cFire||''}</button>
-                            <button onclick="alternarReacao(${msg.id}, 'laugh')" class="px-2 py-1 rounded-full text-[11px] ${hLaugh ? 'bg-sky-500/20 text-sky-400 border border-sky-500/50' : 'bg-slate-900/50 text-slate-400 hover:bg-slate-700'}">😂 ${cLaugh||''}</button>
-                            <button onclick="alternarReacao(${msg.id}, 'flex')" class="px-2 py-1 rounded-full text-[11px] ${hFlex ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/50' : 'bg-slate-900/50 text-slate-400 hover:bg-slate-700'}">💪 ${cFlex||''}</button>
+                            <button onclick="alternarReacao(${msg.id}, 'fire')" title="${tooltipFire}" class="px-2 py-1 rounded-full text-[11px] cursor-pointer ${hFire ? 'bg-amber-500/20 text-amber-400 border border-amber-500/50' : 'bg-slate-900/50 text-slate-400 hover:bg-slate-700'}">🔥 ${cFire||''}</button>
+                            <button onclick="alternarReacao(${msg.id}, 'laugh')" title="${tooltipLaugh}" class="px-2 py-1 rounded-full text-[11px] cursor-pointer ${hLaugh ? 'bg-sky-500/20 text-sky-400 border border-sky-500/50' : 'bg-slate-900/50 text-slate-400 hover:bg-slate-700'}">😂 ${cLaugh||''}</button>
+                            <button onclick="alternarReacao(${msg.id}, 'flex')" title="${tooltipFlex}" class="px-2 py-1 rounded-full text-[11px] cursor-pointer ${hFlex ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/50' : 'bg-slate-900/50 text-slate-400 hover:bg-slate-700'}">💪 ${cFlex||''}</button>
                             <button onclick="iniciarResposta(${msg.id}, '${msg.user}', '${textoSeguro}')" class="px-2 py-1 rounded-full text-[10px] uppercase font-bold bg-slate-900/50 text-slate-500 hover:bg-slate-700 hover:text-slate-300 ml-auto transition cursor-pointer">↩️ Responder</button>
                         </div>
                     </div>
