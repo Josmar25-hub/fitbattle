@@ -65,7 +65,6 @@
 
             <!-- Barra de Navegação -->
             <div class="bg-slate-800 p-2 rounded-2xl flex flex-col sm:flex-row justify-between items-center border border-slate-700 gap-3 sticky top-4 z-40 shadow-lg">
-                <!-- GRID NO MOBILE PARA ALINHAMENTO PERFEITO DOS BOTÕES -->
                 <div class="grid grid-cols-2 sm:flex w-full sm:w-auto gap-2">
                     <button onclick="mudarPaginaPrincipal('treino')" id="nav-treino" class="w-full sm:w-auto text-xs sm:text-sm px-3 py-2.5 rounded-xl bg-amber-500 text-slate-950 font-bold transition cursor-pointer shadow-md">🏋️‍♂️ Treino</button>
                     <button onclick="mudarPaginaPrincipal('competicao')" id="nav-competicao" class="w-full sm:w-auto text-xs sm:text-sm px-3 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold transition cursor-pointer">🏆 Placar</button>
@@ -185,7 +184,13 @@
                         <!-- SISTEMA DE METAS -->
                         <div class="pt-4 border-t border-slate-700/60 space-y-3">
                             <h3 class="text-sm font-bold text-fuchsia-400 flex items-center gap-2">🎯 Minhas Metas</h3>
-                            <div class="flex gap-3">
+                            
+                            <div>
+                                <label class="text-xs text-slate-400 ml-1 font-bold">Mensagem de Vitória 🏆 (Aparece quando bates a meta)</label>
+                                <input type="text" id="perfil-mensagem-vitoria" placeholder="Ex: Ninguém me segura! 🔥" class="w-full bg-slate-900 border border-slate-700 px-4 py-2.5 rounded-xl focus:outline-none focus:border-fuchsia-400 mt-1 text-sm">
+                            </div>
+
+                            <div class="flex gap-3 pt-2">
                                 <div class="flex-1">
                                     <label class="text-xs text-slate-400 ml-1 font-bold">Diária (Reps)</label>
                                     <input type="number" id="perfil-meta-diaria" placeholder="Ex: 100" class="w-full bg-slate-900 border border-slate-700 px-4 py-2.5 rounded-xl focus:outline-none focus:border-fuchsia-400 mt-1 text-sm">
@@ -195,7 +200,7 @@
                                     <input type="number" id="perfil-meta-mensal" placeholder="Ex: 3000" class="w-full bg-slate-900 border border-slate-700 px-4 py-2.5 rounded-xl focus:outline-none focus:border-fuchsia-400 mt-1 text-sm">
                                 </div>
                             </div>
-                            <div class="flex items-center gap-2 pt-1">
+                            <div class="flex items-center gap-2 pt-2">
                                 <input type="checkbox" id="perfil-metas-publicas" class="w-4 h-4 accent-fuchsia-500 cursor-pointer rounded">
                                 <label for="perfil-metas-publicas" class="text-xs text-slate-300 cursor-pointer select-none">Tornar minhas metas visíveis no Placar para todos</label>
                             </div>
@@ -305,10 +310,9 @@
                 document.getElementById('perfil-contato').value = u.contact || '';
                 document.getElementById('perfil-avatar-preview').innerHTML = getAvatarHtml(u.name, 'w-24 h-24', 'text-4xl');
                 
-                // Carregar Metas
                 document.getElementById('perfil-meta-diaria').value = u.dailyGoal || '';
                 document.getElementById('perfil-meta-mensal').value = u.monthlyGoal || '';
-                // Checkbox por defeito marcada (true) se nunca tiver sido definida
+                document.getElementById('perfil-mensagem-vitoria').value = u.victoryMessage || 'Superei os meus limites e bati a meta! 💪🔥';
                 document.getElementById('perfil-metas-publicas').checked = u.publicGoals !== false; 
             }
         }
@@ -321,12 +325,14 @@
                 const novoContato = document.getElementById('perfil-contato').value.trim();
                 const metaDiaria = parseInt(document.getElementById('perfil-meta-diaria').value) || 0;
                 const metaMensal = parseInt(document.getElementById('perfil-meta-mensal').value) || 0;
+                const msgVitoria = document.getElementById('perfil-mensagem-vitoria').value.trim() || 'Superei os meus limites e bati a meta! 💪🔥';
                 const metasPublicas = document.getElementById('perfil-metas-publicas').checked;
 
                 if(novaSenha) u.pass = novaSenha;
                 u.contact = novoContato;
                 u.dailyGoal = metaDiaria;
                 u.monthlyGoal = metaMensal;
+                u.victoryMessage = msgVitoria;
                 u.publicGoals = metasPublicas;
 
                 await salvarNaNuvenFirebase();
@@ -478,7 +484,6 @@
             const pagChat = document.getElementById('pagina-chat');
             const pagPerfil = document.getElementById('pagina-perfil');
 
-            // Reset estilos para botões da Grid
             [btnTreino, btnCompeticao, btnChat, btnPerfil].forEach(btn => btn.className = 'w-full sm:w-auto text-xs sm:text-sm px-3 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold transition cursor-pointer shadow-none');
             [pagTreino, pagCompeticao, pagChat, pagPerfil].forEach(pag => pag.classList.add('hidden'));
 
@@ -530,15 +535,10 @@
             if (!nome || !senha) return alert('Preencha nome e senha!');
             if (users.find(u => u.name.toLowerCase() === nome.toLowerCase())) return alert('Nome já existe!');
             
-            // Novos utilizadores recebem metas padrão
             users.push({ 
-                name: nome, 
-                pass: senha, 
-                contact: '', 
-                avatar: null,
-                dailyGoal: 0,
-                monthlyGoal: 0,
-                publicGoals: true
+                name: nome, pass: senha, contact: '', avatar: null,
+                dailyGoal: 0, monthlyGoal: 0, publicGoals: true,
+                victoryMessage: "Superei os meus limites e bati a meta! 💪🔥"
             });
             
             currentUser = nome; localStorage.setItem('fitbattle_user', currentUser);
@@ -593,8 +593,60 @@
             if (!dadosCarregados || isNaN(qtd) || qtd <= 0) return;
 
             const hoje = obterDataGlobal();
+            const userObj = users.find(u => u.name === currentUser);
+
+            // 1. CÁLCULO DOS TOTAIS ANTES DA SOMA
+            let totalDiarioAntes = 0;
+            workouts.filter(w => w.user === currentUser && w.date === hoje).forEach(w => totalDiarioAntes += w.reps);
+
+            let totalMensalAntes = 0;
+            const agoraData = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+            const mesAtual = agoraData.getMonth();
+            const anoAtual = agoraData.getFullYear();
+            
+            workouts.forEach(w => {
+                if(w.user === currentUser) {
+                    const p = w.date.split('/');
+                    if(p.length === 3) {
+                        const d = new Date(p[2], p[1] - 1, p[0]);
+                        if(d.getMonth() === mesAtual && d.getFullYear() === anoAtual) {
+                            totalMensalAntes += w.reps;
+                        }
+                    }
+                }
+            });
+
+            // 2. EFETUA A SOMA NO BANCO DE DADOS
             let w = workouts.find(w => w.user === currentUser && w.exercise === item.exercise && w.date === hoje);
             if (w) { w.reps += qtd; } else { workouts.push({ user: currentUser, exercise: item.exercise, reps: qtd, date: hoje }); }
+
+            // 3. CÁLCULO DOS TOTAIS APÓS A SOMA
+            const totalDiarioDepois = totalDiarioAntes + qtd;
+            const totalMensalDepois = totalMensalAntes + qtd;
+
+            // 4. VERIFICA SE ULTRAPASSOU A META E DISPARA O EVENTO
+            const msgVitoria = userObj.victoryMessage || "Superei os meus limites e bati a meta! 💪🔥";
+
+            if (userObj.dailyGoal > 0 && totalDiarioAntes < userObj.dailyGoal && totalDiarioDepois >= userObj.dailyGoal) {
+                mostrarNotificacao('Meta Diária Batida! 🏆', msgVitoria, 'competicao');
+                messages.push({ 
+                    id: Date.now(), user: currentUser, 
+                    text: `🏆 BATI A META DIÁRIA! \n"${msgVitoria}"`, 
+                    time: obterHoraGlobal(), date: obterDataGlobal(), 
+                    isFavorite: false, expireAt: null, reactions: { fire: [], laugh: [], flex: [] } 
+                });
+            }
+
+            if (userObj.monthlyGoal > 0 && totalMensalAntes < userObj.monthlyGoal && totalMensalDepois >= userObj.monthlyGoal) {
+                mostrarNotificacao('Meta Mensal Batida! 👑', msgVitoria, 'competicao');
+                messages.push({ 
+                    id: Date.now() + 1, user: currentUser, 
+                    text: `👑 BATI A META MENSAL! \n"${msgVitoria}"`, 
+                    time: obterHoraGlobal(), date: obterDataGlobal(), 
+                    isFavorite: false, expireAt: null, reactions: { fire: [], laugh: [], flex: [] } 
+                });
+            }
+
             await salvarNaNuvenFirebase();
         }
 
@@ -655,7 +707,6 @@
                 const avatar = getAvatarHtml(user, 'w-8 h-8', 'text-xs');
                 const userObj = users.find(u => u.name === user);
                 
-                // Construção da Barra de Meta (Se pública e configurada)
                 let metaDiariaHtml = '';
                 if (userObj && userObj.publicGoals !== false && userObj.dailyGoal > 0) {
                     const perc = Math.min(Math.round((total / userObj.dailyGoal) * 100), 100);
@@ -711,7 +762,6 @@
                 const avatar = getAvatarHtml(user, 'w-8 h-8', 'text-xs');
                 const userObj = users.find(u => u.name === user);
 
-                // Construção da Barra de Meta Mensal (Se pública e configurada)
                 let metaMensalHtml = '';
                 if (userObj && userObj.publicGoals !== false && userObj.monthlyGoal > 0) {
                     const perc = Math.min(Math.round((total / userObj.monthlyGoal) * 100), 100);
@@ -841,7 +891,16 @@
                 bubble.id = `msg-${msg.id}`; 
                 bubble.className = `flex flex-col space-y-1 w-full transition-colors duration-500 rounded-2xl ${msg.user === currentUser ? 'items-end' : 'items-start'}`;
 
+                // Formatação especial se for uma mensagem de meta batida (opcional)
+                const isMetaMsg = msg.text.includes("BATI A META");
+                const bgBubble = msg.user === currentUser 
+                    ? (isMetaMsg ? 'bg-amber-500/20 border-amber-500/40 rounded-tr-none' : 'border-pink-500/20 bg-pink-900/10 rounded-tr-none') 
+                    : (isMetaMsg ? 'bg-amber-500/20 border-amber-500/40 rounded-tl-none' : 'border-slate-700/50 rounded-tl-none');
+
                 const textoSeguro = msg.text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                
+                // Trata as quebras de linha para mostrar bem no HTML
+                const textoFormatado = msg.text.replace(/\n/g, '<br>');
 
                 const cabecalho = msg.user === currentUser 
                     ? `<div class="flex items-center gap-2 text-xs text-slate-400 mb-0.5 px-1 flex-row-reverse">${avatar}<span class="font-extrabold ${cor}">${msg.user}</span><span>${msg.time}</span></div>`
@@ -849,10 +908,10 @@
 
                 bubble.innerHTML = `
                     ${cabecalho}
-                    <div class="relative max-w-[85%] sm:max-w-[75%] bg-slate-800 p-3 rounded-2xl border text-sm ${msg.user === currentUser ? 'rounded-tr-none border-pink-500/20 bg-pink-900/10' : 'border-slate-700/50 rounded-tl-none'}">
+                    <div class="relative max-w-[85%] sm:max-w-[75%] bg-slate-800 p-3 rounded-2xl border text-sm ${bgBubble}">
                         <button onclick="alternarFavorito(${msg.id})" class="absolute -right-6 top-1 text-base opacity-40 hover:opacity-100 transition" title="Salvar Mensagem">${msg.isFavorite ? '⭐' : '☆'}</button>
                         ${quoteHtml}
-                        <span class="text-slate-200">${msg.text}</span>
+                        <span class="text-slate-200">${textoFormatado}</span>
                         <div class="flex flex-wrap gap-1.5 mt-2 pt-2 border-t border-slate-700/40">
                             <button onclick="alternarReacao(${msg.id}, 'fire')" class="px-2 py-1 rounded-full text-[11px] ${hFire ? 'bg-amber-500/20 text-amber-400 border border-amber-500/50' : 'bg-slate-900/50 text-slate-400 hover:bg-slate-700'}">🔥 ${cFire||''}</button>
                             <button onclick="alternarReacao(${msg.id}, 'laugh')" class="px-2 py-1 rounded-full text-[11px] ${hLaugh ? 'bg-sky-500/20 text-sky-400 border border-sky-500/50' : 'bg-slate-900/50 text-slate-400 hover:bg-slate-700'}">😂 ${cLaugh||''}</button>
@@ -876,6 +935,7 @@
                 const corDoUser = obterCorUsuario(msg.user);
                 const diasRestantes = msg.expireAt ? Math.ceil((msg.expireAt - Date.now()) / (1000 * 60 * 60 * 24)) : 90;
                 const avatar = getAvatarHtml(msg.user, 'w-6 h-6', 'text-[10px]');
+                const textoFormatado = msg.text.replace(/\n/g, '<br>');
 
                 const bubble = document.createElement('div');
                 bubble.className = 'space-y-2 bg-slate-800 p-4 rounded-xl border border-pink-500/30';
@@ -884,7 +944,7 @@
                         <span class="font-extrabold ${corDoUser} flex items-center gap-2">${avatar} ${msg.user} <span class="text-slate-500 font-normal">(${msg.date || ''} às ${msg.time})</span></span>
                         <span class="text-pink-300 font-bold bg-pink-500/10 px-2 py-0.5 rounded-full">Expira em: ${diasRestantes > 0 ? diasRestantes + ' dias' : 'Expirando'}</span>
                     </div>
-                    <div class="text-sm text-slate-200 leading-relaxed">${msg.text}</div>
+                    <div class="text-sm text-slate-200 leading-relaxed">${textoFormatado}</div>
                     <div class="flex justify-end gap-2 pt-2 border-t border-slate-700/50">
                         <button onclick="renovarPrazo(${msg.id})" class="bg-amber-500/20 text-amber-400 hover:bg-amber-500 hover:text-slate-950 font-bold text-xs px-3 py-1.5 rounded-lg transition">Renovar 🔄</button>
                         <button onclick="alternarFavorito(${msg.id})" class="bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">Remover 🗑️</button>
