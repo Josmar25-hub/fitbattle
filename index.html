@@ -71,7 +71,7 @@
                     <button onclick="mudarPaginaPrincipal('chat')" id="nav-chat" class="w-full sm:w-auto text-xs sm:text-sm px-3 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold transition cursor-pointer">💬 Chat</button>
                     <button onclick="mudarPaginaPrincipal('perfil')" id="nav-perfil" class="w-full sm:w-auto text-xs sm:text-sm px-3 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold transition cursor-pointer">⚙️ Perfil</button>
                     
-                    <!-- NOVO BOTÃO ADMIN (Oculto por defeito) -->
+                    <!-- BOTÃO ADMIN (Oculto por defeito) -->
                     <button onclick="mudarPaginaPrincipal('admin')" id="nav-admin" class="hidden w-full sm:w-auto text-xs sm:text-sm px-3 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-amber-400 font-bold transition cursor-pointer border border-amber-500/30">👑 Admin</button>
                 </div>
 
@@ -217,7 +217,6 @@
                             <button onclick="pedirPermissaoNotificacao()" class="w-full bg-slate-900 border border-fuchsia-500/50 hover:bg-slate-800 text-slate-200 font-bold py-3 rounded-xl transition cursor-pointer text-sm shadow-sm flex justify-center items-center gap-2">
                                 Ativar Notificações no Dispositivo 📲
                             </button>
-                            <p class="text-[10px] text-slate-500 text-center">Permite que o FitBattle te avise no ecrã quando os teus kambas pontuarem ou mandarem mensagem!</p>
                         </div>
 
                         <button onclick="salvarPerfil()" class="w-full bg-fuchsia-500 hover:bg-fuchsia-600 text-slate-950 font-extrabold py-3.5 rounded-xl transition cursor-pointer mt-4 shadow-lg shadow-fuchsia-500/20">Guardar Dados da Conta 💾</button>
@@ -238,7 +237,7 @@
                             <p class="text-sm text-slate-400 mt-1">Bem-vindo, Chefe! Aqui controlas os bastidores do FitBattle.</p>
                         </div>
 
-                        <!-- QUEM ESTÁ ONLINE -->
+                        <!-- QUEM ESTÁ ONLINE (AGORA DETETA FANTASMAS) -->
                         <div class="space-y-3">
                             <div class="flex justify-between items-end border-b border-slate-700 pb-2">
                                 <h3 class="text-lg font-bold text-emerald-400 flex items-center gap-2">🟢 Quem está Conectado?</h3>
@@ -296,7 +295,7 @@
         let dadosCarregados = false; 
         let replyData = null; 
 
-        // VARIÁVEIS DO SISTEMA DE PRESENÇA (ONLINE/OFFLINE)
+        // VARIÁVEIS DO SISTEMA DE PRESENÇA
         let userPresence = {}; 
         let presenceIntervalId = null;
 
@@ -310,21 +309,19 @@
             return cores[Math.abs(hash) % cores.length];
         }
 
-        // --- SISTEMA DE NOTIFICAÇÕES ---
         function pedirPermissaoNotificacao() {
             if (!("Notification" in window)) { alert("O teu navegador não suporta notificações de sistema."); return; }
             Notification.requestPermission().then(permission => {
                 if (permission === "granted") {
                     mostrarNotificacao('Notificações ON!', 'Vais receber alertas no dispositivo.', 'perfil');
                     new Notification("FitBattle 🔥", { body: "As notificações estão ativadas com sucesso! 💪" });
-                } else { alert("Permissão negada. Podes precisar de alterar nas configurações do teu navegador."); }
+                } else { alert("Permissão negada."); }
             });
         }
         function enviarNotificacaoSistema(titulo, texto) {
             if ("Notification" in window && Notification.permission === "granted") { new Notification(titulo, { body: texto }); }
         }
 
-        // --- AVATAR ---
         function getAvatarHtml(nome, sizeClass = "w-8 h-8", textClass = "text-xs") {
             const u = users.find(user => user.name === nome);
             if (u && u.avatar) return `<img src="${u.avatar}" class="${sizeClass} rounded-full object-cover border-2 border-slate-700 shadow-sm shrink-0" alt="${nome}">`;
@@ -348,11 +345,10 @@
                     canvas.width = MAX_SIZE; canvas.height = MAX_SIZE;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, startX, startY, size, size, 0, 0, MAX_SIZE, MAX_SIZE);
-                    const base64Foto = canvas.toDataURL('image/jpeg', 0.7);
-
+                    
                     const userObj = users.find(u => u.name === currentUser);
                     if (userObj) {
-                        userObj.avatar = base64Foto;
+                        userObj.avatar = canvas.toDataURL('image/jpeg', 0.7);
                         await salvarNaNuvenFirebase();
                         mostrarNotificacao('Foto Atualizada!', 'O teu novo visual já está online.', 'treino');
                         atualizarAvatarNavbar();
@@ -369,7 +365,6 @@
             if (currentUser) { document.getElementById('navbar-avatar-container').innerHTML = getAvatarHtml(currentUser, "w-8 h-8", "text-sm"); }
         }
 
-        // --- SISTEMA DE PERFIL E METAS ---
         function preencherPerfil() {
             const u = users.find(user => user.name === currentUser);
             if(u) {
@@ -452,14 +447,22 @@
             });
         }
 
+        // ATUALIZAÇÃO V15: O Painel Admin agora caça fantasmas juntando 3 listas!
         function renderizarUsuariosOnline() {
             const container = document.getElementById('admin-online-users');
             if (!container) return;
             container.innerHTML = '';
             const agora = Date.now();
             
-            users.forEach(u => {
-                const ultimoAcesso = userPresence[u.name];
+            // 1. Pega nos utilizadores oficias
+            const todosUsuarios = new Set(users.map(u => u.name));
+            // 2. Adiciona quem tiver treinos (O Iska e o Emanuel vão ser apanhados aqui!)
+            workouts.forEach(w => todosUsuarios.add(w.user));
+            // 3. Adiciona quem tiver presença
+            Object.keys(userPresence).forEach(nome => todosUsuarios.add(nome));
+            
+            Array.from(todosUsuarios).forEach(nome => {
+                const ultimoAcesso = userPresence[nome];
                 let textoStatus = "🔴 Offline";
                 let classeStatus = "bg-slate-900 border-slate-700 opacity-60";
                 let badgeClass = "text-slate-500";
@@ -486,14 +489,21 @@
                 } else {
                     textoStatus = "🔴 Sem registo recente";
                 }
+
+                // Verifica se é um utilizador fantasma (não está na lista principal)
+                const isFantasma = !users.some(u => u.name === nome);
+                const tagFantasma = isFantasma ? `<span class="bg-rose-500/20 text-rose-400 text-[9px] px-2 py-0.5 rounded ml-2" title="Este utilizador perdeu a conta no backup, mas vai ser restaurado automaticamente ao entrar!">⚠️ Não Registado</span>` : '';
                 
-                const avatar = getAvatarHtml(u.name, 'w-10 h-10', 'text-sm');
+                const avatar = getAvatarHtml(nome, 'w-10 h-10', 'text-sm');
                 const card = document.createElement('div');
                 card.className = `flex items-center gap-3 p-4 rounded-xl border transition-all ${classeStatus}`;
                 card.innerHTML = `
                     ${avatar}
                     <div class="flex flex-col">
-                        <span class="font-bold text-slate-200 text-base">${u.name}</span>
+                        <div class="flex items-center">
+                            <span class="font-bold text-slate-200 text-base">${nome}</span>
+                            ${tagFantasma}
+                        </div>
                         <span class="text-xs mt-0.5 ${badgeClass}">${textoStatus}</span>
                     </div>
                 `;
@@ -563,10 +573,30 @@
                 if (doc.exists) {
                     const data = doc.data();
                     dadosCarregados = true; 
+                    
+                    users = data.users || [];
+                    workouts = data.workouts || [];
+                    userExercises = data.userExercises || [];
+                    let mensagenseServidor = data.messages || [];
+
+                    // ATUALIZAÇÃO V15: AUTO-RECUPERAÇÃO DE FANTASMAS 👻🔦
+                    let precisaSalvarFantasma = false;
+                    if (currentUser) {
+                        const userRegistado = users.find(u => u.name === currentUser);
+                        if (!userRegistado) {
+                            // Se o utilizador atual não estiver na base de dados, ele recria a própria conta
+                            users.push({ 
+                                name: currentUser, pass: 'fantasma123', contact: 'Recuperado automaticamente', avatar: null,
+                                dailyGoal: 0, monthlyGoal: 0, publicGoals: true,
+                                victoryMessage: "Voltei das sombras! 💪🔥"
+                            });
+                            precisaSalvarFantasma = true;
+                            mostrarNotificacao('Conta Recuperada!', 'A tua conta foi restaurada com sucesso!', 'perfil');
+                        }
+                    }
 
                     if (currentUser && !isPrimeiroCarregamento) {
-                        const newMessages = data.messages || [];
-                        const newWorkouts = data.workouts || [];
+                        const newMessages = mensagenseServidor;
                         if (newMessages.length > messages.length) {
                             const ultimaMsg = newMessages[newMessages.length - 1];
                             if (ultimaMsg.user !== currentUser) {
@@ -574,10 +604,10 @@
                                 enviarNotificacaoSistema(`💬 Mensagem de ${ultimaMsg.user}`, ultimaMsg.text);
                             }
                         }
-                        if (newWorkouts.length > 0) {
-                            newWorkouts.forEach(newW => {
+                        if (workouts.length > 0) {
+                            workouts.forEach(newW => {
                                 if (newW.user !== currentUser && newW.date === obterDataGlobal()) {
-                                    const oldW = workouts.find(w => w.user === newW.user && w.exercise === newW.exercise && w.date === newW.date);
+                                    const oldW = (data.workouts || []).find(w => w.user === newW.user && w.exercise === newW.exercise && w.date === newW.date);
                                     const repOld = oldW ? oldW.reps : 0;
                                     if (newW.reps > repOld) {
                                         const msgTreino = `${newW.user} fez +${newW.reps - repOld} ${newW.exercise}! 💪`;
@@ -589,14 +619,13 @@
                         }
                     }
 
-                    users = data.users || [];
-                    workouts = data.workouts || [];
-                    userExercises = data.userExercises || [];
-                    let mensagenseServidor = data.messages || [];
                     const seteDiasEmMs = 7 * 24 * 60 * 60 * 1000;
                     const agora = Date.now();
-                    
                     messages = mensagenseServidor.filter(msg => msg.isFavorite || (agora - msg.id) <= seteDiasEmMs);
+
+                    if (precisaSalvarFantasma) {
+                        salvarNaNuvenFirebase(); // Salva imediatamente o fantasma para ele voltar a ser utilizador oficial
+                    }
 
                     document.getElementById('status-nuvem').innerText = '✅ Online e sincronizado via Firebase!';
                     document.getElementById('status-nuvem').classList.remove('animate-pulse');
@@ -614,6 +643,8 @@
                         atualizarVisibilidadeAdmin();
                         preencherPerfil(); 
                     } else { renderizarListaUsuarios(); }
+                    
+                    if (verificarSeEhAdmin(currentUser)) renderizarUsuariosOnline();
                     isPrimeiroCarregamento = false;
                 }
             });
@@ -632,7 +663,6 @@
                 atualizarVisibilidadeAdmin();
                 mudarPaginaPrincipal('treino'); 
 
-                // ATUALIZA PRESENÇA A CADA 30 SEGUNDOS
                 atualizarMinhaPresenca();
                 if (presenceIntervalId) clearInterval(presenceIntervalId);
                 presenceIntervalId = setInterval(() => {
@@ -846,7 +876,6 @@
             }); 
         }
 
-        // --- PLACAR E COMPETIÇÃO COMPLETOS ---
         function atualizarPlacar() {
             const hoje = obterDataGlobal(); 
             const placarMap = {};
@@ -1009,7 +1038,6 @@
             }
         }
 
-        // --- CHAT COMPLETO ---
         function mudarAbaChat(aba) {
             const geral = document.getElementById('container-chat-geral'); const fav = document.getElementById('container-chat-fav');
             const btnGeral = document.getElementById('btn-chat-geral'); const btnFav = document.getElementById('btn-chat-fav');
