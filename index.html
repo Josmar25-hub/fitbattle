@@ -65,29 +65,20 @@
 
             <!-- Barra de Navegação -->
             <div class="bg-slate-800 p-2 rounded-2xl flex flex-col sm:flex-row justify-between items-center border border-slate-700 gap-3 sticky top-4 z-40 shadow-lg">
-                <div class="grid grid-cols-2 sm:flex w-full sm:w-auto gap-2">
+                <div class="grid grid-cols-3 sm:flex w-full sm:w-auto gap-2">
                     <button onclick="mudarPaginaPrincipal('treino')" id="nav-treino" class="w-full sm:w-auto text-xs sm:text-sm px-3 py-2.5 rounded-xl bg-amber-500 text-slate-950 font-bold transition cursor-pointer shadow-md">🏋️‍♂️ Treino</button>
                     <button onclick="mudarPaginaPrincipal('competicao')" id="nav-competicao" class="w-full sm:w-auto text-xs sm:text-sm px-3 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold transition cursor-pointer">🏆 Placar</button>
                     <button onclick="mudarPaginaPrincipal('chat')" id="nav-chat" class="w-full sm:w-auto text-xs sm:text-sm px-3 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold transition cursor-pointer">💬 Chat</button>
                     <button onclick="mudarPaginaPrincipal('perfil')" id="nav-perfil" class="w-full sm:w-auto text-xs sm:text-sm px-3 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold transition cursor-pointer">⚙️ Perfil</button>
+                    
+                    <!-- NOVO BOTÃO ADMIN (Oculto por defeito) -->
+                    <button onclick="mudarPaginaPrincipal('admin')" id="nav-admin" class="hidden w-full sm:w-auto text-xs sm:text-sm px-3 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-amber-400 font-bold transition cursor-pointer border border-amber-500/30">👑 Admin</button>
                 </div>
 
-                <div class="flex w-full sm:w-auto items-center justify-between sm:justify-end bg-slate-900 px-4 py-2 rounded-xl border border-slate-700">
+                <div class="flex w-full sm:w-auto items-center justify-between sm:justify-end bg-slate-900 px-4 py-2 rounded-xl border border-slate-700 mt-2 sm:mt-0">
                     <span class="text-xs text-slate-400 mr-2">Logado:</span>
                     <strong id="current-user-display" class="text-amber-400 text-sm truncate max-w-[150px] mr-3"></strong>
                     <div id="navbar-avatar-container" onclick="mudarPaginaPrincipal('perfil')" class="cursor-pointer hover:scale-110 transition-transform" title="Aceder ao Perfil"></div>
-                </div>
-            </div>
-
-            <!-- PAINEL ADMIN (BACKUP) -->
-            <div id="admin-panel" class="hidden bg-amber-500/10 border border-amber-500/30 p-4 rounded-xl flex flex-col sm:flex-row justify-between items-center gap-3">
-                <div class="text-sm">
-                    <span class="font-bold text-amber-400">🛡️ Painel do Administrador:</span>
-                    <span class="text-slate-300 ml-2">Guarda uma cópia de segurança para não perderes os dados.</span>
-                </div>
-                <div class="flex gap-2">
-                    <button onclick="fazerBackup()" class="bg-slate-800 border border-slate-600 hover:bg-slate-700 text-emerald-400 font-bold text-xs px-4 py-2 rounded-lg transition cursor-pointer">💾 Fazer Backup</button>
-                    <button onclick="document.getElementById('file-import-backup').click()" class="bg-slate-800 border border-slate-600 hover:bg-slate-700 text-sky-400 font-bold text-xs px-4 py-2 rounded-lg transition cursor-pointer">🔄 Restaurar</button>
                 </div>
             </div>
 
@@ -103,12 +94,9 @@
                             <button onclick="adicionarExercicioFixo()" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-6 py-3 rounded-xl transition cursor-pointer">Guardar Exercício 💾</button>
                         </div>
 
-                        <!-- ABA DE SUGESTÕES AUTOMÁTICAS DE EXERCÍCIOS -->
                         <div class="bg-slate-900/60 p-3.5 rounded-xl border border-slate-700/60 space-y-2">
                             <span class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">💡 Sugestões Rápidas:</span>
-                            <div id="suggestions-box" class="flex flex-wrap gap-2">
-                                <!-- Preenchido dinamicamente por JS -->
-                            </div>
+                            <div id="suggestions-box" class="flex flex-wrap gap-2"></div>
                         </div>
 
                         <div id="my-exercises-list" class="space-y-3 mt-4"></div>
@@ -129,15 +117,12 @@
                     </div>
                 </div>
                 
-                <!-- RELATÓRIO E ESTATÍSTICAS DA SEMANA -->
                 <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-4">
                     <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
                         <h2 class="text-xl font-bold text-cyan-400">📊 Resumo e Desempenho da Semana</h2>
                         <span id="weekly-dates-label" class="text-xs bg-cyan-500/20 text-cyan-300 px-3 py-1 rounded-full font-bold">Últimos 7 Dias</span>
                     </div>
-                    <div id="weekly-stats-container" class="space-y-3">
-                        <!-- Preenchido via JS -->
-                    </div>
+                    <div id="weekly-stats-container" class="space-y-3"></div>
                 </div>
 
                 <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-4">
@@ -183,9 +168,7 @@
                     <h2 class="text-xl font-bold text-fuchsia-400">⚙️ O Meu Perfil</h2>
 
                     <div class="flex flex-col items-center gap-2 border-b border-slate-700 pb-6">
-                        <div id="perfil-avatar-preview" onclick="document.getElementById('file-avatar').click()" class="cursor-pointer hover:scale-105 transition-transform relative group shadow-xl rounded-full">
-                            <!-- Renderizado via JS -->
-                        </div>
+                        <div id="perfil-avatar-preview" onclick="document.getElementById('file-avatar').click()" class="cursor-pointer hover:scale-105 transition-transform relative group shadow-xl rounded-full"></div>
                         <span class="text-xs text-slate-400 bg-slate-900 px-3 py-1 rounded-full border border-slate-700 mt-2">👆 Clica na foto para alterar</span>
                     </div>
 
@@ -203,7 +186,6 @@
                             <input type="text" id="perfil-contato" placeholder="Para recuperares a conta" class="w-full bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-fuchsia-400 mt-1">
                         </div>
 
-                        <!-- SISTEMA DE METAS -->
                         <div class="pt-4 border-t border-slate-700/60 space-y-3 bg-slate-900/40 p-4 rounded-xl border border-slate-700/30">
                             <h3 class="text-sm font-bold text-fuchsia-400 flex items-center gap-2">🎯 Minhas Metas</h3>
                             
@@ -230,7 +212,6 @@
                             <button onclick="salvarMetas()" class="w-full bg-indigo-500 hover:bg-indigo-600 text-slate-50 font-bold py-2.5 rounded-xl transition cursor-pointer mt-3 shadow-md">Confirmar Metas 🎯</button>
                         </div>
 
-                        <!-- SISTEMA DE NOTIFICAÇÕES -->
                         <div class="pt-4 border-t border-slate-700/60 space-y-3">
                             <h3 class="text-sm font-bold text-fuchsia-400 flex items-center gap-2">🔔 Notificações</h3>
                             <button onclick="pedirPermissaoNotificacao()" class="w-full bg-slate-900 border border-fuchsia-500/50 hover:bg-slate-800 text-slate-200 font-bold py-3 rounded-xl transition cursor-pointer text-sm shadow-sm flex justify-center items-center gap-2">
@@ -242,9 +223,48 @@
                         <button onclick="salvarPerfil()" class="w-full bg-fuchsia-500 hover:bg-fuchsia-600 text-slate-950 font-extrabold py-3.5 rounded-xl transition cursor-pointer mt-4 shadow-lg shadow-fuchsia-500/20">Guardar Dados da Conta 💾</button>
                     </div>
                     
-                    <!-- BOTÃO DE SAIR NO PERFIL -->
                     <div class="pt-6 border-t border-slate-700/60 mt-6">
                         <button onclick="sair()" class="w-full bg-rose-500/10 border border-rose-500/30 hover:bg-rose-500 hover:text-white text-rose-400 font-bold py-3 rounded-xl transition cursor-pointer">Sair da Conta 🚪</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PÁGINA 5: ADMIN (NOVA ABA) -->
+            <div id="pagina-admin" class="hidden space-y-6">
+                <div class="grid grid-cols-1 gap-6 max-w-3xl mx-auto">
+                    <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-amber-500/40 space-y-6">
+                        <div>
+                            <h2 class="text-2xl font-extrabold text-amber-400 flex items-center gap-2">👑 Área do Administrador</h2>
+                            <p class="text-sm text-slate-400 mt-1">Bem-vindo, Chefe! Aqui controlas os bastidores do FitBattle.</p>
+                        </div>
+
+                        <!-- QUEM ESTÁ ONLINE -->
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-end border-b border-slate-700 pb-2">
+                                <h3 class="text-lg font-bold text-emerald-400 flex items-center gap-2">🟢 Quem está Conectado?</h3>
+                                <span class="text-[10px] bg-slate-900 px-2 py-1 rounded text-slate-500">Auto-atualiza a cada 30s</span>
+                            </div>
+                            
+                            <div id="admin-online-users" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+                                <!-- Preenchido pelo Javascript -->
+                            </div>
+                        </div>
+
+                        <!-- BACKUP DE SEGURANÇA -->
+                        <div class="pt-4 border-t border-slate-700/60 space-y-3">
+                            <h3 class="text-lg font-bold text-sky-400 flex items-center gap-2">🛡️ Gestão de Dados (Backup)</h3>
+                            <p class="text-xs text-slate-400">Guarda uma cópia local de segurança de todos os treinos e mensagens.</p>
+                            
+                            <div class="flex flex-col sm:flex-row gap-3 mt-2">
+                                <button onclick="fazerBackup()" class="flex-1 bg-slate-900 border border-sky-500/40 hover:bg-slate-700 text-sky-400 font-bold px-4 py-3 rounded-xl transition cursor-pointer flex justify-center items-center gap-2">
+                                    💾 Fazer Download do Backup
+                                </button>
+                                <button onclick="document.getElementById('file-import-backup').click()" class="flex-1 bg-slate-900 border border-rose-500/40 hover:bg-slate-700 text-rose-400 font-bold px-4 py-3 rounded-xl transition cursor-pointer flex justify-center items-center gap-2">
+                                    🔄 Restaurar Dados
+                                </button>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -276,6 +296,10 @@
         let dadosCarregados = false; 
         let replyData = null; 
 
+        // VARIÁVEIS DO SISTEMA DE PRESENÇA (ONLINE/OFFLINE)
+        let userPresence = {}; 
+        let presenceIntervalId = null;
+
         function obterDataGlobal() { return new Date().toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }); }
         function obterHoraGlobal() { return new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' }); }
 
@@ -286,29 +310,21 @@
             return cores[Math.abs(hash) % cores.length];
         }
 
-        // --- SISTEMA DE NOTIFICAÇÕES NATIVAS (PUSH) ---
+        // --- SISTEMA DE NOTIFICAÇÕES ---
         function pedirPermissaoNotificacao() {
-            if (!("Notification" in window)) {
-                alert("O teu navegador não suporta notificações de sistema.");
-                return;
-            }
+            if (!("Notification" in window)) { alert("O teu navegador não suporta notificações de sistema."); return; }
             Notification.requestPermission().then(permission => {
                 if (permission === "granted") {
                     mostrarNotificacao('Notificações ON!', 'Vais receber alertas no dispositivo.', 'perfil');
                     new Notification("FitBattle 🔥", { body: "As notificações estão ativadas com sucesso! 💪" });
-                } else {
-                    alert("Permissão negada. Podes precisar de alterar nas configurações do teu navegador.");
-                }
+                } else { alert("Permissão negada. Podes precisar de alterar nas configurações do teu navegador."); }
             });
         }
-
         function enviarNotificacaoSistema(titulo, texto) {
-            if ("Notification" in window && Notification.permission === "granted") {
-                new Notification(titulo, { body: texto });
-            }
+            if ("Notification" in window && Notification.permission === "granted") { new Notification(titulo, { body: texto }); }
         }
 
-        // --- SISTEMA DE AVATAR ---
+        // --- AVATAR ---
         function getAvatarHtml(nome, sizeClass = "w-8 h-8", textClass = "text-xs") {
             const u = users.find(user => user.name === nome);
             if (u && u.avatar) return `<img src="${u.avatar}" class="${sizeClass} rounded-full object-cover border-2 border-slate-700 shadow-sm shrink-0" alt="${nome}">`;
@@ -329,7 +345,6 @@
                     const size = Math.min(width, height);
                     const startX = (width - size) / 2;
                     const startY = (height - size) / 2;
-
                     canvas.width = MAX_SIZE; canvas.height = MAX_SIZE;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, startX, startY, size, size, 0, 0, MAX_SIZE, MAX_SIZE);
@@ -351,9 +366,7 @@
         }
 
         function atualizarAvatarNavbar() {
-            if (currentUser) {
-                document.getElementById('navbar-avatar-container').innerHTML = getAvatarHtml(currentUser, "w-8 h-8", "text-sm");
-            }
+            if (currentUser) { document.getElementById('navbar-avatar-container').innerHTML = getAvatarHtml(currentUser, "w-8 h-8", "text-sm"); }
         }
 
         // --- SISTEMA DE PERFIL E METAS ---
@@ -364,7 +377,6 @@
                 document.getElementById('perfil-senha').value = u.pass;
                 document.getElementById('perfil-contato').value = u.contact || '';
                 document.getElementById('perfil-avatar-preview').innerHTML = getAvatarHtml(u.name, 'w-24 h-24', 'text-4xl');
-                
                 document.getElementById('perfil-meta-diaria').value = u.dailyGoal || '';
                 document.getElementById('perfil-meta-mensal').value = u.monthlyGoal || '';
                 document.getElementById('perfil-mensagem-vitoria').value = u.victoryMessage || 'Superei os meus limites e bati a meta! 💪🔥';
@@ -376,20 +388,13 @@
             if (!dadosCarregados) return;
             const u = users.find(user => user.name === currentUser);
             if(u) {
-                const metaDiaria = parseInt(document.getElementById('perfil-meta-diaria').value) || 0;
-                const metaMensal = parseInt(document.getElementById('perfil-meta-mensal').value) || 0;
-                const msgVitoria = document.getElementById('perfil-mensagem-vitoria').value.trim() || 'Superei os meus limites e bati a meta! 💪🔥';
-                const metasPublicas = document.getElementById('perfil-metas-publicas').checked;
-
-                u.dailyGoal = metaDiaria;
-                u.monthlyGoal = metaMensal;
-                u.victoryMessage = msgVitoria;
-                u.publicGoals = metasPublicas;
-
+                u.dailyGoal = parseInt(document.getElementById('perfil-meta-diaria').value) || 0;
+                u.monthlyGoal = parseInt(document.getElementById('perfil-meta-mensal').value) || 0;
+                u.victoryMessage = document.getElementById('perfil-mensagem-vitoria').value.trim() || 'Superei os meus limites e bati a meta! 💪🔥';
+                u.publicGoals = document.getElementById('perfil-metas-publicas').checked;
                 await salvarNaNuvenFirebase();
                 mostrarNotificacao('Metas Fixadas! 🎯', 'As tuas metas foram guardadas com sucesso.', 'perfil');
-                atualizarPlacar(); 
-                atualizarPlacarMensal();
+                atualizarPlacar(); atualizarPlacarMensal();
             }
         }
 
@@ -398,40 +403,105 @@
             const u = users.find(user => user.name === currentUser);
             if(u) {
                 const novaSenha = document.getElementById('perfil-senha').value.trim();
-                const novoContato = document.getElementById('perfil-contato').value.trim();
-                
-                const metaDiaria = parseInt(document.getElementById('perfil-meta-diaria').value) || 0;
-                const metaMensal = parseInt(document.getElementById('perfil-meta-mensal').value) || 0;
-                const msgVitoria = document.getElementById('perfil-mensagem-vitoria').value.trim() || 'Superei os meus limites e bati a meta! 💪🔥';
-                const metasPublicas = document.getElementById('perfil-metas-publicas').checked;
-
                 if(novaSenha) u.pass = novaSenha;
-                u.contact = novoContato;
-                u.dailyGoal = metaDiaria;
-                u.monthlyGoal = metaMensal;
-                u.victoryMessage = msgVitoria;
-                u.publicGoals = metasPublicas;
-
+                u.contact = document.getElementById('perfil-contato').value.trim();
+                u.dailyGoal = parseInt(document.getElementById('perfil-meta-diaria').value) || 0;
+                u.monthlyGoal = parseInt(document.getElementById('perfil-meta-mensal').value) || 0;
+                u.victoryMessage = document.getElementById('perfil-mensagem-vitoria').value.trim() || 'Superei os meus limites e bati a meta! 💪🔥';
+                u.publicGoals = document.getElementById('perfil-metas-publicas').checked;
                 await salvarNaNuvenFirebase();
                 mostrarNotificacao('Conta Guardada!', 'As tuas configurações foram salvas.', 'perfil');
             }
         }
 
-        // --- BACKUP ---
+        // --- SISTEMA ADMIN E PRESENÇA ---
         function verificarSeEhAdmin(nomeUsuario) {
             if (users.length === 0) return false;
+            // O primeiro usuário criado (índice 0) é o Administrador
             return users[0].name.toLowerCase() === nomeUsuario.toLowerCase();
         }
 
-        function atualizarPainelAdmin() {
-            const adminPanel = document.getElementById('admin-panel');
+        function atualizarVisibilidadeAdmin() {
+            const navAdmin = document.getElementById('nav-admin');
             if (currentUser && verificarSeEhAdmin(currentUser)) {
-                adminPanel.classList.remove('hidden'); adminPanel.classList.add('flex');
+                navAdmin.classList.remove('hidden'); 
             } else {
-                adminPanel.classList.add('hidden'); adminPanel.classList.remove('flex');
+                navAdmin.classList.add('hidden'); 
+                if(document.getElementById('pagina-admin').classList.contains('hidden') === false) {
+                    mudarPaginaPrincipal('treino');
+                }
             }
         }
 
+        function atualizarMinhaPresenca() {
+            if (currentUser) {
+                db.collection("app").doc("presence").set({
+                    [currentUser]: Date.now()
+                }, { merge: true }).catch(err => console.log("Erro ao atualizar presença: ", err));
+            }
+        }
+
+        function escutarPresenca() {
+            db.collection("app").doc("presence").onSnapshot(doc => {
+                if (doc.exists) {
+                    userPresence = doc.data();
+                    if(currentUser && verificarSeEhAdmin(currentUser)) {
+                        renderizarUsuariosOnline();
+                    }
+                }
+            });
+        }
+
+        function renderizarUsuariosOnline() {
+            const container = document.getElementById('admin-online-users');
+            if (!container) return;
+            container.innerHTML = '';
+            const agora = Date.now();
+            
+            users.forEach(u => {
+                const ultimoAcesso = userPresence[u.name];
+                let textoStatus = "🔴 Offline";
+                let classeStatus = "bg-slate-900 border-slate-700 opacity-60";
+                let badgeClass = "text-slate-500";
+                
+                if (ultimoAcesso) {
+                    const diff = agora - ultimoAcesso;
+                    if (diff < 60000) { 
+                        textoStatus = "🟢 Online Agora";
+                        classeStatus = "bg-emerald-500/10 border-emerald-500/30";
+                        badgeClass = "text-emerald-400 font-bold animate-pulse";
+                    } else {
+                        const minutos = Math.floor(diff / 60000);
+                        if(minutos < 60) {
+                            textoStatus = `🟠 Visto há ${minutos} min`;
+                            classeStatus = "bg-amber-500/5 border-amber-500/20";
+                            badgeClass = "text-amber-400";
+                        } else {
+                            const horas = Math.floor(minutos / 60);
+                            const dias = Math.floor(horas / 24);
+                            if(dias > 0) textoStatus = `🔴 Visto há ${dias} dias`;
+                            else textoStatus = `🔴 Visto há ${horas} h`;
+                        }
+                    }
+                } else {
+                    textoStatus = "🔴 Sem registo recente";
+                }
+                
+                const avatar = getAvatarHtml(u.name, 'w-10 h-10', 'text-sm');
+                const card = document.createElement('div');
+                card.className = `flex items-center gap-3 p-4 rounded-xl border transition-all ${classeStatus}`;
+                card.innerHTML = `
+                    ${avatar}
+                    <div class="flex flex-col">
+                        <span class="font-bold text-slate-200 text-base">${u.name}</span>
+                        <span class="text-xs mt-0.5 ${badgeClass}">${textoStatus}</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // --- BACKUP ---
         function fazerBackup() {
             if (!dadosCarregados) return alert("Aguarde o carregamento dos dados!");
             const dadosExport = { users, workouts, messages, userExercises };
@@ -440,7 +510,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a'); a.href = url; a.download = `FitBattle_Backup_${obterDataGlobal().replace(/\//g, '-')}.json`;
             document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-            mostrarNotificacao('Backup Concluído', 'Ficheiro guardado com sucesso!', 'treino');
+            mostrarNotificacao('Backup Concluído', 'Ficheiro guardado com sucesso!', 'admin');
         }
 
         function processarRestauro(event) {
@@ -462,11 +532,20 @@
         function mostrarNotificacao(titulo, texto, tipo) {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            const corBase = tipo === 'chat' ? 'bg-pink-500 text-slate-950' : (tipo === 'perfil' ? 'bg-fuchsia-500 text-slate-950' : 'bg-amber-400 text-slate-950');
-            const icone = tipo === 'chat' ? '💬' : (tipo === 'perfil' ? '⚙️' : '🏆');
+            
+            let corBase = 'bg-amber-400 text-slate-950';
+            let icone = '🏆';
+            if(tipo === 'chat') { corBase = 'bg-pink-500 text-slate-950'; icone = '💬'; }
+            if(tipo === 'perfil') { corBase = 'bg-fuchsia-500 text-slate-950'; icone = '⚙️'; }
+            if(tipo === 'admin') { corBase = 'bg-sky-500 text-slate-950'; icone = '🛡️'; }
+
             toast.className = `toast-enter pointer-events-auto ${corBase} p-4 rounded-2xl shadow-2xl flex flex-col cursor-pointer hover:scale-105 transition-transform duration-200 border-b-4 border-black/20`;
             toast.innerHTML = `<div class="flex items-center gap-2 mb-1"><span class="text-xl">${icone}</span><strong class="font-extrabold text-sm uppercase tracking-wider">${titulo}</strong></div><span class="text-sm font-semibold leading-snug">${texto}</span>`;
-            toast.onclick = () => { mudarPaginaPrincipal(tipo === 'chat' ? 'chat' : (tipo === 'perfil' ? 'perfil' : 'competicao')); toast.remove(); };
+            
+            toast.onclick = () => { 
+                mudarPaginaPrincipal(tipo === 'chat' ? 'chat' : (tipo === 'perfil' ? 'perfil' : (tipo === 'admin' ? 'admin' : 'competicao'))); 
+                toast.remove(); 
+            };
             container.appendChild(toast);
             setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateX(100%)'; setTimeout(() => toast.remove(), 500); }, 5000);
         }
@@ -513,15 +592,11 @@
                     users = data.users || [];
                     workouts = data.workouts || [];
                     userExercises = data.userExercises || [];
-
                     let mensagenseServidor = data.messages || [];
                     const seteDiasEmMs = 7 * 24 * 60 * 60 * 1000;
                     const agora = Date.now();
-                    const totalAnterior = mensagenseServidor.length;
-
+                    
                     messages = mensagenseServidor.filter(msg => msg.isFavorite || (agora - msg.id) <= seteDiasEmMs);
-
-                    if (messages.length !== totalAnterior && currentUser) salvarNaNuvenFirebase();
 
                     document.getElementById('status-nuvem').innerText = '✅ Online e sincronizado via Firebase!';
                     document.getElementById('status-nuvem').classList.remove('animate-pulse');
@@ -536,26 +611,39 @@
                         renderizarAtividadeAmigos(); 
                         atualizarChat();
                         atualizarFavoritas();
-                        atualizarPainelAdmin();
+                        atualizarVisibilidadeAdmin();
                         preencherPerfil(); 
                     } else { renderizarListaUsuarios(); }
                     isPrimeiroCarregamento = false;
-                } else { if(dadosCarregados) salvarNaNuvenFirebase(); }
+                }
             });
         }
 
         function iniciarApp() {
             escutarFirebase();
+            escutarPresenca();
+
             if (currentUser) {
                 document.getElementById('auth-section').classList.add('hidden');
                 document.getElementById('main-panel').classList.remove('hidden');
                 document.getElementById('current-user-display').innerText = currentUser;
+                
                 atualizarAvatarNavbar();
-                atualizarPainelAdmin();
+                atualizarVisibilidadeAdmin();
                 mudarPaginaPrincipal('treino'); 
+
+                // ATUALIZA PRESENÇA A CADA 30 SEGUNDOS
+                atualizarMinhaPresenca();
+                if (presenceIntervalId) clearInterval(presenceIntervalId);
+                presenceIntervalId = setInterval(() => {
+                    atualizarMinhaPresenca();
+                    if(verificarSeEhAdmin(currentUser)) renderizarUsuariosOnline();
+                }, 30000);
+
             } else {
                 document.getElementById('auth-section').classList.remove('hidden');
                 document.getElementById('main-panel').classList.add('hidden');
+                if (presenceIntervalId) { clearInterval(presenceIntervalId); presenceIntervalId = null; }
             }
         }
 
@@ -564,14 +652,22 @@
             const btnCompeticao = document.getElementById('nav-competicao');
             const btnChat = document.getElementById('nav-chat');
             const btnPerfil = document.getElementById('nav-perfil');
+            const btnAdmin = document.getElementById('nav-admin');
 
             const pagTreino = document.getElementById('pagina-treino');
             const pagCompeticao = document.getElementById('pagina-competicao');
             const pagChat = document.getElementById('pagina-chat');
             const pagPerfil = document.getElementById('pagina-perfil');
+            const pagAdmin = document.getElementById('pagina-admin');
 
-            [btnTreino, btnCompeticao, btnChat, btnPerfil].forEach(btn => btn.className = 'w-full sm:w-auto text-xs sm:text-sm px-3 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold transition cursor-pointer shadow-none');
-            [pagTreino, pagCompeticao, pagChat, pagPerfil].forEach(pag => pag.classList.add('hidden'));
+            const classInativa = 'w-full sm:w-auto text-xs sm:text-sm px-3 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold transition cursor-pointer shadow-none';
+            
+            [btnTreino, btnCompeticao, btnChat, btnPerfil].forEach(btn => btn.className = classInativa);
+            btnAdmin.className = 'w-full sm:w-auto text-xs sm:text-sm px-3 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-amber-400 font-bold transition cursor-pointer border border-amber-500/30 hidden'; 
+            
+            [pagTreino, pagCompeticao, pagChat, pagPerfil, pagAdmin].forEach(pag => pag.classList.add('hidden'));
+            
+            atualizarVisibilidadeAdmin(); 
 
             if(pagina === 'treino') {
                 pagTreino.classList.remove('hidden');
@@ -587,128 +683,24 @@
                 pagPerfil.classList.remove('hidden');
                 btnPerfil.className = 'w-full sm:w-auto text-xs sm:text-sm px-3 py-2.5 rounded-xl bg-fuchsia-500 text-slate-950 font-bold transition cursor-pointer shadow-md shadow-fuchsia-500/20';
                 preencherPerfil();
+            } else if (pagina === 'admin') {
+                pagAdmin.classList.remove('hidden');
+                btnAdmin.className = 'w-full sm:w-auto text-xs sm:text-sm px-3 py-2.5 rounded-xl bg-amber-500 text-slate-950 font-bold transition cursor-pointer shadow-md shadow-amber-500/40 border border-amber-400';
+                renderizarUsuariosOnline();
             }
         }
 
-        function mudarAbaChat(aba) {
-            const geral = document.getElementById('container-chat-geral');
-            const fav = document.getElementById('container-chat-fav');
-            const btnGeral = document.getElementById('btn-chat-geral');
-            const btnFav = document.getElementById('btn-chat-fav');
-
-            if (aba === 'geral') {
-                geral.classList.remove('hidden'); fav.classList.add('hidden');
-                btnGeral.className = 'flex-1 sm:flex-none text-xs px-4 py-2 rounded-lg bg-pink-500 text-slate-950 font-bold transition cursor-pointer';
-                btnFav.className = 'flex-1 sm:flex-none text-xs px-4 py-2 rounded-lg bg-slate-700 text-slate-300 font-bold transition cursor-pointer';
-                setTimeout(() => { document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight; }, 50);
-            } else {
-                geral.classList.add('hidden'); fav.classList.remove('hidden');
-                btnFav.className = 'flex-1 sm:flex-none text-xs px-4 py-2 rounded-lg bg-amber-500 text-slate-950 font-bold transition cursor-pointer';
-                btnGeral.className = 'flex-1 sm:flex-none text-xs px-4 py-2 rounded-lg bg-slate-700 text-slate-300 font-bold transition cursor-pointer';
-                atualizarFavoritas();
-            }
-        }
-
-        function toggleSenha() {
-            const inputPass = document.getElementById('auth-password');
-            if (inputPass.type === 'password') inputPass.type = 'text'; else inputPass.type = 'password';
-        }
-
-        async function criarPerfilComSenha() {
-            if (!dadosCarregados) return alert("⏳ O site ainda está a ligar-se à nuvem. Aguarda uns segundinhos!");
-            const nome = document.getElementById('auth-username').value.trim();
-            const senha = document.getElementById('auth-password').value.trim();
-            if (!nome || !senha) return alert('Preencha nome e senha!');
-            if (users.find(u => u.name.toLowerCase() === nome.toLowerCase())) return alert('Nome já existe!');
-            
-            users.push({ 
-                name: nome, pass: senha, contact: '', avatar: null,
-                dailyGoal: 0, monthlyGoal: 0, publicGoals: true,
-                victoryMessage: "Superei os meus limites e bati a meta! 💪🔥"
-            });
-            
-            currentUser = nome; localStorage.setItem('fitbattle_user', currentUser);
-            await salvarNaNuvenFirebase(); iniciarApp();
-        }
-
-        function fazerLogin() {
-            if (!dadosCarregados) return alert("⏳ Aguarde a ligação!");
-            const nome = document.getElementById('auth-username').value.trim();
-            const senha = document.getElementById('auth-password').value.trim();
-            const conta = users.find(u => u.name.toLowerCase() === nome.toLowerCase() && u.pass === senha);
-            if (!conta) return alert('Nome ou senha incorretos!');
-            currentUser = conta.name; localStorage.setItem('fitbattle_user', currentUser); iniciarApp();
-        }
-
-        function renderizarListaUsuarios() {
-            const lista = document.getElementById('users-list');
-            lista.innerHTML = '';
-            users.forEach(u => {
-                const btn = document.createElement('button');
-                btn.className = 'flex items-center gap-2 px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-xs font-bold text-slate-200 cursor-pointer transition';
-                btn.innerHTML = `${getAvatarHtml(u.name, 'w-5 h-5', 'text-[10px]')} <span>${u.name}</span>`;
-                btn.onclick = () => { document.getElementById('auth-username').value = u.name; };
-                lista.appendChild(btn);
-            });
-        }
-
-        function sair() { currentUser = null; localStorage.removeItem('fitbattle_user'); iniciarApp(); }
-
-        async function adicionarExercicioFixo() {
-            if (!dadosCarregados) return;
-            const nomeEx = document.getElementById('exercise-name').value.trim();
-            if (!nomeEx) return;
-            const jaExiste = userExercises.find(e => e.user === currentUser && e.exercise.toLowerCase() === nomeEx.toLowerCase());
-            if (jaExiste) return alert('Este exercício já está na tua Ficha para sempre!');
-            userExercises.push({ user: currentUser, exercise: nomeEx });
-            document.getElementById('exercise-name').value = ''; 
-            await salvarNaNuvenFirebase();
-        }
-
-        async function adicionarSugestao(nomeEx) {
-            if (!dadosCarregados) return;
-            const jaExiste = userExercises.find(e => e.user === currentUser && e.exercise.toLowerCase() === nomeEx.toLowerCase());
-            if (jaExiste) return alert('Este exercício já está na tua Ficha!');
-            userExercises.push({ user: currentUser, exercise: nomeEx });
-            await salvarNaNuvenFirebase();
-        }
-
-        async function removerExercicio(globalIndex) {
-            if (confirm('Queres apagar este exercício da tua Ficha DEFINITIVAMENTE?')) { 
-                userExercises.splice(globalIndex, 1); await salvarNaNuvenFirebase(); 
-            }
-        }
-
-        // --- ATUALIZAÇÃO V13: FUNÇÃO DE SOMA MAIS ROBUSTA E COM ATALHOS ---
         async function executarSoma(globalIndex, qtdRapida = null) {
-            if (!dadosCarregados) {
-                mostrarNotificacao('⏳ Calma aí!', 'O site ainda está a conectar ao servidor...', 'treino');
-                return;
-            }
-
+            if (!dadosCarregados) return;
             const item = userExercises[globalIndex];
             let qtd = 0;
-
-            if (qtdRapida !== null) {
-                // Se o utilizador clicou no botão rápido de +10 ou +20
-                qtd = qtdRapida;
-            } else {
-                // Se clicou no botão normal de Somar, vai ler a caixa de texto
-                const input = document.getElementById(`add-val-${globalIndex}`); 
-                qtd = parseInt(input.value);
-                input.value = ''; // Limpa a caixa
-            }
-
-            // NOVA PROTEÇÃO: Mostra aviso visual se o utilizador não digitar nada!
-            if (isNaN(qtd) || qtd <= 0) {
-                mostrarNotificacao('⚠️ Ups!', 'Digita um número válido de repetições primeiro!', 'treino');
-                return;
-            }
-
+            if (qtdRapida !== null) { qtd = qtdRapida; } 
+            else { const input = document.getElementById(`add-val-${globalIndex}`); qtd = parseInt(input.value); input.value = ''; }
+            if (isNaN(qtd) || qtd <= 0) return mostrarNotificacao('⚠️ Ups!', 'Digita um número válido primeiro!', 'treino');
+            
             const hoje = obterDataGlobal();
-            let userObj = users.find(u => u.name === currentUser);
-            if (!userObj) userObj = {}; // Prevenção extra caso haja falha a encontrar o utilizador
-
+            let userObj = users.find(u => u.name === currentUser) || {};
+            
             let totalDiarioAntes = 0;
             workouts.filter(w => w.user === currentUser && w.date === hoje).forEach(w => totalDiarioAntes += w.reps);
 
@@ -731,7 +723,7 @@
 
             let w = workouts.find(w => w.user === currentUser && w.exercise === item.exercise && w.date === hoje);
             if (w) { w.reps += qtd; } else { workouts.push({ user: currentUser, exercise: item.exercise, reps: qtd, date: hoje }); }
-
+            
             const totalDiarioDepois = totalDiarioAntes + qtd;
             const totalMensalDepois = totalMensalAntes + qtd;
             const msgVitoria = userObj.victoryMessage || "Superei os meus limites e bati a meta! 💪🔥";
@@ -759,28 +751,42 @@
                     isFavorite: false, expireAt: null, reactions: { fire: [], laugh: [], flex: [] } 
                 });
             }
-
-            // Força a guardar
             await salvarNaNuvenFirebase();
+        }
+
+        async function adicionarExercicioFixo() {
+            const nomeEx = document.getElementById('exercise-name').value.trim();
+            if (!nomeEx) return;
+            if (userExercises.find(e => e.user === currentUser && e.exercise.toLowerCase() === nomeEx.toLowerCase())) return alert('Já na Ficha!');
+            userExercises.push({ user: currentUser, exercise: nomeEx });
+            document.getElementById('exercise-name').value = ''; 
+            await salvarNaNuvenFirebase();
+        }
+        
+        async function adicionarSugestao(nome) {
+            if (userExercises.find(e => e.user === currentUser && e.exercise.toLowerCase() === nome.toLowerCase())) return alert('Já na Ficha!');
+            userExercises.push({ user: currentUser, exercise: nome });
+            await salvarNaNuvenFirebase();
+        }
+
+        async function removerExercicio(globalIndex) {
+            if (confirm('Queres apagar este exercício?')) { userExercises.splice(globalIndex, 1); await salvarNaNuvenFirebase(); }
         }
 
         function renderizarSugestoesExercicios() {
             const box = document.getElementById('suggestions-box');
             box.innerHTML = '';
-            const sugestoes = ['Flexões', 'Agachamentos'];
-
-            sugestoes.forEach(nome => {
+            ['Flexões', 'Agachamentos'].forEach(nome => {
                 const jaTem = userExercises.some(e => e.user === currentUser && e.exercise.toLowerCase() === nome.toLowerCase());
                 const btn = document.createElement('button');
-                
-                if (jaTem) {
-                    btn.className = 'px-3 py-1.5 bg-slate-800 text-slate-500 rounded-lg text-xs font-bold border border-slate-700 cursor-not-allowed opacity-50';
-                    btn.innerHTML = `🔒 ${nome} (Já na Ficha)`;
-                    btn.disabled = true;
-                } else {
-                    btn.className = 'px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 rounded-lg text-xs font-bold border border-emerald-500/30 transition cursor-pointer flex items-center gap-1';
-                    btn.innerHTML = `➕ ${nome}`;
-                    btn.onclick = () => adicionarSugestao(nome);
+                if (jaTem) { 
+                    btn.className = 'px-3 py-1.5 bg-slate-800 text-slate-500 rounded-lg text-xs font-bold border border-slate-700 cursor-not-allowed opacity-50'; 
+                    btn.innerHTML = `🔒 ${nome}`; 
+                    btn.disabled = true; 
+                } else { 
+                    btn.className = 'px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 rounded-lg text-xs font-bold border border-emerald-500/30 transition cursor-pointer flex items-center gap-1'; 
+                    btn.innerHTML = `➕ ${nome}`; 
+                    btn.onclick = () => adicionarSugestao(nome); 
                 }
                 box.appendChild(btn);
             });
@@ -791,102 +797,84 @@
             const listaDiv = document.getElementById('my-exercises-list');
             listaDiv.innerHTML = '';
             const meusExercicios = userExercises.map((e, idx) => ({...e, globalIndex: idx})).filter(e => e.user === currentUser);
-            if (meusExercicios.length === 0) return listaDiv.innerHTML = '<p class="text-slate-500 italic text-sm">A tua ficha está vazia. Adiciona exercícios lá em cima ou escolhe uma sugestão!</p>';
-
+            if (meusExercicios.length === 0) return listaDiv.innerHTML = '<p class="text-slate-500 italic text-sm">A tua ficha está vazia.</p>';
+            
             meusExercicios.forEach(item => {
-                const hojeWorkout = workouts.find(w => w.user === currentUser && w.exercise === item.exercise && w.date === hoje);
-                const repsHoje = hojeWorkout ? hojeWorkout.reps : 0;
+                const repsHoje = workouts.find(w => w.user === currentUser && w.exercise === item.exercise && w.date === hoje)?.reps || 0;
                 const card = document.createElement('div');
                 card.className = 'bg-slate-900 p-4 rounded-xl border border-emerald-500/30 flex flex-col gap-3 transition hover:border-emerald-400/50';
-                
-                // MUDANÇA V13 AQUI: Inseri botões rápidos de +10 e +20 para ser só 1 clique!
                 card.innerHTML = `
-                    <div class="flex justify-between items-center">
-                        <span class="font-bold text-slate-100">${item.exercise}</span>
-                        <div class="flex items-center gap-2">
-                            <span class="text-xs bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full font-bold">Hoje: ${repsHoje}</span>
-                            <button onclick="removerExercicio(${item.globalIndex})" class="text-rose-400 hover:text-rose-500 transition text-sm cursor-pointer" title="Apagar da Ficha">❌</button>
-                        </div>
-                    </div>
-                    
-                    <div class="flex gap-2 flex-wrap sm:flex-nowrap">
-                        <button onclick="executarSoma(${item.globalIndex}, 10)" class="bg-slate-700 text-slate-300 font-bold text-xs px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-600 transition shadow-sm border border-slate-600/50">+10</button>
-                        <button onclick="executarSoma(${item.globalIndex}, 20)" class="bg-slate-700 text-slate-300 font-bold text-xs px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-600 transition shadow-sm border border-slate-600/50">+20</button>
-                        
-                        <input type="number" id="add-val-${item.globalIndex}" placeholder="Ou digita..." class="flex-1 bg-slate-800 border border-slate-700 px-3 py-2 text-sm rounded-lg focus:outline-none focus:border-emerald-400 min-w-[80px]">
-                        <button onclick="executarSoma(${item.globalIndex})" class="bg-emerald-500 text-slate-950 font-bold text-sm px-4 rounded-lg cursor-pointer hover:bg-emerald-600 transition shadow-sm border border-emerald-400">Somar</button>
-                    </div>
+                    <div class="flex justify-between items-center"><span class="font-bold text-slate-100">${item.exercise}</span>
+                    <div class="flex items-center gap-2"><span class="text-xs bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full font-bold">Hoje: ${repsHoje}</span><button onclick="removerExercicio(${item.globalIndex})" class="text-rose-400 hover:text-rose-500 transition text-sm cursor-pointer">❌</button></div></div>
+                    <div class="flex gap-2 flex-wrap sm:flex-nowrap"><button onclick="executarSoma(${item.globalIndex}, 10)" class="bg-slate-700 text-slate-300 font-bold text-xs px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-600 transition shadow-sm border border-slate-600/50">+10</button><button onclick="executarSoma(${item.globalIndex}, 20)" class="bg-slate-700 text-slate-300 font-bold text-xs px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-600 transition shadow-sm border border-slate-600/50">+20</button><input type="number" id="add-val-${item.globalIndex}" placeholder="Ou digita..." class="flex-1 bg-slate-800 border border-slate-700 px-3 py-2 text-sm rounded-lg focus:outline-none focus:border-emerald-400 min-w-[80px]"><button onclick="executarSoma(${item.globalIndex})" class="bg-emerald-500 text-slate-950 font-bold text-sm px-4 rounded-lg cursor-pointer hover:bg-emerald-600 transition shadow-sm border border-emerald-400">Somar</button></div>
                 `;
                 listaDiv.appendChild(card);
             });
         }
 
-        function renderizarAtividadeAmigos() {
-            const hoje = obterDataGlobal();
-            const divAmigos = document.getElementById('friends-activity-list');
-            divAmigos.innerHTML = '';
-            const treinosAmigos = workouts.filter(w => w.date === hoje && w.user !== currentUser);
-            if (treinosAmigos.length === 0) return divAmigos.innerHTML = '<p class="text-slate-500 italic text-sm">Nenhum amigo treinou hoje.</p>';
-
-            const agrupado = {};
-            treinosAmigos.forEach(w => { if (!agrupado[w.user]) agrupado[w.user] = []; agrupado[w.user].push(w); });
-
-            for (const [amigo, exercicios] of Object.entries(agrupado)) {
-                const cor = obterCorUsuario(amigo);
-                const avatar = getAvatarHtml(amigo, 'w-6 h-6', 'text-[10px]');
-                const card = document.createElement('div');
-                card.className = 'bg-slate-900 p-4 rounded-xl border border-slate-700/60 space-y-3';
-                let total = 0, html = '';
-                exercicios.forEach(ex => { total += ex.reps; html += `<div class="flex justify-between text-sm pt-2 border-t border-slate-800 mt-2 first:border-0 first:pt-0 first:mt-0"><span class="text-slate-300">${ex.exercise}</span><span class="font-bold text-sky-400">${ex.reps}</span></div>`; });
-                card.innerHTML = `<div class="flex justify-between items-center border-b border-slate-800 pb-2"><div class="flex items-center gap-2">${avatar}<span class="font-bold ${cor}">${amigo}</span></div><span class="text-xs bg-sky-500/20 text-sky-400 px-2.5 py-1 rounded-full font-bold">Total: ${total}</span></div><div>${html}</div>`;
-                divAmigos.appendChild(card);
-            }
+        function toggleSenha() { const inputPass = document.getElementById('auth-password'); inputPass.type = inputPass.type === 'password' ? 'text' : 'password'; }
+        
+        async function criarPerfilComSenha() {
+            const nome = document.getElementById('auth-username').value.trim();
+            const senha = document.getElementById('auth-password').value.trim();
+            if (!nome || !senha) return alert('Preencha nome e senha!');
+            if (users.find(u => u.name.toLowerCase() === nome.toLowerCase())) return alert('Nome já existe!');
+            users.push({ name: nome, pass: senha, contact: '', avatar: null, dailyGoal: 0, monthlyGoal: 0, publicGoals: true, victoryMessage: "Superei os meus limites e bati a meta! 💪🔥" });
+            currentUser = nome; localStorage.setItem('fitbattle_user', currentUser);
+            await salvarNaNuvenFirebase(); iniciarApp();
         }
 
+        function fazerLogin() {
+            const nome = document.getElementById('auth-username').value.trim();
+            const senha = document.getElementById('auth-password').value.trim();
+            const conta = users.find(u => u.name.toLowerCase() === nome.toLowerCase() && u.pass === senha);
+            if (!conta) return alert('Nome ou senha incorretos!');
+            currentUser = conta.name; localStorage.setItem('fitbattle_user', currentUser); iniciarApp();
+        }
+
+        function sair() { currentUser = null; localStorage.removeItem('fitbattle_user'); iniciarApp(); }
+        
+        function renderizarListaUsuarios() { 
+            const lista = document.getElementById('users-list'); 
+            lista.innerHTML = ''; 
+            users.forEach(u => { 
+                const btn = document.createElement('button'); 
+                btn.className = 'flex items-center gap-2 px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-xs font-bold text-slate-200 cursor-pointer transition'; 
+                btn.innerHTML = `${getAvatarHtml(u.name, 'w-5 h-5', 'text-[10px]')} <span>${u.name}</span>`; 
+                btn.onclick = () => { document.getElementById('auth-username').value = u.name; }; 
+                lista.appendChild(btn); 
+            }); 
+        }
+
+        // --- PLACAR E COMPETIÇÃO COMPLETOS ---
         function atualizarPlacar() {
-            const hoje = obterDataGlobal();
+            const hoje = obterDataGlobal(); 
             const placarMap = {};
             workouts.filter(w => w.date === hoje).forEach(w => placarMap[w.user] = (placarMap[w.user] || 0) + w.reps);
-            const leaderboardDiv = document.getElementById('leaderboard');
+            const leaderboardDiv = document.getElementById('leaderboard'); 
             leaderboardDiv.innerHTML = '';
+            
             const ranking = Object.entries(placarMap).sort((a, b) => b[1] - a[1]);
             if (ranking.length === 0) return leaderboardDiv.innerHTML = '<p class="text-slate-500 italic text-sm">Ninguém pontuou hoje.</p>';
-
+            
             ranking.forEach(([user, total], i) => {
-                const cor = obterCorUsuario(user);
+                const cor = obterCorUsuario(user); 
                 const avatar = getAvatarHtml(user, 'w-8 h-8', 'text-xs');
                 const userObj = users.find(u => u.name === user);
                 
                 let metaDiariaHtml = '';
                 if (userObj && userObj.publicGoals !== false && userObj.dailyGoal > 0) {
                     const perc = Math.min(Math.round((total / userObj.dailyGoal) * 100), 100);
-                    metaDiariaHtml = `
-                        <div class="flex items-center gap-2 mt-1">
-                            <div class="w-16 h-1.5 bg-slate-800 rounded-full overflow-hidden border border-slate-700/50">
-                                <div class="h-full bg-amber-400 transition-all duration-500" style="width: ${perc}%"></div>
-                            </div>
-                            <span class="text-[10px] text-slate-400 font-bold">${total} / ${userObj.dailyGoal}</span>
-                        </div>
-                    `;
+                    metaDiariaHtml = `<div class="flex items-center gap-2 mt-1"><div class="w-16 h-1.5 bg-slate-800 rounded-full overflow-hidden border border-slate-700/50"><div class="h-full bg-amber-400 transition-all duration-500" style="width: ${perc}%"></div></div><span class="text-[10px] text-slate-400 font-bold">${total} / ${userObj.dailyGoal}</span></div>`;
                 }
-
+                
                 const item = document.createElement('div');
                 item.className = `flex justify-between items-center p-3.5 rounded-xl border ${user === currentUser ? 'bg-amber-500/10 border-amber-500/30' : 'bg-slate-900 border-slate-700/50'}`;
-                item.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <span class="text-slate-500 font-bold w-4">#${i + 1}</span>
-                        ${avatar}
-                        <div class="flex flex-col justify-center">
-                            <span class="font-bold leading-none ${cor}">${user}</span>
-                            ${metaDiariaHtml}
-                        </div>
-                    </div>
-                    <span class="font-extrabold text-amber-400 text-lg">${total}</span>
-                `;
+                item.innerHTML = `<div class="flex items-center gap-3"><span class="text-slate-500 font-bold w-4">#${i + 1}</span>${avatar}<div class="flex flex-col justify-center"><span class="font-bold leading-none ${cor}">${user}</span>${metaDiariaHtml}</div></div><span class="font-extrabold text-amber-400 text-lg">${total}</span>`;
                 leaderboardDiv.appendChild(item);
             });
         }
-
+        
         function atualizarPlacarMensal() {
             const agora = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
             const mesAtual = agora.getMonth(), anoAtual = agora.getFullYear();
@@ -941,7 +929,7 @@
                 mensalDiv.appendChild(item);
             });
         }
-
+        
         function atualizarEstatisticasSemanais() {
             const container = document.getElementById('weekly-stats-container');
             container.innerHTML = '';
@@ -994,41 +982,81 @@
             htmlGeral += `</div></div>`;
             container.innerHTML = htmlGeral;
         }
+        
+        function renderizarAtividadeAmigos() {
+            const hoje = obterDataGlobal();
+            const divAmigos = document.getElementById('friends-activity-list');
+            divAmigos.innerHTML = '';
+            const treinosAmigos = workouts.filter(w => w.date === hoje && w.user !== currentUser);
+            
+            if (treinosAmigos.length === 0) return divAmigos.innerHTML = '<p class="text-slate-500 italic text-sm">Nenhum amigo treinou hoje.</p>';
 
-        function iniciarResposta(msgId, user, text) {
-            replyData = { id: msgId, user: user, text: text };
-            document.getElementById('reply-banner').classList.remove('hidden');
-            document.getElementById('reply-banner-user').innerText = `Respondendo a ${user}`;
-            document.getElementById('reply-banner-text').innerText = text;
-            document.getElementById('chat-input').focus();
+            const agrupado = {};
+            treinosAmigos.forEach(w => { if (!agrupado[w.user]) agrupado[w.user] = []; agrupado[w.user].push(w); });
+
+            for (const [amigo, exercicios] of Object.entries(agrupado)) {
+                const cor = obterCorUsuario(amigo);
+                const avatar = getAvatarHtml(amigo, 'w-6 h-6', 'text-[10px]');
+                const card = document.createElement('div');
+                card.className = 'bg-slate-900 p-4 rounded-xl border border-slate-700/60 space-y-3';
+                let total = 0, html = '';
+                exercicios.forEach(ex => { 
+                    total += ex.reps; 
+                    html += `<div class="flex justify-between text-sm pt-2 border-t border-slate-800 mt-2 first:border-0 first:pt-0 first:mt-0"><span class="text-slate-300">${ex.exercise}</span><span class="font-bold text-sky-400">${ex.reps}</span></div>`; 
+                });
+                card.innerHTML = `<div class="flex justify-between items-center border-b border-slate-800 pb-2"><div class="flex items-center gap-2">${avatar}<span class="font-bold ${cor}">${amigo}</span></div><span class="text-xs bg-sky-500/20 text-sky-400 px-2.5 py-1 rounded-full font-bold">Total: ${total}</span></div><div>${html}</div>`;
+                divAmigos.appendChild(card);
+            }
         }
 
-        function cancelarResposta() { replyData = null; document.getElementById('reply-banner').classList.add('hidden'); }
-
+        // --- CHAT COMPLETO ---
+        function mudarAbaChat(aba) {
+            const geral = document.getElementById('container-chat-geral'); const fav = document.getElementById('container-chat-fav');
+            const btnGeral = document.getElementById('btn-chat-geral'); const btnFav = document.getElementById('btn-chat-fav');
+            if (aba === 'geral') { 
+                geral.classList.remove('hidden'); fav.classList.add('hidden'); 
+                btnGeral.className = 'flex-1 sm:flex-none text-xs px-4 py-2 rounded-lg bg-pink-500 text-slate-950 font-bold transition cursor-pointer'; 
+                btnFav.className = 'flex-1 sm:flex-none text-xs px-4 py-2 rounded-lg bg-slate-700 text-slate-300 font-bold transition cursor-pointer'; 
+                setTimeout(() => { document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight; }, 50); 
+            } else { 
+                geral.classList.add('hidden'); fav.classList.remove('hidden'); 
+                btnFav.className = 'flex-1 sm:flex-none text-xs px-4 py-2 rounded-lg bg-amber-500 text-slate-950 font-bold transition cursor-pointer'; 
+                btnGeral.className = 'flex-1 sm:flex-none text-xs px-4 py-2 rounded-lg bg-slate-700 text-slate-300 font-bold transition cursor-pointer'; 
+                atualizarFavoritas(); 
+            }
+        }
+        
+        function iniciarResposta(msgId, user, text) { 
+            replyData = { id: msgId, user: user, text: text }; 
+            document.getElementById('reply-banner').classList.remove('hidden'); 
+            document.getElementById('reply-banner-user').innerText = `Respondendo a ${user}`; 
+            document.getElementById('reply-banner-text').innerText = text; 
+            document.getElementById('chat-input').focus(); 
+        }
+        
+        function cancelarResposta() { 
+            replyData = null; 
+            document.getElementById('reply-banner').classList.add('hidden'); 
+        }
+        
         function rolarParaMensagem(id) {
             const el = document.getElementById(`msg-${id}`);
             if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.classList.add('bg-pink-500/30'); setTimeout(() => el.classList.remove('bg-pink-500/30'), 1500); }
         }
-
+        
         async function enviarMensagem() {
             if (!dadosCarregados) return;
-            const texto = document.getElementById('chat-input').value.trim();
-            if (!texto) return;
-
-            const novaMsg = { 
-                id: Date.now(), user: currentUser, text: texto, time: obterHoraGlobal(), date: obterDataGlobal(), 
-                isFavorite: false, expireAt: null, reactions: { fire: [], laugh: [], flex: [] } 
-            };
+            const texto = document.getElementById('chat-input').value.trim(); if (!texto) return;
+            const novaMsg = { id: Date.now(), user: currentUser, text: texto, time: obterHoraGlobal(), date: obterDataGlobal(), isFavorite: false, expireAt: null, reactions: { fire: [], laugh: [], flex: [] } };
             if (replyData) novaMsg.replyTo = replyData;
-
-            messages.push(novaMsg);
+            messages.push(novaMsg); 
             cancelarResposta(); 
-            await salvarNaNuvenFirebase();
+            await salvarNaNuvenFirebase(); 
             document.getElementById('chat-input').value = '';
         }
-
+        
         function handleChatKey(e) { if (e.key === 'Enter') enviarMensagem(); }
-
+        
         async function alternarFavorito(msgId) {
             if (!dadosCarregados) return;
             const msg = messages.find(m => m.id === msgId);
@@ -1058,7 +1086,7 @@
             if (idx === -1) msg.reactions[tipo].push(currentUser); else msg.reactions[tipo].splice(idx, 1);
             await salvarNaNuvenFirebase();
         }
-
+        
         function atualizarChat() {
             const chatDiv = document.getElementById('chat-messages');
             chatDiv.innerHTML = '';
@@ -1127,7 +1155,7 @@
                 chatDiv.appendChild(bubble);
             });
         }
-
+        
         function atualizarFavoritas() {
             const favDiv = document.getElementById('fav-messages');
             favDiv.innerHTML = '';
