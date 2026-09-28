@@ -299,8 +299,20 @@
         let userPresence = {}; 
         let presenceIntervalId = null;
 
-        function obterDataGlobal() { return new Date().toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }); }
-        function obterHoraGlobal() { return new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' }); }
+        // V16: NOVA FUNÇÃO DE DATA BLINDADA CONTRA BUGS DE TELEMÓVEL VS PC
+        function obterDataGlobal() {
+            const d = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+            const dia = String(d.getDate()).padStart(2, '0');
+            const mes = String(d.getMonth() + 1).padStart(2, '0');
+            const ano = d.getFullYear();
+            return `${dia}/${mes}/${ano}`;
+        }
+        function obterHoraGlobal() { 
+            const d = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+            const horas = String(d.getHours()).padStart(2, '0');
+            const minutos = String(d.getMinutes()).padStart(2, '0');
+            return `${horas}:${minutos}`;
+        }
 
         function obterCorUsuario(nome) {
             const cores = ['text-pink-400', 'text-emerald-400', 'text-indigo-400', 'text-amber-400', 'text-fuchsia-400', 'text-cyan-400', 'text-lime-400', 'text-rose-400', 'text-violet-400'];
@@ -409,10 +421,8 @@
             }
         }
 
-        // --- SISTEMA ADMIN E PRESENÇA ---
         function verificarSeEhAdmin(nomeUsuario) {
             if (users.length === 0) return false;
-            // O primeiro usuário criado (índice 0) é o Administrador
             return users[0].name.toLowerCase() === nomeUsuario.toLowerCase();
         }
 
@@ -447,18 +457,14 @@
             });
         }
 
-        // ATUALIZAÇÃO V15: O Painel Admin agora caça fantasmas juntando 3 listas!
         function renderizarUsuariosOnline() {
             const container = document.getElementById('admin-online-users');
             if (!container) return;
             container.innerHTML = '';
             const agora = Date.now();
             
-            // 1. Pega nos utilizadores oficias
             const todosUsuarios = new Set(users.map(u => u.name));
-            // 2. Adiciona quem tiver treinos (O Iska e o Emanuel vão ser apanhados aqui!)
             workouts.forEach(w => todosUsuarios.add(w.user));
-            // 3. Adiciona quem tiver presença
             Object.keys(userPresence).forEach(nome => todosUsuarios.add(nome));
             
             Array.from(todosUsuarios).forEach(nome => {
@@ -490,7 +496,6 @@
                     textoStatus = "🔴 Sem registo recente";
                 }
 
-                // Verifica se é um utilizador fantasma (não está na lista principal)
                 const isFantasma = !users.some(u => u.name === nome);
                 const tagFantasma = isFantasma ? `<span class="bg-rose-500/20 text-rose-400 text-[9px] px-2 py-0.5 rounded ml-2" title="Este utilizador perdeu a conta no backup, mas vai ser restaurado automaticamente ao entrar!">⚠️ Não Registado</span>` : '';
                 
@@ -511,7 +516,6 @@
             });
         }
 
-        // --- BACKUP ---
         function fazerBackup() {
             if (!dadosCarregados) return alert("Aguarde o carregamento dos dados!");
             const dadosExport = { users, workouts, messages, userExercises };
@@ -575,16 +579,25 @@
                     dadosCarregados = true; 
                     
                     users = data.users || [];
-                    workouts = data.workouts || [];
+                    let tempWorkouts = data.workouts || [];
                     userExercises = data.userExercises || [];
                     let mensagenseServidor = data.messages || [];
 
-                    // ATUALIZAÇÃO V15: AUTO-RECUPERAÇÃO DE FANTASMAS 👻🔦
+                    // V16: Normalizar todas as datas antigas corrompidas pelo formato do telemóvel!
+                    tempWorkouts.forEach(w => {
+                        if(w.date && w.date.includes('/')) {
+                            const p = w.date.split('/');
+                            if(p.length === 3) {
+                                w.date = String(parseInt(p[0])).padStart(2, '0') + '/' + String(parseInt(p[1])).padStart(2, '0') + '/' + p[2];
+                            }
+                        }
+                    });
+                    workouts = tempWorkouts;
+
                     let precisaSalvarFantasma = false;
                     if (currentUser) {
                         const userRegistado = users.find(u => u.name === currentUser);
                         if (!userRegistado) {
-                            // Se o utilizador atual não estiver na base de dados, ele recria a própria conta
                             users.push({ 
                                 name: currentUser, pass: 'fantasma123', contact: 'Recuperado automaticamente', avatar: null,
                                 dailyGoal: 0, monthlyGoal: 0, publicGoals: true,
@@ -607,7 +620,7 @@
                         if (workouts.length > 0) {
                             workouts.forEach(newW => {
                                 if (newW.user !== currentUser && newW.date === obterDataGlobal()) {
-                                    const oldW = (data.workouts || []).find(w => w.user === newW.user && w.exercise === newW.exercise && w.date === newW.date);
+                                    const oldW = workouts.find(w => w.user === newW.user && w.exercise === newW.exercise && w.date === newW.date);
                                     const repOld = oldW ? oldW.reps : 0;
                                     if (newW.reps > repOld) {
                                         const msgTreino = `${newW.user} fez +${newW.reps - repOld} ${newW.exercise}! 💪`;
@@ -624,7 +637,7 @@
                     messages = mensagenseServidor.filter(msg => msg.isFavorite || (agora - msg.id) <= seteDiasEmMs);
 
                     if (precisaSalvarFantasma) {
-                        salvarNaNuvenFirebase(); // Salva imediatamente o fantasma para ele voltar a ser utilizador oficial
+                        salvarNaNuvenFirebase(); 
                     }
 
                     document.getElementById('status-nuvem').innerText = '✅ Online e sincronizado via Firebase!';
@@ -1115,6 +1128,7 @@
             await salvarNaNuvenFirebase();
         }
         
+        // V16: Exibição visual de quem reagiu adaptada para Telemóvel
         function atualizarChat() {
             const chatDiv = document.getElementById('chat-messages');
             chatDiv.innerHTML = '';
@@ -1162,9 +1176,13 @@
                     ? `<div class="flex items-center gap-2 text-xs text-slate-400 mb-0.5 px-1 flex-row-reverse">${avatar}<span class="font-extrabold ${cor}">${msg.user}</span><span>${msg.time}</span></div>`
                     : `<div class="flex items-center gap-2 text-xs text-slate-400 mb-0.5 px-1">${avatar}<span class="font-extrabold ${cor}">${msg.user}</span><span>${msg.time}</span></div>`;
 
-                const tooltipFire = cFire > 0 ? `Reagido por: ${reacoes.fire.join(', ')}` : 'Reagir com Fogo!';
-                const tooltipLaugh = cLaugh > 0 ? `Reagido por: ${reacoes.laugh.join(', ')}` : 'Reagir com Riso!';
-                const tooltipFlex = cFlex > 0 ? `Reagido por: ${reacoes.flex.join(', ')}` : 'Reagir com Força!';
+                // V16: Listagem de Reações em Texto Visível
+                let reacoesTexto = '';
+                if (cFire > 0) reacoesTexto += `🔥 ${reacoes.fire.join(', ')}&nbsp;&nbsp;`;
+                if (cLaugh > 0) reacoesTexto += `😂 ${reacoes.laugh.join(', ')}&nbsp;&nbsp;`;
+                if (cFlex > 0) reacoesTexto += `💪 ${reacoes.flex.join(', ')}`;
+                
+                const barraReacoesVisivel = reacoesTexto ? `<div class="text-[9px] text-slate-400 mt-2 font-semibold italic">${reacoesTexto}</div>` : '';
 
                 bubble.innerHTML = `
                     ${cabecalho}
@@ -1173,11 +1191,12 @@
                         ${quoteHtml}
                         <span class="text-slate-200">${textoFormatado}</span>
                         <div class="flex flex-wrap gap-1.5 mt-2 pt-2 border-t border-slate-700/40">
-                            <button onclick="alternarReacao(${msg.id}, 'fire')" title="${tooltipFire}" class="px-2 py-1 rounded-full text-[11px] cursor-pointer ${hFire ? 'bg-amber-500/20 text-amber-400 border border-amber-500/50' : 'bg-slate-900/50 text-slate-400 hover:bg-slate-700'}">🔥 ${cFire||''}</button>
-                            <button onclick="alternarReacao(${msg.id}, 'laugh')" title="${tooltipLaugh}" class="px-2 py-1 rounded-full text-[11px] cursor-pointer ${hLaugh ? 'bg-sky-500/20 text-sky-400 border border-sky-500/50' : 'bg-slate-900/50 text-slate-400 hover:bg-slate-700'}">😂 ${cLaugh||''}</button>
-                            <button onclick="alternarReacao(${msg.id}, 'flex')" title="${tooltipFlex}" class="px-2 py-1 rounded-full text-[11px] cursor-pointer ${hFlex ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/50' : 'bg-slate-900/50 text-slate-400 hover:bg-slate-700'}">💪 ${cFlex||''}</button>
+                            <button onclick="alternarReacao(${msg.id}, 'fire')" class="px-2 py-1 rounded-full text-[11px] cursor-pointer ${hFire ? 'bg-amber-500/20 text-amber-400 border border-amber-500/50' : 'bg-slate-900/50 text-slate-400 hover:bg-slate-700'}">🔥 ${cFire||''}</button>
+                            <button onclick="alternarReacao(${msg.id}, 'laugh')" class="px-2 py-1 rounded-full text-[11px] cursor-pointer ${hLaugh ? 'bg-sky-500/20 text-sky-400 border border-sky-500/50' : 'bg-slate-900/50 text-slate-400 hover:bg-slate-700'}">😂 ${cLaugh||''}</button>
+                            <button onclick="alternarReacao(${msg.id}, 'flex')" class="px-2 py-1 rounded-full text-[11px] cursor-pointer ${hFlex ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/50' : 'bg-slate-900/50 text-slate-400 hover:bg-slate-700'}">💪 ${cFlex||''}</button>
                             <button onclick="iniciarResposta(${msg.id}, '${msg.user}', '${textoSeguro}')" class="px-2 py-1 rounded-full text-[10px] uppercase font-bold bg-slate-900/50 text-slate-500 hover:bg-slate-700 hover:text-slate-300 ml-auto transition cursor-pointer">↩️ Responder</button>
                         </div>
+                        ${barraReacoesVisivel}
                     </div>
                 `;
                 chatDiv.appendChild(bubble);
