@@ -330,9 +330,45 @@
                 } else { alert("Permissão negada."); }
             });
         }
+        // --- NOVO SISTEMA DE NOTIFICAÇÕES (V16.1) ---
+        const somNotificacao = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+        let alertasNaoLidos = 0;
+
+        // Limpa o aviso da aba quando voltares ao site
+        document.addEventListener("visibilitychange", () => {
+            if (!document.hidden) {
+                alertasNaoLidos = 0;
+                document.title = "FitBattle - Treino em Grupo 🔥";
+            }
+        });
+
         function enviarNotificacaoSistema(titulo, texto) {
-            if ("Notification" in window && Notification.permission === "granted") { new Notification(titulo, { body: texto }); }
+            // 1. Toca o som (se o navegador não bloquear áudio automático)
+            somNotificacao.play().catch(e => console.log("Áudio em espera (interação necessária)."));
+
+            // 2. Muda o título da aba se não estiveres a olhar para ela
+            if (document.hidden) {
+                alertasNaoLidos++;
+                document.title = `(${alertasNaoLidos}) ${titulo} - FitBattle`;
+            }
+
+            // 3. Tenta mostrar a notificação nativa (PC e Telemóvel)
+            if ("Notification" in window && Notification.permission === "granted") {
+                try {
+                    // Truque para navegadores de telemóvel modernos
+                    navigator.serviceWorker.getRegistration().then(reg => {
+                        if (reg) {
+                            reg.showNotification(titulo, { body: texto, icon: 'https://cdn-icons-png.flaticon.com/512/1164/1164382.png' });
+                        } else {
+                            new Notification(titulo, { body: texto, icon: 'https://cdn-icons-png.flaticon.com/512/1164/1164382.png' });
+                        }
+                    });
+                } catch(e) {
+                    new Notification(titulo, { body: texto });
+                }
+            }
         }
+        // ---------------------------------------------
 
         function getAvatarHtml(nome, sizeClass = "w-8 h-8", textClass = "text-xs") {
             const u = users.find(user => user.name === nome);
