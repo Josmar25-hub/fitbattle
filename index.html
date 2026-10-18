@@ -1205,5 +1205,212 @@
             const btnGeral = document.getElementById('btn-chat-geral'); const btnFav = document.getElementById('btn-chat-fav');
             if (aba === 'geral') { 
                 geral.classList.remove('hidden'); fav.classList.add('hidden'); 
-                btnGeral.className = 'flex-1 sm:flex-none text-xs px-4 py-2 rounded-lg bg-pink-500 text-slate-950 font-bold transition cursor-pointer flex items-center justify-center gap-1'; 
-                btnFav.className = 'flex-1 sm:
+                btnGeral.className = 'flex-1 sm:flex-none text-xs px-4 py-2 rounded-lg bg-emerald-500 text-slate-950 font-bold transition shadow-md flex items-center justify-center gap-1'; 
+                btnFav.className = 'flex-1 sm:flex-none text-xs px-4 py-2 rounded-lg bg-slate-800 text-slate-300 font-bold hover:bg-slate-700 transition flex items-center justify-center gap-1'; 
+                setTimeout(() => { document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight; }, 50); 
+            } else { 
+                geral.classList.add('hidden'); fav.classList.remove('hidden'); 
+                btnFav.className = 'flex-1 sm:flex-none text-xs px-4 py-2 rounded-lg bg-amber-500 text-slate-950 font-bold transition shadow-md flex items-center justify-center gap-1'; 
+                btnGeral.className = 'flex-1 sm:flex-none text-xs px-4 py-2 rounded-lg bg-slate-800 text-slate-300 font-bold hover:bg-slate-700 transition flex items-center justify-center gap-1'; 
+                atualizarFavoritas(); 
+            }
+        }
+
+        function iniciarResposta(msgId, user, text) { 
+            replyData = { id: msgId, user: user, text: text }; 
+            document.getElementById('reply-banner').classList.remove('hidden'); 
+            document.getElementById('reply-banner-user').innerHTML = `<span class="material-symbols-rounded text-xs">reply</span> Respondendo a ${user}`; 
+            document.getElementById('reply-banner-text').innerText = text; 
+            document.getElementById('chat-input').focus(); 
+        }
+
+        function cancelarResposta() { 
+            replyData = null; 
+            document.getElementById('reply-banner').classList.add('hidden'); 
+        }
+
+        function rolarParaMensagem(id) {
+            const el = document.getElementById(`msg-${id}`);
+            if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.classList.add('bg-emerald-500/30'); setTimeout(() => el.classList.remove('bg-emerald-500/30'), 1500); }
+        }
+
+        async function enviarMensagem() {
+            if (!dadosCarregados) return;
+            const inputEl = document.getElementById('chat-input');
+            const texto = inputEl.value.trim(); if (!texto) return;
+            const novaMsg = { id: Date.now(), user: currentUser, text: texto, time: obterHoraGlobal(), date: obterDataGlobal(), isFavorite: false, expireAt: null, reactions: { fire: [], laugh: [], flex: [] } };
+            if (replyData) novaMsg.replyTo = replyData;
+            messages.push(novaMsg); 
+            cancelarResposta(); 
+            await salvarNaNuvenFirebase(); 
+            inputEl.value = '';
+            setTimeout(() => { document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight; }, 100);
+        }
+
+        document.getElementById('chat-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') enviarMensagem();
+        });
+
+        async function alternarFavorito(msgId) {
+            if (!dadosCarregados) return;
+            const msg = messages.find(m => m.id === msgId);
+            if (!msg) return;
+            if (!msg.isFavorite) {
+                msg.isFavorite = true;
+                const novaData = new Date(); novaData.setDate(novaData.getDate() + 90);
+                msg.expireAt = novaData.getTime();
+            } else { msg.isFavorite = false; msg.expireAt = null; }
+            await salvarNaNuvenFirebase();
+            atualizarChat();
+        }
+
+        async function renovarPrazo(msgId) {
+            const msg = messages.find(m => m.id === msgId);
+            if (!msg) return;
+            const novaExpiracao = new Date(); novaExpiracao.setDate(novaExpiracao.getDate() + 90);
+            msg.expireAt = novaExpiracao.getTime();
+            await salvarNaNuvenFirebase(); 
+            mostrarNotificacao('Prazo Renovado!', 'Mensagem guardada por mais 90 dias.', 'chat');
+            atualizarFavoritas();
+        }
+
+        async function alternarReacao(msgId, tipo) {
+            if (!dadosCarregados) return;
+            const msg = messages.find(m => m.id === msgId);
+            if (!msg) return;
+            if (!msg.reactions) msg.reactions = { fire: [], laugh: [], flex: [] };
+            const idx = msg.reactions[tipo].indexOf(currentUser);
+            if (idx === -1) msg.reactions[tipo].push(currentUser); else msg.reactions[tipo].splice(idx, 1);
+            await salvarNaNuvenFirebase();
+            atualizarChat();
+        }
+
+        function atualizarChat() {
+            const chatDiv = document.getElementById('chat-messages');
+            chatDiv.innerHTML = '';
+            let ultimaData = null;
+
+            messages.forEach(msg => {
+                const dataMsg = msg.date || "Antigas";
+                if (dataMsg !== ultimaData) {
+                    const dataExibicao = (dataMsg === obterDataGlobal()) ? 'Hoje' : dataMsg;
+                    const sep = document.createElement('div');
+                    sep.className = 'relative flex items-center py-3';
+                    sep.innerHTML = `<div class="flex-grow border-t border-slate-700/60"></div><span class="mx-4 text-xs text-slate-500 font-bold uppercase">${dataExibicao}</span><div class="flex-grow border-t border-slate-700/60"></div>`;
+                    chatDiv.appendChild(sep);
+                    ultimaData = dataMsg;
+                }
+
+                const reacoes = msg.reactions || { fire: [], laugh: [], flex: [] };
+                const cFire = reacoes.fire?.length || 0, cLaugh = reacoes.laugh?.length || 0, cFlex = reacoes.flex?.length || 0;
+                const hFire = reacoes.fire?.includes(currentUser), hLaugh = reacoes.laugh?.includes(currentUser), hFlex = reacoes.flex?.includes(currentUser);
+                const cor = obterCorUsuario(msg.user);
+                const avatar = getAvatarHtml(msg.user, 'w-6 h-6', 'text-[10px]');
+
+                let quoteHtml = '';
+                if (msg.replyTo) {
+                    quoteHtml = `
+                    <div onclick="rolarParaMensagem(${msg.replyTo.id})" class="bg-slate-900/60 border-l-4 border-emerald-500 p-2 rounded-lg mb-2 text-xs cursor-pointer hover:bg-slate-900 transition">
+                        <strong class="${obterCorUsuario(msg.replyTo.user)}">${msg.replyTo.user}</strong><br>
+                        <span class="text-slate-400 line-clamp-1 italic">${msg.replyTo.text}</span>
+                    </div>`;
+                }
+
+                const bubble = document.createElement('div');
+                bubble.id = `msg-${msg.id}`; 
+                bubble.className = `flex flex-col space-y-1 w-full transition-colors duration-500 rounded-2xl ${msg.user === currentUser ? 'items-end' : 'items-start'}`;
+
+                const isMetaMsg = msg.text.includes("BATI A META");
+                const bgBubble = msg.user === currentUser 
+                    ? (isMetaMsg ? 'bg-amber-500/20 border-amber-500/40 rounded-tr-none' : 'border-emerald-500/20 bg-emerald-900/10 rounded-tr-none border border-emerald-500/30') 
+                    : (isMetaMsg ? 'bg-amber-500/20 border-amber-500/40 rounded-tl-none' : 'border-slate-700/50 bg-slate-800 rounded-tl-none border');
+
+                const textoSeguro = msg.text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                const textoFormatado = msg.text.replace(/\n/g, '<br>');
+
+                const cabecalho = msg.user === currentUser 
+                    ? `<div class="flex items-center gap-2 text-xs text-slate-400 mb-0.5 px-1 flex-row-reverse">${avatar}<span class="font-extrabold ${cor}">${msg.user}</span><span>${msg.time}</span></div>`
+                    : `<div class="flex items-center gap-2 text-xs text-slate-400 mb-0.5 px-1">${avatar}<span class="font-extrabold ${cor}">${msg.user}</span><span>${msg.time}</span></div>`;
+
+                let reacoesTexto = '';
+                if (cFire > 0) reacoesTexto += `🔥 ${reacoes.fire.join(', ')}&nbsp;&nbsp;`;
+                if (cLaugh > 0) reacoesTexto += `😂 ${reacoes.laugh.join(', ')}&nbsp;&nbsp;`;
+                if (cFlex > 0) reacoesTexto += `💪 ${reacoes.flex.join(', ')}`;
+                
+                const barraReacoesVisivel = reacoesTexto ? `<div class="text-[9px] text-slate-400 mt-2 font-semibold italic">${reacoesTexto}</div>` : '';
+
+                bubble.innerHTML = `
+                    ${cabecalho}
+                    <div class="relative max-w-[85%] sm:max-w-[75%] p-3 rounded-2xl text-sm shadow-sm ${bgBubble}">
+                        <button onclick="alternarFavorito(${msg.id})" class="absolute -right-6 top-1 text-base opacity-40 hover:opacity-100 transition" title="Salvar Mensagem">${msg.isFavorite ? '⭐' : '☆'}</button>
+                        ${quoteHtml}
+                        <span class="text-slate-200">${textoFormatado}</span>
+                        <div class="flex flex-wrap gap-1.5 mt-2 pt-2 border-t border-slate-700/40">
+                            <button onclick="alternarReacao(${msg.id}, 'fire')" class="px-2 py-1 rounded-full text-[11px] cursor-pointer ${hFire ? 'bg-amber-500/20 text-amber-400 border border-amber-500/50' : 'bg-slate-900/50 text-slate-400 hover:bg-slate-700'}">🔥 ${cFire||''}</button>
+                            <button onclick="alternarReacao(${msg.id}, 'laugh')" class="px-2 py-1 rounded-full text-[11px] cursor-pointer ${hLaugh ? 'bg-sky-500/20 text-sky-400 border border-sky-500/50' : 'bg-slate-900/50 text-slate-400 hover:bg-slate-700'}">😂 ${cLaugh||''}</button>
+                            <button onclick="alternarReacao(${msg.id}, 'flex')" class="px-2 py-1 rounded-full text-[11px] cursor-pointer ${hFlex ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/50' : 'bg-slate-900/50 text-slate-400 hover:bg-slate-700'}">💪 ${cFlex||''}</button>
+                            <button onclick="iniciarResposta(${msg.id}, '${msg.user}', '${textoSeguro}')" class="px-2 py-1 rounded-full text-[10px] uppercase font-bold bg-slate-900/50 text-slate-500 hover:bg-slate-700 hover:text-slate-300 ml-auto transition cursor-pointer"><span class="material-symbols-rounded text-[10px]">reply</span> Responder</button>
+                        </div>
+                        ${barraReacoesVisivel}
+                    </div>
+                `;
+                chatDiv.appendChild(bubble);
+            });
+        }
+
+        function atualizarFavoritas() {
+            const favDiv = document.getElementById('fav-messages');
+            favDiv.innerHTML = '';
+            const favoritas = messages.filter(m => m.isFavorite);
+
+            if (favoritas.length === 0) return favDiv.innerHTML = '<p class="text-slate-500 italic text-sm text-center py-8">Nenhuma mensagem salva ainda.</p>';
+
+            favoritas.forEach(msg => {
+                const corDoUser = obterCorUsuario(msg.user);
+                const diasRestantes = msg.expireAt ? Math.ceil((msg.expireAt - Date.now()) / (1000 * 60 * 60 * 24)) : 90;
+                const avatar = getAvatarHtml(msg.user, 'w-6 h-6', 'text-[10px]');
+                const textoFormatado = msg.text.replace(/\n/g, '<br>');
+
+                const bubble = document.createElement('div');
+                bubble.className = 'space-y-2 bg-slate-800 p-4 rounded-xl border border-emerald-500/30 shadow-md';
+                bubble.innerHTML = `
+                    <div class="flex justify-between items-center text-xs text-slate-400">
+                        <span class="font-extrabold ${corDoUser} flex items-center gap-2">${avatar} ${msg.user} <span class="text-slate-500 font-normal">(${msg.date || ''} às ${msg.time})</span></span>
+                        <span class="text-amber-300 font-bold bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">Expira em: ${diasRestantes > 0 ? diasRestantes + ' dias' : 'Expirando'}</span>
+                    </div>
+                    <div class="text-sm text-slate-200 leading-relaxed">${textoFormatado}</div>
+                    <div class="flex justify-end gap-2 pt-2 border-t border-slate-700/50">
+                        <button onclick="renovarPrazo(${msg.id})" class="bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-slate-950 font-bold text-xs px-3 py-1.5 rounded-lg transition flex items-center gap-1"><span class="material-symbols-rounded text-xs">autorenew</span> Renovar</button>
+                        <button onclick="alternarFavorito(${msg.id})" class="bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white font-bold text-xs px-3 py-1.5 rounded-lg transition flex items-center gap-1"><span class="material-symbols-rounded text-xs">delete</span> Remover</button>
+                    </div>
+                `;
+                favDiv.appendChild(bubble);
+            });
+        }
+
+        // MOTOR DE ARRANQUE DO SITE!
+        iniciarApp();
+
+        function dispararTutorial(chaveStorage, titulo, mensagem, iconeMat) {
+            if (!localStorage.getItem(chaveStorage)) {
+                const overlay = document.createElement('div');
+                overlay.className = 'fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[100] flex items-center justify-center p-6 animate-fade-in';
+                
+                const balao = document.createElement('div');
+                balao.className = 'bg-slate-800 border-2 border-emerald-500 p-8 rounded-2xl text-center shadow-[0_0_30px_rgba(16,185,129,0.3)] max-w-sm transform transition-all scale-100';
+                balao.innerHTML = `
+                    <span class="material-symbols-rounded text-emerald-400 text-6xl mb-4 animate-bounce">${iconeMat}</span>
+                    <h3 class="text-2xl text-white font-black mb-3 tracking-wide">${titulo}</h3>
+                    <p class="text-slate-300 mb-8 leading-relaxed text-lg">${mensagem}</p>
+                    <button onclick="document.body.removeChild(this.closest('.fixed')); localStorage.setItem('${chaveStorage}', 'true');" class="bg-gradient-to-r from-emerald-500 to-emerald-400 text-slate-900 font-black py-4 px-8 rounded-xl w-full text-lg shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer">
+                        Entendi, Chefe! 🫡
+                    </button>
+                `;
+                
+                overlay.appendChild(balao);
+                document.body.appendChild(overlay);
+            }
+        }
+    </script>
+</body>
+</html>
