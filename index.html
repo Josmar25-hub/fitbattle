@@ -608,6 +608,42 @@
 
         let isPrimeiroCarregamento = true;
 
+        // --- NOVO SISTEMA: BACKUP AUTOMÁTICO DO ADMIN (V16.2) ---
+function verificarEExecutarBackupAutomatico(dadosParaSalvar) {
+    const diasParaBackup = 7; // Personaliza aqui: 7 dias
+    const tempoEmMilissegundos = diasParaBackup * 24 * 60 * 60 * 1000; 
+    const ultimoBackup = localStorage.getItem('ultimoBackupFitBattle');
+    const agora = Date.now();
+
+    // Se nunca fez backup OU se já passou o tempo limite definido
+    if (!ultimoBackup || (agora - parseInt(ultimoBackup)) >= tempoEmMilissegundos) {
+        console.log(`Iniciando backup automático de ${diasParaBackup} dias...`);
+
+        // Transforma os dados do Firebase num texto formatado
+        const dadosString = JSON.stringify(dadosParaSalvar, null, 2);
+        const blob = new Blob([dadosString], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+
+        // Cria a data de hoje para o nome do ficheiro (ex: 18-10-2026)
+        const dataHoje = new Date().toLocaleDateString('pt-BR').replace(/\//g, '-');
+        
+        // Simula um clique num link invisível para forçar o download
+        const linkInvisivel = document.createElement('a');
+        linkInvisivel.href = url;
+        linkInvisivel.download = `FitBattle_Backup_Auto_${dataHoje}.json`;
+        document.body.appendChild(linkInvisivel);
+        linkInvisivel.click(); 
+        document.body.removeChild(linkInvisivel);
+        URL.revokeObjectURL(url);
+
+        // Atualiza a memória do navegador com o momento deste novo backup
+        localStorage.setItem('ultimoBackupFitBattle', agora.toString());
+        
+        alert(`📦 Backup automático de ${diasParaBackup} dias gerado com sucesso! Envie este ficheiro para o seu Google Drive.`);
+    }
+}
+// --------------------------------------------------------
+        
         function escutarFirebase() {
             db.collection("app").doc("estado_global").onSnapshot((doc) => {
                 if (doc.exists) {
@@ -693,9 +729,20 @@
                         preencherPerfil(); 
                     } else { renderizarListaUsuarios(); }
                     
-                    if (verificarSeEhAdmin(currentUser)) renderizarUsuariosOnline();
+                    if (verificarSeEhAdmin(currentUser)) {
+                        renderizarUsuariosOnline();
+                        // O gatilho: Só o Admin dispara a verificação de backup usando os dados mais recentes da Base de Dados
+                        verificarEExecutarBackupAutomatico(doc.data());
+                    }
                     isPrimeiroCarregamento = false;
                 }
+            }, (error) => {
+                // --- NOVA ENGRENAGEM: TRATAMENTO DE ERRO DE CONEXÃO ---
+                console.error("Acesso negado pelo Firebase:", error);
+                const statusNuvem = document.getElementById('status-nuvem');
+                statusNuvem.innerText = '❌ Erro de Conexão: Banco de Dados Bloqueado!';
+                statusNuvem.classList.remove('text-emerald-400', 'animate-pulse');
+                statusNuvem.classList.add('text-rose-500');
             });
         }
 
