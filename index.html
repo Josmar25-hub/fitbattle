@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FitBattle - Treino em Grupo 🔥</title>
+    <title>FitBattle - Treino em Grupo</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
@@ -23,10 +23,10 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
 </head>
-<body class="bg-slate-900 text-slate-100 font-sans min-h-screen p-4 md:p-8 pb-24 relative overflow-x-hidden">
+<body class="bg-slate-900 text-slate-100 font-sans min-h-dvh p-4 md:p-8 pb-28 relative overflow-x-hidden">
 
     <!-- Notificações Flutuantes -->
-    <div id="toast-container" class="fixed top-4 right-4 left-4 sm:left-auto sm:w-80 z-[100] flex flex-col gap-3 pointer-events-none"></div>
+    <div id="toast-container" class="fixed top-6 sm:top-8 right-4 sm:right-6 left-4 sm:left-auto sm:w-80 z-[100] flex flex-col gap-3 pointer-events-none"></div>
     <div class="hidden text-pink-400 text-emerald-400 text-indigo-400 text-amber-400 text-fuchsia-400 text-cyan-400 text-lime-400 text-rose-400 text-violet-400"></div>
 
     <!-- Inputs escondidos -->
@@ -37,22 +37,22 @@
 
         <header class="text-center space-y-2">
             <h1 class="text-4xl font-extrabold text-amber-400 flex justify-center items-center gap-3"><span class="material-symbols-rounded text-4xl">fitness_center</span> FitBattle Interativo</h1>
-<p class="text-slate-400 flex justify-center items-center gap-1">Supere seus limites e domine o placar com seus amigos! <span class="material-symbols-rounded text-amber-500 text-sm">local_fire_department</span></p>
-<div id="status-nuvem" class="text-xs text-emerald-400 font-bold animate-pulse flex justify-center items-center gap-1"><span class="material-symbols-rounded text-xs">hourglass_empty</span> Conectando ao Firebase... Aguarde!</div>
+            <p class="text-slate-400 flex justify-center items-center gap-1">Supere seus limites e domine o placar com seus amigos! <span class="material-symbols-rounded text-amber-500 text-sm">local_fire_department</span></p>
+            <div id="status-nuvem" class="text-xs text-emerald-400 font-bold animate-pulse flex justify-center items-center gap-1"><span class="material-symbols-rounded text-xs">hourglass_empty</span> Conectando ao Firebase... Aguarde!</div>
         </header>
 
         <!-- SEÇÃO DE LOGIN -->
         <section id="auth-section" class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-4 hidden max-w-lg mx-auto">
-            <h2 class="text-xl font-bold text-emerald-400">👤 Acesso ao Perfil</h2>
+            <h2 class="text-xl font-bold text-emerald-400 flex items-center gap-2"><span class="material-symbols-rounded text-2xl">account_circle</span> Acesso ao Perfil</h2>
             <div id="form-login-box" class="space-y-3">
                 <input type="text" id="auth-username" placeholder="Seu nome (ex: Josemar)" class="w-full bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-amber-400">
                 <div class="relative">
                     <input type="password" id="auth-password" placeholder="Sua senha de acesso" class="w-full bg-slate-900 border border-slate-700 px-4 py-3 pr-12 rounded-xl focus:outline-none focus:border-amber-400">
-                    <button type="button" onclick="toggleSenha()" class="absolute right-3 top-3.5 text-slate-400 hover:text-slate-200 text-sm cursor-pointer" id="btn-eye">👁️</button>
+                    <button type="button" onclick="toggleSenha()" class="absolute right-3 top-3.5 text-slate-400 hover:text-emerald-400 transition-colors cursor-pointer flex items-center" id="btn-eye"><span class="material-symbols-rounded text-lg">visibility</span></button>
                 </div>
                 <div class="flex flex-col sm:flex-row gap-3 pt-2">
-                    <button onclick="fazerLogin()" class="w-full sm:flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl transition cursor-pointer">Entrar 🚀</button>
-                    <button onclick="criarPerfilComSenha()" class="w-full sm:flex-1 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-3 rounded-xl transition cursor-pointer">Criar Conta ➕</button>
+                    <button onclick="fazerLogin()" class="w-full sm:flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl transition cursor-pointer flex items-center justify-center gap-2">Entrar <span class="material-symbols-rounded text-base">rocket_launch</span></button>
+                    <button onclick="criarPerfilComSenha()" class="w-full sm:flex-1 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-3 rounded-xl transition cursor-pointer flex items-center justify-center gap-2">Criar Conta <span class="material-symbols-rounded text-base">person_add</span></button>
                 </div>
             </div>
             <div class="pt-4 border-t border-slate-700/60">
@@ -65,47 +65,51 @@
         <div id="main-panel" class="hidden space-y-6">
 
             <!-- --- OMNITRIX MENU (V16.3) --- -->
-        <div class="fixed top-4 left-4 z-50 flex flex-col items-start gap-3">
-            <!-- O Mostrador do Omnitrix -->
-            <button id="btn-omnitrix" onclick="girarOmnitrix()" class="w-14 h-14 bg-slate-800 border-2 border-emerald-500 rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.5)] transition-all duration-500 hover:scale-110 active:scale-95 z-50">
-                <span id="icone-omnitrix" class="material-symbols-rounded text-emerald-400 text-4xl transition-transform duration-500">apps</span>
-            </button>
+            <div class="fixed top-6 sm:top-8 left-4 sm:left-6 z-[60] flex flex-col items-start gap-3">
+                <!-- O Mostrador do Omnitrix -->
+                <button id="btn-omnitrix" onclick="girarOmnitrix()" class="w-14 h-14 bg-slate-800 border-2 border-emerald-500 rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.5)] transition-all duration-500 hover:scale-110 active:scale-95 z-[60]">
+                    <span id="icone-omnitrix" class="material-symbols-rounded text-emerald-400 text-4xl transition-transform duration-500">apps</span>
+                </button>
 
-            <!-- As Abas Escondidas -->
-            <div id="menu-abas" class="flex flex-col gap-3 transition-all duration-500 origin-top opacity-0 scale-y-0 pointer-events-none">
-                
-                <!-- Info do Utilizador Logado (Evita que o JS crashe e exibe o avatar) -->
-                <div class="bg-slate-900 border border-slate-700 text-white rounded-2xl p-3 flex items-center gap-3 shadow-lg mb-2 cursor-pointer hover:border-emerald-500 transition-colors" onclick="mudarPaginaPrincipal('perfil'); girarOmnitrix();">
-                    <div id="navbar-avatar-container" class="w-10 h-10 rounded-full bg-slate-700 overflow-hidden flex-shrink-0 flex items-center justify-center"></div>
-                    <div class="flex flex-col">
-                        <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Logado como</span>
-                        <strong id="current-user-display" class="text-sm text-emerald-400 truncate max-w-[120px]"></strong>
+                <!-- As Abas Escondidas -->
+                <div id="menu-abas" class="flex flex-col gap-3 transition-all duration-500 origin-top opacity-0 scale-y-0 pointer-events-none">
+                    
+                    <!-- Info do Utilizador Logado (Evita que o JS crashe e exibe o avatar) -->
+                    <div class="bg-slate-900 border border-slate-700 text-white rounded-2xl p-3 flex items-center gap-3 shadow-lg mb-2 cursor-pointer hover:border-emerald-500 transition-colors" onclick="mudarPaginaPrincipal('perfil'); girarOmnitrix();">
+                        <div id="navbar-avatar-container" class="w-10 h-10 rounded-full bg-slate-700 overflow-hidden flex-shrink-0 flex items-center justify-center"></div>
+                        <div class="flex flex-col">
+                            <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Logado como</span>
+                            <strong id="current-user-display" class="text-sm text-emerald-400 truncate max-w-[120px]"></strong>
+                        </div>
                     </div>
+
+                    <!-- Botões de Navegação -->
+                    <button onclick="mudarPaginaPrincipal('treino'); girarOmnitrix();" id="nav-treino" class="w-full bg-slate-800 border border-slate-700 text-white rounded-full px-4 py-3 flex items-center gap-3 shadow-lg hover:border-amber-500 hover:text-amber-400 transition-colors font-bold text-left">
+                        <span class="material-symbols-rounded">fitness_center</span> Meu Treino
+                    </button>
+
+                    <button onclick="mudarPaginaPrincipal('agenda'); girarOmnitrix();" id="nav-agenda" class="w-full bg-slate-800 border border-slate-700 text-white rounded-full px-4 py-3 flex items-center gap-3 shadow-lg hover:border-violet-500 hover:text-violet-400 transition-colors font-bold text-left">
+                        <span class="material-symbols-rounded">calendar_month</span> Agenda & Metas
+                    </button>
+                    
+                    <button onclick="mudarPaginaPrincipal('competicao'); girarOmnitrix();" id="nav-competicao" class="w-full bg-slate-800 border border-slate-700 text-white rounded-full px-4 py-3 flex items-center gap-3 shadow-lg hover:border-indigo-500 hover:text-indigo-400 transition-colors font-bold text-left">
+                        <span class="material-symbols-rounded">emoji_events</span> Competição
+                    </button>
+
+                    <button onclick="mudarPaginaPrincipal('chat'); girarOmnitrix();" id="nav-chat" class="w-full bg-slate-800 border border-slate-700 text-white rounded-full px-4 py-3 flex items-center gap-3 shadow-lg hover:border-pink-500 hover:text-pink-400 transition-colors font-bold text-left">
+                        <span class="material-symbols-rounded">chat</span> Chat Global
+                    </button>
+                    
+                    <button onclick="mudarPaginaPrincipal('perfil'); girarOmnitrix();" id="nav-perfil" class="w-full bg-slate-800 border border-slate-700 text-white rounded-full px-4 py-3 flex items-center gap-3 shadow-lg hover:border-fuchsia-500 hover:text-fuchsia-400 transition-colors font-bold text-left">
+                        <span class="material-symbols-rounded">person</span> Meu Perfil
+                    </button>
+                    
+                    <!-- O botão Admin mantém a classe oculta para os utilizadores normais -->
+                    <button onclick="mudarPaginaPrincipal('admin'); girarOmnitrix();" id="nav-admin" class="hidden w-full bg-slate-800 border border-slate-700 text-rose-400 rounded-full px-4 py-3 items-center gap-3 shadow-lg hover:border-rose-500 hover:text-rose-500 transition-colors font-bold text-left flex">
+                        <span class="material-symbols-rounded">admin_panel_settings</span> Painel Admin
+                    </button>
                 </div>
-
-                <!-- Botões de Navegação -->
-                <button onclick="mudarPaginaPrincipal('treino'); girarOmnitrix();" id="nav-treino" class="w-full bg-slate-800 border border-slate-700 text-white rounded-full px-4 py-3 flex items-center gap-3 shadow-lg hover:border-amber-500 hover:text-amber-400 transition-colors font-bold text-left">
-                    <span class="material-symbols-rounded">fitness_center</span> Meu Treino
-                </button>
-                
-                <button onclick="mudarPaginaPrincipal('competicao'); girarOmnitrix();" id="nav-competicao" class="w-full bg-slate-800 border border-slate-700 text-white rounded-full px-4 py-3 flex items-center gap-3 shadow-lg hover:border-amber-500 hover:text-amber-400 transition-colors font-bold text-left">
-                    <span class="material-symbols-rounded">emoji_events</span> Competição
-                </button>
-
-                <button onclick="mudarPaginaPrincipal('chat'); girarOmnitrix();" id="nav-chat" class="w-full bg-slate-800 border border-slate-700 text-white rounded-full px-4 py-3 flex items-center gap-3 shadow-lg hover:border-emerald-500 hover:text-emerald-400 transition-colors font-bold text-left">
-                    <span class="material-symbols-rounded">chat</span> Chat Global
-                </button>
-                
-                <button onclick="mudarPaginaPrincipal('perfil'); girarOmnitrix();" id="nav-perfil" class="w-full bg-slate-800 border border-slate-700 text-white rounded-full px-4 py-3 flex items-center gap-3 shadow-lg hover:border-emerald-500 hover:text-emerald-400 transition-colors font-bold text-left">
-                    <span class="material-symbols-rounded">person</span> Meu Perfil
-                </button>
-                
-                <!-- O botão Admin mantém a classe oculta para os utilizadores normais -->
-                <button onclick="mudarPaginaPrincipal('admin'); girarOmnitrix();" id="nav-admin" class="hidden w-full bg-slate-800 border border-slate-700 text-rose-400 rounded-full px-4 py-3 items-center gap-3 shadow-lg hover:border-rose-500 hover:text-rose-500 transition-colors font-bold text-left flex">
-                    <span class="material-symbols-rounded">admin_panel_settings</span> Painel Admin
-                </button>
             </div>
-        </div>
 
             <!-- PÁGINA 1: MEU TREINO -->
             <div id="pagina-treino" class="space-y-6">
@@ -116,15 +120,62 @@
                         
                         <div class="flex flex-col sm:flex-row gap-2">
                             <input type="text" id="exercise-name" placeholder="Ex: Flexão, Abdominal..." class="flex-1 bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-emerald-400">
-                            <button onclick="adicionarExercicioFixo()" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-6 py-3 rounded-xl transition cursor-pointer">Guardar Exercício 💾</button>
+                            <button onclick="adicionarExercicioFixo()" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-6 py-3 rounded-xl transition cursor-pointer flex items-center gap-2"><span class="material-symbols-rounded text-lg">add_task</span> Guardar Exercício</button>
                         </div>
 
                         <div class="bg-slate-900/60 p-3.5 rounded-xl border border-slate-700/60 space-y-2">
-                           <span class="text-xs font-bold text-emerald-400 flex items-center gap-1.5"><span class="material-symbols-rounded text-base">lightbulb</span> Sugestões Rápidas:</span>
+                            <span class="text-xs font-bold text-emerald-400 flex items-center gap-1.5"><span class="material-symbols-rounded text-base">lightbulb</span> Sugestões Rápidas:</span>
                             <div id="suggestions-box" class="flex flex-wrap gap-2"></div>
                         </div>
 
                         <div id="my-exercises-list" class="space-y-3 mt-4"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PÁGINA AGENDA & METAS -->
+            <div id="pagina-agenda" class="hidden space-y-6">
+                <!-- Secção Superior: Adicionar e Listar Hoje -->
+                <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-violet-500/30 space-y-4">
+                    <div class="flex justify-between items-start sm:items-center flex-col sm:flex-row gap-3">
+                        <h2 class="text-xl font-bold text-violet-400 flex items-center gap-2">
+                            <span class="material-symbols-rounded text-2xl">fact_check</span> Minhas Metas de Hoje
+                        </h2>
+                        <!-- Toggle de Privacidade -->
+                        <div class="flex items-center gap-2 bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-700">
+                            <input type="checkbox" id="agenda-publica" onchange="alternarPrivacidadeAgenda()" class="w-4 h-4 accent-violet-500 cursor-pointer rounded">
+                            <label for="agenda-publica" class="text-xs text-slate-300 cursor-pointer select-none">Tornar Público <span class="material-symbols-rounded text-[10px]">visibility</span></label>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <input type="text" id="input-nova-meta" placeholder="Ex: Correr 5km, Estudar React..." class="flex-1 bg-slate-900 border border-slate-700 px-4 py-3 rounded-xl focus:outline-none focus:border-violet-400 text-sm">
+                        <button onclick="adicionarMeta()" class="bg-violet-500 hover:bg-violet-600 text-slate-950 font-bold px-6 py-3 rounded-xl transition cursor-pointer flex items-center justify-center gap-2">
+                            <span class="material-symbols-rounded text-base">add_task</span> Adicionar
+                        </button>
+                    </div>
+
+                    <div id="lista-metas-hoje" class="space-y-2 mt-4"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Calendário Histórico -->
+                    <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-4">
+                        <h2 class="text-lg font-bold text-slate-200 flex items-center gap-2">
+                            <span class="material-symbols-rounded text-violet-400 text-xl">calendar_month</span> Meu Calendário
+                        </h2>
+                        <p class="text-[10px] text-slate-400 -mt-2 mb-2">O histórico é apagado automaticamente após 2 meses.</p>
+                        <div id="calendario-grid" class="grid grid-cols-7 gap-1 text-center text-xs">
+                            <!-- Preenchido pelo JS -->
+                        </div>
+                    </div>
+
+                    <!-- Agenda dos Kambas -->
+                    <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-4">
+                        <h2 class="text-lg font-bold text-slate-200 flex items-center gap-2">
+                            <span class="material-symbols-rounded text-sky-400 text-xl">group</span> Agenda dos Kambas
+                        </h2>
+                        <div id="lista-agenda-amigos" class="space-y-3"></div>
                     </div>
                 </div>
             </div>
@@ -159,87 +210,78 @@
                 </div>
             </div>
 
-            <!-- PÁGINA 3: CHAT GLOBAL IMERSIVO (V16.3 WhatsApp Style) -->
-<div id="pagina-chat" class="fixed inset-0 w-screen h-screen z-40 bg-slate-950 flex flex-col hidden p-2 sm:p-4 overflow-hidden">
-    
-    <!-- CONTÉM O CHAT EM TELA CHEIA -->
-    <div class="bg-slate-900 w-full h-full rounded-2xl shadow-2xl border border-slate-800 flex flex-col overflow-hidden relative">
-        
-        <!-- 1. CABEÇALHO SUPERIOR (HEADER ESTILO WHATSAPP) -->
-        <div class="bg-slate-900 p-3 border-b border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-3 shrink-0 shadow-md">
-            
-            <!-- Esquerda: Botão Voltar + Título -->
-            <div class="flex items-center gap-3 w-full sm:w-auto">
-                <button onclick="mudarPaginaPrincipal('treino')" class="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-emerald-400 hover:bg-slate-700 active:scale-95 transition-all shadow-sm">
-                    <span class="material-symbols-rounded">arrow_back</span>
-                </button>
-                <div>
-                    <h2 class="text-white font-bold text-base sm:text-lg flex items-center gap-2">
-                        <span class="material-symbols-rounded text-emerald-400 text-xl">forum</span> Chat Global FitBattle
-                    </h2>
-                    <span class="text-xs text-slate-400 flex items-center gap-1">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Conversa em tempo real
-                    </span>
+            <!-- PÁGINA 3: CHAT GLOBAL IMERSIVO -->
+            <div id="pagina-chat" class="fixed inset-0 w-screen h-dvh z-40 bg-slate-950 flex flex-col hidden p-2 sm:p-4 overflow-hidden">
+                <div class="bg-slate-900 w-full h-full rounded-2xl shadow-2xl border border-slate-800 flex flex-col overflow-hidden relative">
+                    <!-- CABEÇALHO SUPERIOR -->
+                    <div class="bg-slate-900 p-3 border-b border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-3 shrink-0 shadow-md">
+                        <div class="flex items-center gap-3 w-full sm:w-auto">
+                            <button onclick="mudarPaginaPrincipal('treino')" class="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-emerald-400 hover:bg-slate-700 active:scale-95 transition-all shadow-sm cursor-pointer">
+                                <span class="material-symbols-rounded">arrow_back</span>
+                            </button>
+                            <div>
+                                <h2 class="text-white font-bold text-base sm:text-lg flex items-center gap-2">
+                                    <span class="material-symbols-rounded text-emerald-400 text-xl">forum</span> Chat Global FitBattle
+                                </h2>
+                                <span class="text-xs text-slate-400 flex items-center gap-1">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Conversa em tempo real
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Aba de Alternância -->
+                        <div class="flex gap-2 w-full sm:w-auto bg-slate-950 p-1 rounded-xl border border-slate-800">
+                            <button onclick="mudarAbaChat('geral')" id="btn-chat-geral" class="flex-1 sm:flex-none text-xs px-4 py-2 rounded-lg bg-emerald-500 text-slate-950 font-bold transition-all shadow-md flex items-center justify-center gap-1 cursor-pointer">
+                                <span class="material-symbols-rounded text-sm">chat</span> Geral
+                            </button>
+                            <button onclick="mudarAbaChat('favoritas')" id="btn-chat-fav" class="flex-1 sm:flex-none text-xs px-4 py-2 rounded-lg bg-slate-800 text-slate-300 font-bold hover:bg-slate-700 transition-all flex items-center justify-center gap-1 cursor-pointer">
+                                <span class="material-symbols-rounded text-sm text-amber-400">star</span> Salvas
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- CONTAINER DAS MENSAGENS GERAIS -->
+                    <div id="container-chat-geral" class="flex-1 flex flex-col min-h-0 relative bg-slate-950/50">
+                        <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-3 scroll-smooth"></div>
+
+                        <!-- Banner de Resposta -->
+                        <div id="reply-banner" class="hidden bg-slate-800/95 backdrop-blur-md text-xs border-t-2 border-emerald-400 p-2.5 px-4 z-10 relative flex justify-between items-center shadow-lg">
+                            <div class="flex flex-col truncate pr-4">
+                                <span class="text-emerald-400 font-bold flex items-center gap-1" id="reply-banner-user">
+                                    <span class="material-symbols-rounded text-xs">reply</span> Respondendo a...
+                                </span>
+                                <span class="text-slate-300 truncate" id="reply-banner-text">...</span>
+                            </div>
+                            <button onclick="cancelarResposta()" class="text-slate-400 hover:text-rose-400 font-extrabold px-2 py-1 rounded-lg hover:bg-slate-700 transition-colors cursor-pointer">
+                                <span class="material-symbols-rounded text-base">close</span>
+                            </button>
+                        </div>
+
+                        <!-- BARRA DE DIGITAÇÃO -->
+                        <div class="p-3 bg-slate-900 border-t border-slate-800 flex gap-2 shrink-0 relative z-20 items-center">
+                            <input type="text" id="chat-input" placeholder="Escreva uma mensagem..." class="flex-1 bg-slate-950 border border-slate-800 text-white placeholder-slate-500 px-4 py-3 rounded-xl focus:outline-none focus:border-emerald-500 transition-all text-sm" onkeydown="handleChatKey(event)">
+                            <button onclick="enviarMensagem()" class="bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-slate-950 font-bold px-5 py-3 rounded-xl transition-all shadow-md flex items-center gap-1 cursor-pointer">
+                                <span class="hidden sm:inline">Enviar</span>
+                                <span class="material-symbols-rounded text-lg">send</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- CONTAINER DAS MENSAGENS FAVORITAS -->
+                    <div id="container-chat-fav" class="flex-1 flex flex-col min-h-0 hidden bg-slate-950/50">
+                        <div id="fav-messages" class="flex-1 p-4 overflow-y-auto space-y-3"></div>
+                    </div>
                 </div>
             </div>
-
-            <!-- Direita: Aba de Alternância (Geral vs Salvas) -->
-            <div class="flex gap-2 w-full sm:w-auto bg-slate-950 p-1 rounded-xl border border-slate-800">
-                <button onclick="mudarAbaChat('geral')" id="btn-chat-geral" class="flex-1 sm:flex-none text-xs px-4 py-2 rounded-lg bg-emerald-500 text-slate-950 font-bold transition-all shadow-md flex items-center justify-center gap-1">
-                    <span class="material-symbols-rounded text-sm">chat</span> Geral
-                </button>
-                <button onclick="mudarAbaChat('favoritas')" id="btn-chat-fav" class="flex-1 sm:flex-none text-xs px-4 py-2 rounded-lg bg-slate-800 text-slate-300 font-bold hover:bg-slate-700 transition-all flex items-center justify-center gap-1">
-                    <span class="material-symbols-rounded text-sm text-amber-400">star</span> Salvas
-                </button>
-            </div>
-        </div>
-
-        <!-- 2. CONTAINER DAS MENSAGENS GERAIS -->
-        <div id="container-chat-geral" class="flex-1 flex flex-col min-h-0 relative bg-slate-950/50">
-            
-            <!-- Lista com Scroll de Mensagens -->
-            <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-3 scroll-smooth"></div>
-
-            <!-- Banner de Resposta (Injetado acima do input quando respondes a alguém) -->
-            <div id="reply-banner" class="hidden bg-slate-800/95 backdrop-blur-md text-xs border-t-2 border-emerald-400 p-2.5 px-4 z-10 relative flex justify-between items-center shadow-lg">
-                <div class="flex flex-col truncate pr-4">
-                    <span class="text-emerald-400 font-bold flex items-center gap-1" id="reply-banner-user">
-                        <span class="material-symbols-rounded text-xs">reply</span> Respondendo a...
-                    </span>
-                    <span class="text-slate-300 truncate" id="reply-banner-text">...</span>
-                </div>
-                <button onclick="cancelarResposta()" class="text-slate-400 hover:text-rose-400 font-extrabold px-2 py-1 rounded-lg hover:bg-slate-700 transition-colors">
-                    <span class="material-symbols-rounded text-base">close</span>
-                </button>
-            </div>
-
-            <!-- 3. BARRA DE DIGITAÇÃO FIXA NO FUNDO -->
-            <div class="p-3 bg-slate-900 border-t border-slate-800 flex gap-2 shrink-0 relative z-20 items-center">
-                <input type="text" id="chat-input" placeholder="Escreva uma mensagem..." class="flex-1 bg-slate-950 border border-slate-800 text-white placeholder-slate-500 px-4 py-3 rounded-xl focus:outline-none focus:border-emerald-500 transition-all text-sm">
-                
-                <button onclick="enviarMensagem()" class="bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-slate-950 font-bold px-5 py-3 rounded-xl transition-all shadow-md flex items-center gap-1 cursor-pointer">
-                    <span class="hidden sm:inline">Enviar</span>
-                    <span class="material-symbols-rounded text-lg">send</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- 4. CONTAINER DAS MENSAGENS FAVORITAS (SALVAS) -->
-        <div id="container-chat-fav" class="flex-1 flex flex-col min-h-0 hidden bg-slate-950/50">
-            <div id="fav-messages" class="flex-1 p-4 overflow-y-auto space-y-3"></div>
-        </div>
-
-    </div>
-</div>
 
             <!-- PÁGINA 4: PERFIL -->
             <div id="pagina-perfil" class="hidden space-y-6">
                 <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-6 max-w-lg mx-auto relative">
-                    <h2 class="text-xl font-bold text-fuchsia-400">⚙️ O Meu Perfil</h2>
+                    <h2 class="text-xl font-bold text-fuchsia-400 flex items-center gap-2"><span class="material-symbols-rounded text-2xl">settings</span> O Meu Perfil</h2>
 
                     <div class="flex flex-col items-center gap-2 border-b border-slate-700 pb-6">
                         <div id="perfil-avatar-preview" onclick="document.getElementById('file-avatar').click()" class="cursor-pointer hover:scale-105 transition-transform relative group shadow-xl rounded-full"></div>
-                        <span class="text-xs text-slate-400 bg-slate-900 px-3 py-1 rounded-full border border-slate-700 mt-2">👆 Clica na foto para alterar</span>
+                        <span class="text-xs text-slate-400 bg-slate-900 px-3 py-1 rounded-full border border-slate-700 mt-2 flex items-center gap-1"><span class="material-symbols-rounded text-xs">touch_app</span> Clica na foto para alterar</span>
                     </div>
 
                     <div class="space-y-4">
@@ -257,11 +299,11 @@
                         </div>
 
                         <div class="pt-4 border-t border-slate-700/60 space-y-3 bg-slate-900/40 p-4 rounded-xl border border-slate-700/30">
-                            <h3 class="text-sm font-bold text-fuchsia-400 flex items-center gap-2">🎯 Minhas Metas</h3>
+                            <h3 class="text-sm font-bold text-fuchsia-400 flex items-center gap-2"><span class="material-symbols-rounded text-base">ads_click</span> Minhas Metas</h3>
                             
                             <div>
-                                <label class="text-xs text-slate-400 ml-1 font-bold">Mensagem de Vitória 🏆 (Aparece quando bates a meta)</label>
-                                <input type="text" id="perfil-mensagem-vitoria" placeholder="Ex: Ninguém me segura! 🔥" class="w-full bg-slate-900 border border-slate-700 px-4 py-2.5 rounded-xl focus:outline-none focus:border-fuchsia-400 mt-1 text-sm">
+                                <label class="text-xs text-slate-400 ml-1 font-bold flex items-center gap-1">Mensagem de Vitória <span class="material-symbols-rounded text-xs text-amber-400">emoji_events</span> (Aparece quando bates a meta)</label>
+                                <input type="text" id="perfil-mensagem-vitoria" placeholder="Ex: Ninguém me segura!" class="w-full bg-slate-900 border border-slate-700 px-4 py-2.5 rounded-xl focus:outline-none focus:border-fuchsia-400 mt-1 text-sm">
                             </div>
 
                             <div class="flex gap-3 pt-2">
@@ -279,21 +321,19 @@
                                 <label for="perfil-metas-publicas" class="text-xs text-slate-300 cursor-pointer select-none">Tornar minhas metas visíveis no Placar para todos</label>
                             </div>
                             
-                            <button onclick="salvarMetas()" class="w-full bg-indigo-500 hover:bg-indigo-600 text-slate-50 font-bold py-2.5 rounded-xl transition cursor-pointer mt-3 shadow-md">Confirmar Metas 🎯</button>
+                            <button onclick="salvarMetas()" class="w-full bg-indigo-500 hover:bg-indigo-600 text-slate-50 font-bold py-2.5 rounded-xl transition cursor-pointer mt-3 shadow-md flex justify-center items-center gap-2"><span class="material-symbols-rounded text-base">track_changes</span> Confirmar Metas</button>
                         </div>
 
                         <div class="pt-4 border-t border-slate-700/60 space-y-3">
-                            <h3 class="text-sm font-bold text-fuchsia-400 flex items-center gap-2">🔔 Notificações</h3>
-                            <button onclick="pedirPermissaoNotificacao()" class="w-full bg-slate-900 border border-fuchsia-500/50 hover:bg-slate-800 text-slate-200 font-bold py-3 rounded-xl transition cursor-pointer text-sm shadow-sm flex justify-center items-center gap-2">
-                                Ativar Notificações no Dispositivo 📲
-                            </button>
+                            <h3 class="text-sm font-bold text-fuchsia-400 flex items-center gap-2"><span class="material-symbols-rounded text-base">notifications</span> Notificações</h3>
+                            <button onclick="pedirPermissaoNotificacao()" class="w-full bg-slate-900 border border-fuchsia-500/50 hover:bg-slate-800 text-slate-200 font-bold py-3 rounded-xl transition cursor-pointer text-sm shadow-sm flex justify-center items-center gap-2"><span class="material-symbols-rounded text-lg">notifications_active</span> Ativar Notificações no Dispositivo</button>
                         </div>
 
-                        <button onclick="salvarPerfil()" class="w-full bg-fuchsia-500 hover:bg-fuchsia-600 text-slate-950 font-extrabold py-3.5 rounded-xl transition cursor-pointer mt-4 shadow-lg shadow-fuchsia-500/20">Guardar Dados da Conta 💾</button>
+                        <button onclick="salvarPerfil()" class="w-full bg-fuchsia-500 hover:bg-fuchsia-600 text-slate-950 font-extrabold py-3.5 rounded-xl transition cursor-pointer mt-4 shadow-lg shadow-fuchsia-500/20 flex justify-center items-center gap-2"><span class="material-symbols-rounded text-xl">save</span> Guardar Dados da Conta</button>
                     </div>
                     
                     <div class="pt-6 border-t border-slate-700/60 mt-6">
-                        <button onclick="sair()" class="w-full bg-rose-500/10 border border-rose-500/30 hover:bg-rose-500 hover:text-white text-rose-400 font-bold py-3 rounded-xl transition cursor-pointer">Sair da Conta 🚪</button>
+                        <button onclick="sair()" class="w-full bg-rose-500/10 border border-rose-500/30 hover:bg-rose-500 hover:text-white text-rose-400 font-bold py-3 rounded-xl transition cursor-pointer flex justify-center items-center gap-2"><span class="material-symbols-rounded text-lg">logout</span> Sair da Conta</button>
                     </div>
                 </div>
             </div>
@@ -303,33 +343,30 @@
                 <div class="grid grid-cols-1 gap-6 max-w-3xl mx-auto">
                     <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-amber-500/40 space-y-6">
                         <div>
-                            <h2 class="text-2xl font-extrabold text-amber-400 flex items-center gap-2">👑 Área do Administrador</h2>
+                            <h2 class="text-2xl font-extrabold text-amber-400 flex items-center gap-2"><span class="material-symbols-rounded text-3xl">workspace_premium</span> Área do Administrador</h2>
                             <p class="text-sm text-slate-400 mt-1">Bem-vindo, Chefe! Aqui controlas os bastidores do FitBattle.</p>
                         </div>
 
-                        <!-- QUEM ESTÁ ONLINE (AGORA DETETA FANTASMAS) -->
+                        <!-- QUEM ESTÁ ONLINE -->
                         <div class="space-y-3">
                             <div class="flex justify-between items-end border-b border-slate-700 pb-2">
-                                <h3 class="text-lg font-bold text-emerald-400 flex items-center gap-2">🟢 Quem está Conectado?</h3>
+                                <h3 class="text-lg font-bold text-emerald-400 flex items-center gap-2"><span class="material-symbols-rounded text-emerald-400 text-xl animate-pulse">radio_button_checked</span> Quem está Conectado?</h3>
                                 <span class="text-[10px] bg-slate-900 px-2 py-1 rounded text-slate-500">Auto-atualiza a cada 30s</span>
                             </div>
-                            
-                            <div id="admin-online-users" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
-                                <!-- Preenchido pelo Javascript -->
-                            </div>
+                            <div id="admin-online-users" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3"></div>
                         </div>
 
                         <!-- BACKUP DE SEGURANÇA -->
                         <div class="pt-4 border-t border-slate-700/60 space-y-3">
-                            <h3 class="text-lg font-bold text-sky-400 flex items-center gap-2">🛡️ Gestão de Dados (Backup)</h3>
+                            <h3 class="text-lg font-bold text-sky-400 flex items-center gap-2"><span class="material-symbols-rounded text-2xl">shield</span> Gestão de Dados (Backup)</h3>
                             <p class="text-xs text-slate-400">Guarda uma cópia local de segurança de todos os treinos e mensagens.</p>
                             
                             <div class="flex flex-col sm:flex-row gap-3 mt-2">
                                 <button onclick="fazerBackup()" class="flex-1 bg-slate-900 border border-sky-500/40 hover:bg-slate-700 text-sky-400 font-bold px-4 py-3 rounded-xl transition cursor-pointer flex justify-center items-center gap-2">
-                                    💾 Fazer Download do Backup
+                                    <span class="material-symbols-rounded text-lg">download</span> Fazer Download do Backup
                                 </button>
                                 <button onclick="document.getElementById('file-import-backup').click()" class="flex-1 bg-slate-900 border border-rose-500/40 hover:bg-slate-700 text-rose-400 font-bold px-4 py-3 rounded-xl transition cursor-pointer flex justify-center items-center gap-2">
-                                    🔄 Restaurar Dados
+                                    <span class="material-symbols-rounded text-lg">restore</span> Restaurar Dados
                                 </button>
                             </div>
                         </div>
@@ -341,7 +378,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT FIREBASE -->
+    <!-- SCRIPT FIREBASE & LÓGICA -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyCHKSlMQ8l0Uu7L2nnqtLl3pNHZQFSxZ9o",
@@ -361,15 +398,14 @@
         let workouts = []; 
         let userExercises = []; 
         let messages = [];
+        let apontamentos = []; // V17.0 Agenda e Metas
 
         let dadosCarregados = false; 
         let replyData = null; 
 
-        // VARIÁVEIS DO SISTEMA DE PRESENÇA
         let userPresence = {}; 
         let presenceIntervalId = null;
 
-        // V16: NOVA FUNÇÃO DE DATA BLINDADA CONTRA BUGS DE TELEMÓVEL VS PC
         function obterDataGlobal() {
             const d = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
             const dia = String(d.getDate()).padStart(2, '0');
@@ -396,49 +432,36 @@
             Notification.requestPermission().then(permission => {
                 if (permission === "granted") {
                     mostrarNotificacao('Notificações ON!', 'Vais receber alertas no dispositivo.', 'perfil');
-                    new Notification("FitBattle 🔥", { body: "As notificações estão ativadas com sucesso! 💪" });
+                    new Notification("FitBattle", { body: "As notificações estão ativadas com sucesso!" });
                 } else { alert("Permissão negada."); }
             });
         }
-        // --- NOVO SISTEMA DE NOTIFICAÇÕES (V16.1) ---
+
         const somNotificacao = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
         let alertasNaoLidos = 0;
 
-        // Limpa o aviso da aba quando voltares ao site
         document.addEventListener("visibilitychange", () => {
             if (!document.hidden) {
                 alertasNaoLidos = 0;
-                document.title = "FitBattle - Treino em Grupo 🔥";
+                document.title = "FitBattle - Treino em Grupo";
             }
         });
 
         function enviarNotificacaoSistema(titulo, texto) {
-            // 1. Toca o som (se o navegador não bloquear áudio automático)
-            somNotificacao.play().catch(e => console.log("Áudio em espera (interação necessária)."));
-
-            // 2. Muda o título da aba se não estiveres a olhar para ela
+            somNotificacao.play().catch(e => console.log("Áudio em espera."));
             if (document.hidden) {
                 alertasNaoLidos++;
                 document.title = `(${alertasNaoLidos}) ${titulo} - FitBattle`;
             }
-
-            // 3. Tenta mostrar a notificação nativa (PC e Telemóvel)
             if ("Notification" in window && Notification.permission === "granted") {
                 try {
-                    // Truque para navegadores de telemóvel modernos
                     navigator.serviceWorker.getRegistration().then(reg => {
-                        if (reg) {
-                            reg.showNotification(titulo, { body: texto, icon: 'https://cdn-icons-png.flaticon.com/512/1164/1164382.png' });
-                        } else {
-                            new Notification(titulo, { body: texto, icon: 'https://cdn-icons-png.flaticon.com/512/1164/1164382.png' });
-                        }
+                        if (reg) reg.showNotification(titulo, { body: texto, icon: 'https://cdn-icons-png.flaticon.com/512/1164/1164382.png' });
+                        else new Notification(titulo, { body: texto, icon: 'https://cdn-icons-png.flaticon.com/512/1164/1164382.png' });
                     });
-                } catch(e) {
-                    new Notification(titulo, { body: texto });
-                }
+                } catch(e) { new Notification(titulo, { body: texto }); }
             }
         }
-        // ---------------------------------------------
 
         function getAvatarHtml(nome, sizeClass = "w-8 h-8", textClass = "text-xs") {
             const u = users.find(user => user.name === nome);
@@ -468,7 +491,7 @@
                     if (userObj) {
                         userObj.avatar = canvas.toDataURL('image/jpeg', 0.7);
                         await salvarNaNuvenFirebase();
-                        mostrarNotificacao('Foto Atualizada!', 'O teu novo visual já está online.', 'treino');
+                        mostrarNotificacao('Foto Atualizada!', 'O teu novo visual já está online.', 'perfil');
                         atualizarAvatarNavbar();
                         preencherPerfil(); 
                     }
@@ -492,7 +515,7 @@
                 document.getElementById('perfil-avatar-preview').innerHTML = getAvatarHtml(u.name, 'w-24 h-24', 'text-4xl');
                 document.getElementById('perfil-meta-diaria').value = u.dailyGoal || '';
                 document.getElementById('perfil-meta-mensal').value = u.monthlyGoal || '';
-                document.getElementById('perfil-mensagem-vitoria').value = u.victoryMessage || 'Superei os meus limites e bati a meta! 💪🔥';
+                document.getElementById('perfil-mensagem-vitoria').value = u.victoryMessage || 'Superei os meus limites e bati a meta!';
                 document.getElementById('perfil-metas-publicas').checked = u.publicGoals !== false; 
             }
         }
@@ -503,10 +526,10 @@
             if(u) {
                 u.dailyGoal = parseInt(document.getElementById('perfil-meta-diaria').value) || 0;
                 u.monthlyGoal = parseInt(document.getElementById('perfil-meta-mensal').value) || 0;
-                u.victoryMessage = document.getElementById('perfil-mensagem-vitoria').value.trim() || 'Superei os meus limites e bati a meta! 💪🔥';
+                u.victoryMessage = document.getElementById('perfil-mensagem-vitoria').value.trim() || 'Superei os meus limites e bati a meta!';
                 u.publicGoals = document.getElementById('perfil-metas-publicas').checked;
                 await salvarNaNuvenFirebase();
-                mostrarNotificacao('Metas Fixadas! 🎯', 'As tuas metas foram guardadas com sucesso.', 'perfil');
+                mostrarNotificacao('Metas Fixadas!', 'As tuas metas foram guardadas com sucesso.', 'perfil');
                 atualizarPlacar(); atualizarPlacarMensal();
             }
         }
@@ -520,7 +543,7 @@
                 u.contact = document.getElementById('perfil-contato').value.trim();
                 u.dailyGoal = parseInt(document.getElementById('perfil-meta-diaria').value) || 0;
                 u.monthlyGoal = parseInt(document.getElementById('perfil-meta-mensal').value) || 0;
-                u.victoryMessage = document.getElementById('perfil-mensagem-vitoria').value.trim() || 'Superei os meus limites e bati a meta! 💪🔥';
+                u.victoryMessage = document.getElementById('perfil-mensagem-vitoria').value.trim() || 'Superei os meus limites e bati a meta!';
                 u.publicGoals = document.getElementById('perfil-metas-publicas').checked;
                 await salvarNaNuvenFirebase();
                 mostrarNotificacao('Conta Guardada!', 'As tuas configurações foram salvas.', 'perfil');
@@ -538,9 +561,7 @@
                 navAdmin.classList.remove('hidden'); 
             } else {
                 navAdmin.classList.add('hidden'); 
-                if(document.getElementById('pagina-admin').classList.contains('hidden') === false) {
-                    mudarPaginaPrincipal('treino');
-                }
+                if(document.getElementById('pagina-admin').classList.contains('hidden') === false) mudarPaginaPrincipal('treino');
             }
         }
 
@@ -548,7 +569,7 @@
             if (currentUser) {
                 db.collection("app").doc("presence").set({
                     [currentUser]: Date.now()
-                }, { merge: true }).catch(err => console.log("Erro ao atualizar presença: ", err));
+                }, { merge: true }).catch(err => console.log("Erro de presença: ", err));
             }
         }
 
@@ -556,9 +577,7 @@
             db.collection("app").doc("presence").onSnapshot(doc => {
                 if (doc.exists) {
                     userPresence = doc.data();
-                    if(currentUser && verificarSeEhAdmin(currentUser)) {
-                        renderizarUsuariosOnline();
-                    }
+                    if(currentUser && verificarSeEhAdmin(currentUser)) renderizarUsuariosOnline();
                 }
             });
         }
@@ -575,56 +594,36 @@
             
             Array.from(todosUsuarios).forEach(nome => {
                 const ultimoAcesso = userPresence[nome];
-                let textoStatus = "🔴 Offline";
-                let classeStatus = "bg-slate-900 border-slate-700 opacity-60";
-                let badgeClass = "text-slate-500";
+                let textoStatus = "Offline", classeStatus = "bg-slate-900 border-slate-700 opacity-60", badgeClass = "text-slate-500";
                 
                 if (ultimoAcesso) {
                     const diff = agora - ultimoAcesso;
                     if (diff < 60000) { 
-                        textoStatus = "🟢 Online Agora";
-                        classeStatus = "bg-emerald-500/10 border-emerald-500/30";
-                        badgeClass = "text-emerald-400 font-bold animate-pulse";
+                        textoStatus = "Online Agora"; classeStatus = "bg-emerald-500/10 border-emerald-500/30"; badgeClass = "text-emerald-400 font-bold animate-pulse";
                     } else {
                         const minutos = Math.floor(diff / 60000);
                         if(minutos < 60) {
-                            textoStatus = `🟠 Visto há ${minutos} min`;
-                            classeStatus = "bg-amber-500/5 border-amber-500/20";
-                            badgeClass = "text-amber-400";
+                            textoStatus = `Visto há ${minutos} min`; classeStatus = "bg-amber-500/5 border-amber-500/20"; badgeClass = "text-amber-400";
                         } else {
-                            const horas = Math.floor(minutos / 60);
-                            const dias = Math.floor(horas / 24);
-                            if(dias > 0) textoStatus = `🔴 Visto há ${dias} dias`;
-                            else textoStatus = `🔴 Visto há ${horas} h`;
+                            const horas = Math.floor(minutos / 60), dias = Math.floor(horas / 24);
+                            if(dias > 0) textoStatus = `Visto há ${dias} dias`; else textoStatus = `Visto há ${horas} h`;
                         }
                     }
-                } else {
-                    textoStatus = "🔴 Sem registo recente";
-                }
+                } else { textoStatus = "Sem registo recente"; }
 
                 const isFantasma = !users.some(u => u.name === nome);
-                const tagFantasma = isFantasma ? `<span class="bg-rose-500/20 text-rose-400 text-[9px] px-2 py-0.5 rounded ml-2" title="Este utilizador perdeu a conta no backup, mas vai ser restaurado automaticamente ao entrar!">⚠️ Não Registado</span>` : '';
-                
+                const tagFantasma = isFantasma ? `<span class="bg-rose-500/20 text-rose-400 text-[9px] px-2 py-0.5 rounded ml-2">Não Registado</span>` : '';
                 const avatar = getAvatarHtml(nome, 'w-10 h-10', 'text-sm');
                 const card = document.createElement('div');
                 card.className = `flex items-center gap-3 p-4 rounded-xl border transition-all ${classeStatus}`;
-                card.innerHTML = `
-                    ${avatar}
-                    <div class="flex flex-col">
-                        <div class="flex items-center">
-                            <span class="font-bold text-slate-200 text-base">${nome}</span>
-                            ${tagFantasma}
-                        </div>
-                        <span class="text-xs mt-0.5 ${badgeClass}">${textoStatus}</span>
-                    </div>
-                `;
+                card.innerHTML = `${avatar}<div class="flex flex-col"><div class="flex items-center"><span class="font-bold text-slate-200 text-base">${nome}</span>${tagFantasma}</div><span class="text-xs mt-0.5 ${badgeClass}">${textoStatus}</span></div>`;
                 container.appendChild(card);
             });
         }
 
         function fazerBackup() {
             if (!dadosCarregados) return alert("Aguarde o carregamento dos dados!");
-            const dadosExport = { users, workouts, messages, userExercises };
+            const dadosExport = { users, workouts, messages, userExercises, apontamentos };
             const jsonStr = JSON.stringify(dadosExport, null, 2);
             const blob = new Blob([jsonStr], { type: "application/json" });
             const url = URL.createObjectURL(blob);
@@ -641,10 +640,11 @@
                 try {
                     const dados = JSON.parse(e.target.result);
                     if (dados.users && Array.isArray(dados.workouts) && Array.isArray(dados.messages)) {
-                        users = dados.users; workouts = dados.workouts; messages = dados.messages; userExercises = dados.userExercises || [];
-                        await salvarNaNuvenFirebase(); alert("🎉 Backup restaurado com sucesso!");
-                    } else { alert("❌ Erro: Ficheiro inválido."); }
-                } catch (error) { alert("❌ Erro ao ler ficheiro."); }
+                        users = dados.users; workouts = dados.workouts; messages = dados.messages; 
+                        userExercises = dados.userExercises || []; apontamentos = dados.apontamentos || [];
+                        await salvarNaNuvenFirebase(); alert("Backup restaurado com sucesso!");
+                    } else { alert("Erro: Ficheiro inválido."); }
+                } catch (error) { alert("Erro ao ler ficheiro."); }
             };
             reader.readAsText(file); event.target.value = '';
         }
@@ -653,14 +653,13 @@
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             
-            let corBase = 'bg-amber-400 text-slate-950';
-            let icone = '🏆';
-            if(tipo === 'chat') { corBase = 'bg-pink-500 text-slate-950'; icone = '💬'; }
-            if(tipo === 'perfil') { corBase = 'bg-fuchsia-500 text-slate-950'; icone = '⚙️'; }
-            if(tipo === 'admin') { corBase = 'bg-sky-500 text-slate-950'; icone = '🛡️'; }
+            let corBase = 'bg-amber-400 text-slate-950', icone = '<span class="material-symbols-rounded">emoji_events</span>';
+            if(tipo === 'chat') { corBase = 'bg-pink-500 text-slate-950'; icone = '<span class="material-symbols-rounded">chat</span>'; }
+            if(tipo === 'perfil') { corBase = 'bg-fuchsia-500 text-slate-950'; icone = '<span class="material-symbols-rounded">settings</span>'; }
+            if(tipo === 'admin') { corBase = 'bg-sky-500 text-slate-950'; icone = '<span class="material-symbols-rounded">shield</span>'; }
 
             toast.className = `toast-enter pointer-events-auto ${corBase} p-4 rounded-2xl shadow-2xl flex flex-col cursor-pointer hover:scale-105 transition-transform duration-200 border-b-4 border-black/20`;
-            toast.innerHTML = `<div class="flex items-center gap-2 mb-1"><span class="text-xl">${icone}</span><strong class="font-extrabold text-sm uppercase tracking-wider">${titulo}</strong></div><span class="text-sm font-semibold leading-snug">${texto}</span>`;
+            toast.innerHTML = `<div class="flex items-center gap-2 mb-1"><span class="text-xl flex items-center">${icone}</span><strong class="font-extrabold text-sm uppercase tracking-wider">${titulo}</strong></div><span class="text-sm font-semibold leading-snug">${texto}</span>`;
             
             toast.onclick = () => { 
                 mudarPaginaPrincipal(tipo === 'chat' ? 'chat' : (tipo === 'perfil' ? 'perfil' : (tipo === 'admin' ? 'admin' : 'competicao'))); 
@@ -672,47 +671,32 @@
 
         async function salvarNaNuvenFirebase() {
             if (!dadosCarregados) return; 
-            try { await db.collection("app").doc("estado_global").set({ users, workouts, messages, userExercises }); } 
+            try { await db.collection("app").doc("estado_global").set({ users, workouts, messages, userExercises, apontamentos }); } 
             catch (e) { console.error("Erro:", e); }
         }
 
         let isPrimeiroCarregamento = true;
 
-        // --- NOVO SISTEMA: BACKUP AUTOMÁTICO DO ADMIN (V16.2) ---
-function verificarEExecutarBackupAutomatico(dadosParaSalvar) {
-    const diasParaBackup = 7; // Personaliza aqui: 7 dias
-    const tempoEmMilissegundos = diasParaBackup * 24 * 60 * 60 * 1000; 
-    const ultimoBackup = localStorage.getItem('ultimoBackupFitBattle');
-    const agora = Date.now();
+        function verificarEExecutarBackupAutomatico(dadosParaSalvar) {
+            const diasParaBackup = 7;
+            const tempoEmMilissegundos = diasParaBackup * 24 * 60 * 60 * 1000; 
+            const ultimoBackup = localStorage.getItem('ultimoBackupFitBattle');
+            const agora = Date.now();
 
-    // Se nunca fez backup OU se já passou o tempo limite definido
-    if (!ultimoBackup || (agora - parseInt(ultimoBackup)) >= tempoEmMilissegundos) {
-        console.log(`Iniciando backup automático de ${diasParaBackup} dias...`);
-
-        // Transforma os dados do Firebase num texto formatado
-        const dadosString = JSON.stringify(dadosParaSalvar, null, 2);
-        const blob = new Blob([dadosString], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-
-        // Cria a data de hoje para o nome do ficheiro (ex: 18-10-2026)
-        const dataHoje = new Date().toLocaleDateString('pt-BR').replace(/\//g, '-');
-        
-        // Simula um clique num link invisível para forçar o download
-        const linkInvisivel = document.createElement('a');
-        linkInvisivel.href = url;
-        linkInvisivel.download = `FitBattle_Backup_Auto_${dataHoje}.json`;
-        document.body.appendChild(linkInvisivel);
-        linkInvisivel.click(); 
-        document.body.removeChild(linkInvisivel);
-        URL.revokeObjectURL(url);
-
-        // Atualiza a memória do navegador com o momento deste novo backup
-        localStorage.setItem('ultimoBackupFitBattle', agora.toString());
-        
-        alert(`📦 Backup automático de ${diasParaBackup} dias gerado com sucesso! Envie este ficheiro para o seu Google Drive.`);
-    }
-}
-// --------------------------------------------------------
+            if (!ultimoBackup || (agora - parseInt(ultimoBackup)) >= tempoEmMilissegundos) {
+                const dadosString = JSON.stringify(dadosParaSalvar, null, 2);
+                const blob = new Blob([dadosString], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const dataHoje = new Date().toLocaleDateString('pt-BR').replace(/\//g, '-');
+                
+                const linkInvisivel = document.createElement('a');
+                linkInvisivel.href = url;
+                linkInvisivel.download = `FitBattle_Backup_Auto_${dataHoje}.json`;
+                document.body.appendChild(linkInvisivel); linkInvisivel.click(); document.body.removeChild(linkInvisivel);
+                URL.revokeObjectURL(url);
+                localStorage.setItem('ultimoBackupFitBattle', agora.toString());
+            }
+        }
         
         function escutarFirebase() {
             db.collection("app").doc("estado_global").onSnapshot((doc) => {
@@ -724,14 +708,13 @@ function verificarEExecutarBackupAutomatico(dadosParaSalvar) {
                     let tempWorkouts = data.workouts || [];
                     userExercises = data.userExercises || [];
                     let mensagenseServidor = data.messages || [];
+                    apontamentos = data.apontamentos || [];
+                    limparApontamentosAntigos();
 
-                    // V16: Normalizar todas as datas antigas corrompidas pelo formato do telemóvel!
                     tempWorkouts.forEach(w => {
                         if(w.date && w.date.includes('/')) {
                             const p = w.date.split('/');
-                            if(p.length === 3) {
-                                w.date = String(parseInt(p[0])).padStart(2, '0') + '/' + String(parseInt(p[1])).padStart(2, '0') + '/' + p[2];
-                            }
+                            if(p.length === 3) w.date = String(parseInt(p[0])).padStart(2, '0') + '/' + String(parseInt(p[1])).padStart(2, '0') + '/' + p[2];
                         }
                     });
                     workouts = tempWorkouts;
@@ -741,9 +724,9 @@ function verificarEExecutarBackupAutomatico(dadosParaSalvar) {
                         const userRegistado = users.find(u => u.name === currentUser);
                         if (!userRegistado) {
                             users.push({ 
-                                name: currentUser, pass: 'fantasma123', contact: 'Recuperado automaticamente', avatar: null,
+                                name: currentUser, pass: 'fantasma123', contact: 'Recuperado', avatar: null,
                                 dailyGoal: 0, monthlyGoal: 0, publicGoals: true,
-                                victoryMessage: "Voltei das sombras! 💪🔥"
+                                victoryMessage: "Voltei das sombras!"
                             });
                             precisaSalvarFantasma = true;
                             mostrarNotificacao('Conta Recuperada!', 'A tua conta foi restaurada com sucesso!', 'perfil');
@@ -756,7 +739,7 @@ function verificarEExecutarBackupAutomatico(dadosParaSalvar) {
                             const ultimaMsg = newMessages[newMessages.length - 1];
                             if (ultimaMsg.user !== currentUser) {
                                 mostrarNotificacao('Nova Mensagem', `${ultimaMsg.user}: ${ultimaMsg.text}`, 'chat');
-                                enviarNotificacaoSistema(`💬 Mensagem de ${ultimaMsg.user}`, ultimaMsg.text);
+                                enviarNotificacaoSistema(`Mensagem de ${ultimaMsg.user}`, ultimaMsg.text);
                             }
                         }
                         if (workouts.length > 0) {
@@ -765,9 +748,9 @@ function verificarEExecutarBackupAutomatico(dadosParaSalvar) {
                                     const oldW = workouts.find(w => w.user === newW.user && w.exercise === newW.exercise && w.date === newW.date);
                                     const repOld = oldW ? oldW.reps : 0;
                                     if (newW.reps > repOld) {
-                                        const msgTreino = `${newW.user} fez +${newW.reps - repOld} ${newW.exercise}! 💪`;
+                                        const msgTreino = `${newW.user} fez +${newW.reps - repOld} ${newW.exercise}!`;
                                         mostrarNotificacao(`${newW.user} pontuou!`, msgTreino, 'treino');
-                                        enviarNotificacaoSistema(`🏆 ${newW.user} pontuou!`, msgTreino); 
+                                        enviarNotificacaoSistema(`${newW.user} pontuou!`, msgTreino); 
                                     }
                                 }
                             });
@@ -778,11 +761,9 @@ function verificarEExecutarBackupAutomatico(dadosParaSalvar) {
                     const agora = Date.now();
                     messages = mensagenseServidor.filter(msg => msg.isFavorite || (agora - msg.id) <= seteDiasEmMs);
 
-                    if (precisaSalvarFantasma) {
-                        salvarNaNuvenFirebase(); 
-                    }
+                    if (precisaSalvarFantasma) salvarNaNuvenFirebase(); 
 
-                    document.getElementById('status-nuvem').innerText = '✅ Online e sincronizado via Firebase!';
+                    document.getElementById('status-nuvem').innerHTML = '<span class="material-symbols-rounded text-xs">cloud_done</span> Online e sincronizado via Firebase!';
                     document.getElementById('status-nuvem').classList.remove('animate-pulse');
 
                     if (currentUser) {
@@ -797,20 +778,18 @@ function verificarEExecutarBackupAutomatico(dadosParaSalvar) {
                         atualizarFavoritas();
                         atualizarVisibilidadeAdmin();
                         preencherPerfil(); 
+                        renderizarAgendaHoje();
+                        renderizarCalendario();
+                        renderizarAgendaAmigos();
                     } else { renderizarListaUsuarios(); }
                     
-                    if (verificarSeEhAdmin(currentUser)) {
-                        renderizarUsuariosOnline();
-                        // O gatilho: Só o Admin dispara a verificação de backup usando os dados mais recentes da Base de Dados
-                        verificarEExecutarBackupAutomatico(doc.data());
-                    }
+                    if (verificarSeEhAdmin(currentUser)) verificarEExecutarBackupAutomatico(doc.data());
                     isPrimeiroCarregamento = false;
                 }
             }, (error) => {
-                // --- NOVA ENGRENAGEM: TRATAMENTO DE ERRO DE CONEXÃO ---
-                console.error("Acesso negado pelo Firebase:", error);
+                console.error("Acesso negado:", error);
                 const statusNuvem = document.getElementById('status-nuvem');
-                statusNuvem.innerText = '❌ Erro de Conexão: Banco de Dados Bloqueado!';
+                statusNuvem.innerHTML = '<span class="material-symbols-rounded text-xs">cloud_off</span> Erro de Conexão: Bloqueado!';
                 statusNuvem.classList.remove('text-emerald-400', 'animate-pulse');
                 statusNuvem.classList.add('text-rose-500');
             });
@@ -848,12 +827,10 @@ function verificarEExecutarBackupAutomatico(dadosParaSalvar) {
             const icone = document.getElementById('icone-omnitrix');
             const menu = document.getElementById('menu-abas');
             
-            // Gira o ícone 180 graus e muda a imagem
             icone.classList.toggle('rotate-180');
             if (icone.innerText === 'apps') { icone.innerText = 'close'; } 
             else { icone.innerText = 'apps'; }
 
-            // Revela as abas escondidas com um efeito "sanfona"
             menu.classList.toggle('opacity-0');
             menu.classList.toggle('scale-y-0');
             menu.classList.toggle('pointer-events-none');
@@ -865,19 +842,21 @@ function verificarEExecutarBackupAutomatico(dadosParaSalvar) {
             const btnChat = document.getElementById('nav-chat');
             const btnPerfil = document.getElementById('nav-perfil');
             const btnAdmin = document.getElementById('nav-admin');
+            const btnAgenda = document.getElementById('nav-agenda');
 
             const pagTreino = document.getElementById('pagina-treino');
             const pagCompeticao = document.getElementById('pagina-competicao');
             const pagChat = document.getElementById('pagina-chat');
             const pagPerfil = document.getElementById('pagina-perfil');
             const pagAdmin = document.getElementById('pagina-admin');
+            const pagAgenda = document.getElementById('pagina-agenda');
 
             const classInativa = 'w-full sm:w-auto text-xs sm:text-sm px-3 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold transition cursor-pointer shadow-none';
             
-            [btnTreino, btnCompeticao, btnChat, btnPerfil].forEach(btn => btn.className = classInativa);
+            [btnTreino, btnCompeticao, btnChat, btnPerfil, btnAgenda].forEach(btn => btn.className = classInativa);
             btnAdmin.className = 'w-full sm:w-auto text-xs sm:text-sm px-3 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-amber-400 font-bold transition cursor-pointer border border-amber-500/30 hidden'; 
             
-            [pagTreino, pagCompeticao, pagChat, pagPerfil, pagAdmin].forEach(pag => pag.classList.add('hidden'));
+            [pagTreino, pagCompeticao, pagChat, pagPerfil, pagAdmin, pagAgenda].forEach(pag => pag.classList.add('hidden'));
             
             atualizarVisibilidadeAdmin(); 
 
@@ -887,6 +866,10 @@ function verificarEExecutarBackupAutomatico(dadosParaSalvar) {
             } else if (pagina === 'competicao') {
                 pagCompeticao.classList.remove('hidden');
                 btnCompeticao.className = 'w-full sm:w-auto text-xs sm:text-sm px-3 py-2.5 rounded-xl bg-indigo-500 text-slate-950 font-bold transition cursor-pointer shadow-md shadow-indigo-500/20';
+            } else if (pagina === 'agenda') {
+                pagAgenda.classList.remove('hidden');
+                btnAgenda.className = 'w-full sm:w-auto text-xs sm:text-sm px-3 py-2.5 rounded-xl bg-violet-500 text-slate-950 font-bold transition cursor-pointer shadow-md shadow-violet-500/20';
+                renderizarAgendaHoje(); renderizarCalendario(); renderizarAgendaAmigos();
             } else if (pagina === 'chat') {
                 pagChat.classList.remove('hidden');
                 btnChat.className = 'w-full sm:w-auto text-xs sm:text-sm px-3 py-2.5 rounded-xl bg-pink-500 text-slate-950 font-bold transition cursor-pointer shadow-md shadow-pink-500/20';
@@ -908,27 +891,21 @@ function verificarEExecutarBackupAutomatico(dadosParaSalvar) {
             let qtd = 0;
             if (qtdRapida !== null) { qtd = qtdRapida; } 
             else { const input = document.getElementById(`add-val-${globalIndex}`); qtd = parseInt(input.value); input.value = ''; }
-            if (isNaN(qtd) || qtd <= 0) return mostrarNotificacao('⚠️ Ups!', 'Digita um número válido primeiro!', 'treino');
+            if (isNaN(qtd) || qtd <= 0) return mostrarNotificacao('Atenção', 'Digita um número válido primeiro!', 'treino');
             
             const hoje = obterDataGlobal();
             let userObj = users.find(u => u.name === currentUser) || {};
-            
             let totalDiarioAntes = 0;
             workouts.filter(w => w.user === currentUser && w.date === hoje).forEach(w => totalDiarioAntes += w.reps);
-
             let totalMensalAntes = 0;
             const agoraData = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
-            const mesAtual = agoraData.getMonth();
-            const anoAtual = agoraData.getFullYear();
-            
+            const mesAtual = agoraData.getMonth(); const anoAtual = agoraData.getFullYear();
             workouts.forEach(w => {
                 if(w.user === currentUser) {
                     const p = w.date.split('/');
                     if(p.length === 3) {
                         const d = new Date(p[2], p[1] - 1, p[0]);
-                        if(d.getMonth() === mesAtual && d.getFullYear() === anoAtual) {
-                            totalMensalAntes += w.reps;
-                        }
+                        if(d.getMonth() === mesAtual && d.getFullYear() === anoAtual) totalMensalAntes += w.reps;
                     }
                 }
             });
@@ -938,27 +915,26 @@ function verificarEExecutarBackupAutomatico(dadosParaSalvar) {
             
             const totalDiarioDepois = totalDiarioAntes + qtd;
             const totalMensalDepois = totalMensalAntes + qtd;
-            const msgVitoria = userObj.victoryMessage || "Superei os meus limites e bati a meta! 💪🔥";
-            const metaD = userObj.dailyGoal || 0;
-            const metaM = userObj.monthlyGoal || 0;
+            const msgVitoria = userObj.victoryMessage || "Superei os meus limites!";
+            const metaD = userObj.dailyGoal || 0; const metaM = userObj.monthlyGoal || 0;
 
             if (metaD > 0 && totalDiarioAntes < metaD && totalDiarioDepois >= metaD) {
-                mostrarNotificacao('Meta Diária Batida! 🏆', msgVitoria, 'competicao');
-                enviarNotificacaoSistema('🏆 Meta Diária Batida!', msgVitoria);
+                mostrarNotificacao('Meta Diária Batida!', msgVitoria, 'competicao');
+                enviarNotificacaoSistema('Meta Diária Batida!', msgVitoria);
                 messages.push({ 
                     id: Date.now(), user: currentUser, 
-                    text: `🏆 BATI A META DIÁRIA! \n"${msgVitoria}"`, 
+                    text: `BATI A META DIÁRIA! \n"${msgVitoria}"`, 
                     time: obterHoraGlobal(), date: obterDataGlobal(), 
                     isFavorite: false, expireAt: null, reactions: { fire: [], laugh: [], flex: [] } 
                 });
             }
 
             if (metaM > 0 && totalMensalAntes < metaM && totalMensalDepois >= metaM) {
-                mostrarNotificacao('Meta Mensal Batida! 👑', msgVitoria, 'competicao');
-                enviarNotificacaoSistema('👑 Meta Mensal Batida!', msgVitoria);
+                mostrarNotificacao('Meta Mensal Batida!', msgVitoria, 'competicao');
+                enviarNotificacaoSistema('Meta Mensal Batida!', msgVitoria);
                 messages.push({ 
                     id: Date.now() + 1, user: currentUser, 
-                    text: `👑 BATI A META MENSAL! \n"${msgVitoria}"`, 
+                    text: `BATI A META MENSAL! \n"${msgVitoria}"`, 
                     time: obterHoraGlobal(), date: obterDataGlobal(), 
                     isFavorite: false, expireAt: null, reactions: { fire: [], laugh: [], flex: [] } 
                 });
@@ -992,12 +968,12 @@ function verificarEExecutarBackupAutomatico(dadosParaSalvar) {
                 const jaTem = userExercises.some(e => e.user === currentUser && e.exercise.toLowerCase() === nome.toLowerCase());
                 const btn = document.createElement('button');
                 if (jaTem) { 
-                    btn.className = 'px-3 py-1.5 bg-slate-800 text-slate-500 rounded-lg text-xs font-bold border border-slate-700 cursor-not-allowed opacity-50'; 
-                    btn.innerHTML = `🔒 ${nome}`; 
+                    btn.className = 'px-3 py-1.5 bg-slate-800 text-slate-500 rounded-lg text-xs font-bold border border-slate-700 cursor-not-allowed opacity-50 flex items-center gap-1'; 
+                    btn.innerHTML = `<span class="material-symbols-rounded text-sm">lock</span> ${nome}`; 
                     btn.disabled = true; 
                 } else { 
                     btn.className = 'px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 rounded-lg text-xs font-bold border border-emerald-500/30 transition cursor-pointer flex items-center gap-1'; 
-                    btn.innerHTML = `➕ ${nome}`; 
+                    btn.innerHTML = `<span class="material-symbols-rounded text-sm">add</span> ${nome}`; 
                     btn.onclick = () => adicionarSugestao(nome); 
                 }
                 box.appendChild(btn);
@@ -1017,7 +993,7 @@ function verificarEExecutarBackupAutomatico(dadosParaSalvar) {
                 card.className = 'bg-slate-900 p-4 rounded-xl border border-emerald-500/30 flex flex-col gap-3 transition hover:border-emerald-400/50';
                 card.innerHTML = `
                     <div class="flex justify-between items-center"><span class="font-bold text-slate-100">${item.exercise}</span>
-                    <div class="flex items-center gap-2"><span class="text-xs bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full font-bold">Hoje: ${repsHoje}</span><button onclick="removerExercicio(${item.globalIndex})" class="text-rose-400 hover:text-rose-500 transition text-sm cursor-pointer">❌</button></div></div>
+                    <div class="flex items-center gap-2"><span class="text-xs bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full font-bold">Hoje: ${repsHoje}</span><button onclick="removerExercicio(${item.globalIndex})" class="text-rose-400 hover:text-rose-500 transition text-sm cursor-pointer flex"><span class="material-symbols-rounded text-base">close</span></button></div></div>
                     <div class="flex gap-2 flex-wrap sm:flex-nowrap"><button onclick="executarSoma(${item.globalIndex}, 10)" class="bg-slate-700 text-slate-300 font-bold text-xs px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-600 transition shadow-sm border border-slate-600/50">+10</button><button onclick="executarSoma(${item.globalIndex}, 20)" class="bg-slate-700 text-slate-300 font-bold text-xs px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-600 transition shadow-sm border border-slate-600/50">+20</button><input type="number" id="add-val-${item.globalIndex}" placeholder="Ou digita..." class="flex-1 bg-slate-800 border border-slate-700 px-3 py-2 text-sm rounded-lg focus:outline-none focus:border-emerald-400 min-w-[80px]"><button onclick="executarSoma(${item.globalIndex})" class="bg-emerald-500 text-slate-950 font-bold text-sm px-4 rounded-lg cursor-pointer hover:bg-emerald-600 transition shadow-sm border border-emerald-400">Somar</button></div>
                 `;
                 listaDiv.appendChild(card);
@@ -1031,23 +1007,22 @@ function verificarEExecutarBackupAutomatico(dadosParaSalvar) {
             const senha = document.getElementById('auth-password').value.trim();
             if (!nome || !senha) return alert('Preencha nome e senha!');
             if (users.find(u => u.name.toLowerCase() === nome.toLowerCase())) return alert('Nome já existe!');
-            users.push({ name: nome, pass: senha, contact: '', avatar: null, dailyGoal: 0, monthlyGoal: 0, publicGoals: true, victoryMessage: "Superei os meus limites e bati a meta! 💪🔥" });
+            users.push({ name: nome, pass: senha, contact: '', avatar: null, dailyGoal: 0, monthlyGoal: 0, publicGoals: true, victoryMessage: "Superei os meus limites!" });
             currentUser = nome; localStorage.setItem('fitbattle_user', currentUser);
             await salvarNaNuvenFirebase(); iniciarApp();
         }
 
-       function fazerLogin() {
-    const nome = document.getElementById('auth-username').value.trim();
-    const senha = document.getElementById('auth-password').value.trim();
-    const conta = users.find(u => u.name.toLowerCase() === nome.toLowerCase() && u.pass === senha);
-    if (!conta) return alert('Nome ou senha incorretos!');
-    currentUser = conta.name; 
-    localStorage.setItem('fitbattle_user', currentUser); 
-    iniciarApp();
+        function fazerLogin() {
+            const nome = document.getElementById('auth-username').value.trim();
+            const senha = document.getElementById('auth-password').value.trim();
+            const conta = users.find(u => u.name.toLowerCase() === nome.toLowerCase() && u.pass === senha);
+            if (!conta) return alert('Nome ou senha incorretos!');
+            currentUser = conta.name; 
+            localStorage.setItem('fitbattle_user', currentUser); 
+            iniciarApp();
 
-    // --- DISPARA O TUTORIAL DAS METAS ---
-    dispararTutorial('tutorial_metas_v1', 'Atenção às Metas! 🎯', 'O sistema de metas foi atualizado! Vá ao seu Perfil imediatamente e defina o seu objetivo diário para não ficar para trás no Ranking da equipa.', 'track_changes');
-}
+            dispararTutorial('tutorial_metas_v1', 'Atenção às Metas!', 'O sistema de metas foi atualizado! Vá ao seu Perfil imediatamente e defina o seu objetivo diário para não ficar para trás no Ranking da equipa.', 'track_changes');
+        }
 
         function sair() { currentUser = null; localStorage.removeItem('fitbattle_user'); iniciarApp(); }
         
@@ -1230,205 +1205,5 @@ function verificarEExecutarBackupAutomatico(dadosParaSalvar) {
             const btnGeral = document.getElementById('btn-chat-geral'); const btnFav = document.getElementById('btn-chat-fav');
             if (aba === 'geral') { 
                 geral.classList.remove('hidden'); fav.classList.add('hidden'); 
-                btnGeral.className = 'flex-1 sm:flex-none text-xs px-4 py-2 rounded-lg bg-pink-500 text-slate-950 font-bold transition cursor-pointer'; 
-                btnFav.className = 'flex-1 sm:flex-none text-xs px-4 py-2 rounded-lg bg-slate-700 text-slate-300 font-bold transition cursor-pointer'; 
-                setTimeout(() => { document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight; }, 50); 
-            } else { 
-                geral.classList.add('hidden'); fav.classList.remove('hidden'); 
-                btnFav.className = 'flex-1 sm:flex-none text-xs px-4 py-2 rounded-lg bg-amber-500 text-slate-950 font-bold transition cursor-pointer'; 
-                btnGeral.className = 'flex-1 sm:flex-none text-xs px-4 py-2 rounded-lg bg-slate-700 text-slate-300 font-bold transition cursor-pointer'; 
-                atualizarFavoritas(); 
-            }
-        }
-        
-        function iniciarResposta(msgId, user, text) { 
-            replyData = { id: msgId, user: user, text: text }; 
-            document.getElementById('reply-banner').classList.remove('hidden'); 
-            document.getElementById('reply-banner-user').innerText = `Respondendo a ${user}`; 
-            document.getElementById('reply-banner-text').innerText = text; 
-            document.getElementById('chat-input').focus(); 
-        }
-        
-        function cancelarResposta() { 
-            replyData = null; 
-            document.getElementById('reply-banner').classList.add('hidden'); 
-        }
-        
-        function rolarParaMensagem(id) {
-            const el = document.getElementById(`msg-${id}`);
-            if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.classList.add('bg-pink-500/30'); setTimeout(() => el.classList.remove('bg-pink-500/30'), 1500); }
-        }
-        
-        async function enviarMensagem() {
-            if (!dadosCarregados) return;
-            const texto = document.getElementById('chat-input').value.trim(); if (!texto) return;
-            const novaMsg = { id: Date.now(), user: currentUser, text: texto, time: obterHoraGlobal(), date: obterDataGlobal(), isFavorite: false, expireAt: null, reactions: { fire: [], laugh: [], flex: [] } };
-            if (replyData) novaMsg.replyTo = replyData;
-            messages.push(novaMsg); 
-            cancelarResposta(); 
-            await salvarNaNuvenFirebase(); 
-            document.getElementById('chat-input').value = '';
-        }
-        
-        function handleChatKey(e) { if (e.key === 'Enter') enviarMensagem(); }
-        
-        async function alternarFavorito(msgId) {
-            if (!dadosCarregados) return;
-            const msg = messages.find(m => m.id === msgId);
-            if (!msg) return;
-            if (!msg.isFavorite) {
-                msg.isFavorite = true;
-                const novaData = new Date(); novaData.setDate(novaData.getDate() + 90);
-                msg.expireAt = novaData.getTime();
-            } else { msg.isFavorite = false; msg.expireAt = null; }
-            await salvarNaNuvenFirebase();
-        }
-
-        async function renovarPrazo(msgId) {
-            const msg = messages.find(m => m.id === msgId);
-            if (!msg) return;
-            const novaExpiracao = new Date(); novaExpiracao.setDate(novaExpiracao.getDate() + 90);
-            msg.expireAt = novaExpiracao.getTime();
-            await salvarNaNuvenFirebase(); alert('Prazo renovado por 90 dias!');
-        }
-
-        async function alternarReacao(msgId, tipo) {
-            if (!dadosCarregados) return;
-            const msg = messages.find(m => m.id === msgId);
-            if (!msg) return;
-            if (!msg.reactions) msg.reactions = { fire: [], laugh: [], flex: [] };
-            const idx = msg.reactions[tipo].indexOf(currentUser);
-            if (idx === -1) msg.reactions[tipo].push(currentUser); else msg.reactions[tipo].splice(idx, 1);
-            await salvarNaNuvenFirebase();
-        }
-        
-        // V16: Exibição visual de quem reagiu adaptada para Telemóvel
-        function atualizarChat() {
-            const chatDiv = document.getElementById('chat-messages');
-            chatDiv.innerHTML = '';
-            let ultimaData = null;
-
-            messages.forEach(msg => {
-                const dataMsg = msg.date || "Antigas";
-                if (dataMsg !== ultimaData) {
-                    const dataExibicao = (dataMsg === obterDataGlobal()) ? 'Hoje' : dataMsg;
-                    const sep = document.createElement('div');
-                    sep.className = 'relative flex items-center py-3';
-                    sep.innerHTML = `<div class="flex-grow border-t border-slate-700/60"></div><span class="mx-4 text-xs text-slate-500 font-bold uppercase">${dataExibicao}</span><div class="flex-grow border-t border-slate-700/60"></div>`;
-                    chatDiv.appendChild(sep);
-                    ultimaData = dataMsg;
-                }
-
-                const reacoes = msg.reactions || { fire: [], laugh: [], flex: [] };
-                const cFire = reacoes.fire?.length || 0, cLaugh = reacoes.laugh?.length || 0, cFlex = reacoes.flex?.length || 0;
-                const hFire = reacoes.fire?.includes(currentUser), hLaugh = reacoes.laugh?.includes(currentUser), hFlex = reacoes.flex?.includes(currentUser);
-                const cor = obterCorUsuario(msg.user);
-                const avatar = getAvatarHtml(msg.user, 'w-6 h-6', 'text-[10px]');
-
-                let quoteHtml = '';
-                if (msg.replyTo) {
-                    quoteHtml = `
-                    <div onclick="rolarParaMensagem(${msg.replyTo.id})" class="bg-slate-900/60 border-l-4 border-pink-500 p-2 rounded-lg mb-2 text-xs cursor-pointer hover:bg-slate-900 transition">
-                        <strong class="${obterCorUsuario(msg.replyTo.user)}">${msg.replyTo.user}</strong><br>
-                        <span class="text-slate-400 line-clamp-1 italic">${msg.replyTo.text}</span>
-                    </div>`;
-                }
-
-                const bubble = document.createElement('div');
-                bubble.id = `msg-${msg.id}`; 
-                bubble.className = `flex flex-col space-y-1 w-full transition-colors duration-500 rounded-2xl ${msg.user === currentUser ? 'items-end' : 'items-start'}`;
-
-                const isMetaMsg = msg.text.includes("BATI A META");
-                const bgBubble = msg.user === currentUser 
-                    ? (isMetaMsg ? 'bg-amber-500/20 border-amber-500/40 rounded-tr-none' : 'border-pink-500/20 bg-pink-900/10 rounded-tr-none') 
-                    : (isMetaMsg ? 'bg-amber-500/20 border-amber-500/40 rounded-tl-none' : 'border-slate-700/50 rounded-tl-none');
-
-                const textoSeguro = msg.text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                const textoFormatado = msg.text.replace(/\n/g, '<br>');
-
-                const cabecalho = msg.user === currentUser 
-                    ? `<div class="flex items-center gap-2 text-xs text-slate-400 mb-0.5 px-1 flex-row-reverse">${avatar}<span class="font-extrabold ${cor}">${msg.user}</span><span>${msg.time}</span></div>`
-                    : `<div class="flex items-center gap-2 text-xs text-slate-400 mb-0.5 px-1">${avatar}<span class="font-extrabold ${cor}">${msg.user}</span><span>${msg.time}</span></div>`;
-
-                // V16: Listagem de Reações em Texto Visível
-                let reacoesTexto = '';
-                if (cFire > 0) reacoesTexto += `🔥 ${reacoes.fire.join(', ')}&nbsp;&nbsp;`;
-                if (cLaugh > 0) reacoesTexto += `😂 ${reacoes.laugh.join(', ')}&nbsp;&nbsp;`;
-                if (cFlex > 0) reacoesTexto += `💪 ${reacoes.flex.join(', ')}`;
-                
-                const barraReacoesVisivel = reacoesTexto ? `<div class="text-[9px] text-slate-400 mt-2 font-semibold italic">${reacoesTexto}</div>` : '';
-
-                bubble.innerHTML = `
-                    ${cabecalho}
-                    <div class="relative max-w-[85%] sm:max-w-[75%] bg-slate-800 p-3 rounded-2xl border text-sm ${bgBubble}">
-                        <button onclick="alternarFavorito(${msg.id})" class="absolute -right-6 top-1 text-base opacity-40 hover:opacity-100 transition" title="Salvar Mensagem">${msg.isFavorite ? '⭐' : '☆'}</button>
-                        ${quoteHtml}
-                        <span class="text-slate-200">${textoFormatado}</span>
-                        <div class="flex flex-wrap gap-1.5 mt-2 pt-2 border-t border-slate-700/40">
-                            <button onclick="alternarReacao(${msg.id}, 'fire')" class="px-2 py-1 rounded-full text-[11px] cursor-pointer ${hFire ? 'bg-amber-500/20 text-amber-400 border border-amber-500/50' : 'bg-slate-900/50 text-slate-400 hover:bg-slate-700'}">🔥 ${cFire||''}</button>
-                            <button onclick="alternarReacao(${msg.id}, 'laugh')" class="px-2 py-1 rounded-full text-[11px] cursor-pointer ${hLaugh ? 'bg-sky-500/20 text-sky-400 border border-sky-500/50' : 'bg-slate-900/50 text-slate-400 hover:bg-slate-700'}">😂 ${cLaugh||''}</button>
-                            <button onclick="alternarReacao(${msg.id}, 'flex')" class="px-2 py-1 rounded-full text-[11px] cursor-pointer ${hFlex ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/50' : 'bg-slate-900/50 text-slate-400 hover:bg-slate-700'}">💪 ${cFlex||''}</button>
-                            <button onclick="iniciarResposta(${msg.id}, '${msg.user}', '${textoSeguro}')" class="px-2 py-1 rounded-full text-[10px] uppercase font-bold bg-slate-900/50 text-slate-500 hover:bg-slate-700 hover:text-slate-300 ml-auto transition cursor-pointer">↩️ Responder</button>
-                        </div>
-                        ${barraReacoesVisivel}
-                    </div>
-                `;
-                chatDiv.appendChild(bubble);
-            });
-        }
-        
-        function atualizarFavoritas() {
-            const favDiv = document.getElementById('fav-messages');
-            favDiv.innerHTML = '';
-            const favoritas = messages.filter(m => m.isFavorite);
-
-            if (favoritas.length === 0) return favDiv.innerHTML = '<p class="text-slate-500 italic text-sm text-center py-8">Nenhuma mensagem salva ainda.</p>';
-
-            favoritas.forEach(msg => {
-                const corDoUser = obterCorUsuario(msg.user);
-                const diasRestantes = msg.expireAt ? Math.ceil((msg.expireAt - Date.now()) / (1000 * 60 * 60 * 24)) : 90;
-                const avatar = getAvatarHtml(msg.user, 'w-6 h-6', 'text-[10px]');
-                const textoFormatado = msg.text.replace(/\n/g, '<br>');
-
-                const bubble = document.createElement('div');
-                bubble.className = 'space-y-2 bg-slate-800 p-4 rounded-xl border border-pink-500/30';
-                bubble.innerHTML = `
-                    <div class="flex justify-between items-center text-xs text-slate-400">
-                        <span class="font-extrabold ${corDoUser} flex items-center gap-2">${avatar} ${msg.user} <span class="text-slate-500 font-normal">(${msg.date || ''} às ${msg.time})</span></span>
-                        <span class="text-pink-300 font-bold bg-pink-500/10 px-2 py-0.5 rounded-full">Expira em: ${diasRestantes > 0 ? diasRestantes + ' dias' : 'Expirando'}</span>
-                    </div>
-                    <div class="text-sm text-slate-200 leading-relaxed">${textoFormatado}</div>
-                    <div class="flex justify-end gap-2 pt-2 border-t border-slate-700/50">
-                        <button onclick="renovarPrazo(${msg.id})" class="bg-amber-500/20 text-amber-400 hover:bg-amber-500 hover:text-slate-950 font-bold text-xs px-3 py-1.5 rounded-lg transition">Renovar 🔄</button>
-                        <button onclick="alternarFavorito(${msg.id})" class="bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">Remover 🗑️</button>
-                    </div>
-                `;
-                favDiv.appendChild(bubble);
-            });
-        }
-
-        iniciarApp();
-        // --- SISTEMA DE TUTORIAL DO ADMIN (V16.3) ---
-function dispararTutorial(chaveStorage, titulo, mensagem, iconeMat) {
-    if (!localStorage.getItem(chaveStorage)) {
-        const overlay = document.createElement('div');
-        overlay.className = 'fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[100] flex items-center justify-center p-6 animate-fade-in';
-        
-        const balao = document.createElement('div');
-        balao.className = 'bg-slate-800 border-2 border-emerald-500 p-8 rounded-2xl text-center shadow-[0_0_30px_rgba(16,185,129,0.3)] max-w-sm transform transition-all scale-100';
-        balao.innerHTML = `
-            <span class="material-symbols-rounded text-emerald-400 text-6xl mb-4 animate-bounce">${iconeMat}</span>
-            <h3 class="text-2xl text-white font-black mb-3 tracking-wide">${titulo}</h3>
-            <p class="text-slate-300 mb-8 leading-relaxed text-lg">${mensagem}</p>
-            <button onclick="document.body.removeChild(this.closest('.fixed')); localStorage.setItem('${chaveStorage}', 'true');" class="bg-gradient-to-r from-emerald-500 to-emerald-400 text-slate-900 font-black py-4 px-8 rounded-xl w-full text-lg shadow-lg hover:scale-105 active:scale-95 transition-all">
-                Entendi, Chefe! 🫡
-            </button>
-        `;
-        
-        overlay.appendChild(balao);
-        document.body.appendChild(overlay);
-    }
-}
-    </script>
-</body>
-</html>
+                btnGeral.className = 'flex-1 sm:flex-none text-xs px-4 py-2 rounded-lg bg-pink-500 text-slate-950 font-bold transition cursor-pointer flex items-center justify-center gap-1'; 
+                btnFav.className = 'flex-1 sm:
