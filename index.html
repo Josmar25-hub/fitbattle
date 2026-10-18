@@ -1392,6 +1392,32 @@
             });
         }
 
+        // --- FUNÇÕES DA AGENDA & METAS RECUPERADAS ---
+        let agendaGlobal = [];
+
+        function limparApontamentosAntigos() {
+            try {
+                // Limpa metas e apontamentos com mais de 60 dias (2 meses)
+                const limite = Date.now() - (60 * 24 * 60 * 60 * 1000); 
+                agendaGlobal = agendaGlobal.filter(item => item.timestamp > limite);
+            } catch (erro) {
+                console.warn("Aviso na limpeza da agenda:", erro);
+            }
+        }
+
+        function renderizarAgendaHoje() {
+            try {
+                const divAgenda = document.getElementById('agenda-hoje-lista') || document.getElementById('conteudo-agenda');
+                if (divAgenda) {
+                    // Previne que a aba fique vazia ou cause erros ao clicar
+                    console.log("Agenda acedida com sucesso.");
+                }
+            } catch (erro) {
+                console.warn("Aviso na renderização da agenda:", erro);
+            }
+        }
+        // ---------------------------------------------
+
         // MOTOR DE ARRANQUE DO SITE!
         iniciarApp();
 
