@@ -111,7 +111,7 @@
             <div id="pagina-treino" class="space-y-6">
                 <div class="grid grid-cols-1 gap-6">
                     <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 space-y-4">
-                        <h2 class="text-xl font-bold text-emerald-400">💪 Minha Ficha de Exercícios</h2>
+                        <h2 class="text-xl font-bold text-emerald-400 flex items-center gap-2"><span class="material-symbols-rounded text-2xl">fitness_center</span> Minha Ficha de Exercícios</h2>
                         <p class="text-xs text-slate-400 -mt-2">Cria os teus exercícios uma vez. Eles ficam guardados aqui para sempre!</p>
                         
                         <div class="flex flex-col sm:flex-row gap-2">
@@ -841,6 +841,22 @@ function verificarEExecutarBackupAutomatico(dadosParaSalvar) {
                 document.getElementById('main-panel').classList.add('hidden');
                 if (presenceIntervalId) { clearInterval(presenceIntervalId); presenceIntervalId = null; }
             }
+        }
+
+        // Motor de Rotação do Omnitrix
+        function girarOmnitrix() {
+            const icone = document.getElementById('icone-omnitrix');
+            const menu = document.getElementById('menu-abas');
+            
+            // Gira o ícone 180 graus e muda a imagem
+            icone.classList.toggle('rotate-180');
+            if (icone.innerText === 'apps') { icone.innerText = 'close'; } 
+            else { icone.innerText = 'apps'; }
+
+            // Revela as abas escondidas com um efeito "sanfona"
+            menu.classList.toggle('opacity-0');
+            menu.classList.toggle('scale-y-0');
+            menu.classList.toggle('pointer-events-none');
         }
 
         function mudarPaginaPrincipal(pagina) {
